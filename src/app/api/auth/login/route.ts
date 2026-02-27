@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
     (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (error: any) {
+    console.error("Login error:", error?.message, error?.stack);
+    return NextResponse.json({ error: error?.message || "Internal server error" }, { status: 500 });
   }
 }
