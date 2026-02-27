@@ -35,6 +35,9 @@ export function Header({ user }: HeaderProps) {
                 <Link href="/bell" className="hover:text-blue-400 transition-colors whitespace-nowrap">{t.nav.bell}</Link>
               </>
             )}
+            {canSeeAdmin && (
+              <Link href="/users" className="hover:text-yellow-400 transition-colors whitespace-nowrap">Users</Link>
+            )}
             <Link href="/schedule" className="bg-blue-600 px-4 py-1 rounded hover:bg-blue-700 transition-colors whitespace-nowrap">{t.nav.schedule}</Link>
           </nav>
         </div>
