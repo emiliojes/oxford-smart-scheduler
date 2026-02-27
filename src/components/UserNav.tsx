@@ -9,6 +9,7 @@ import Link from "next/link";
 interface UserNavProps {
   user: {
     username: string;
+    role: string;
   } | null;
 }
 
@@ -25,9 +26,12 @@ export function UserNav({ user }: UserNavProps) {
 
   return (
     <div className="flex items-center gap-4">
-      <div className="hidden md:flex items-center gap-2 text-sm text-slate-300">
-        <User className="w-4 h-4" />
-        <span>{user.username}</span>
+      <div className="hidden md:flex flex-col items-end gap-0 text-xs text-slate-300">
+        <div className="flex items-center gap-2">
+          <User className="w-3 h-3" />
+          <span className="font-medium text-white">{user.username}</span>
+        </div>
+        <span className="text-[10px] opacity-70 uppercase tracking-wider">{user.role}</span>
       </div>
       <form action={async () => {
         await logout();

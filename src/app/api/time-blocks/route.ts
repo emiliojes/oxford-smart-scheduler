@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { validateApiRequest } from "@/lib/auth-api";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  const user = await validateApiRequest();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const level = searchParams.get("level");
 
@@ -21,7 +26,11 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     const { dayOfWeek, startTime, duration, level, blockType } = body;
@@ -42,7 +51,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     const { id, dayOfWeek, startTime, duration, level, blockType } = body;
@@ -64,7 +77,11 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

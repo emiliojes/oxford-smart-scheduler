@@ -29,6 +29,7 @@ import {
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { Plus, UserPlus, BookOpen, Pencil, Trash2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Subject { id: string; name: string; }
 
@@ -44,6 +45,7 @@ interface Teacher {
 
 export default function TeachersPage() {
   const { t } = useLanguage();
+  const { canManage } = useAuth();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -65,8 +67,6 @@ export default function TeachersPage() {
       setAllSubjects(data);
     } catch (error) {
       toast.error(t.messages.errorFetching);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -177,7 +177,7 @@ export default function TeachersPage() {
             {t.teachers.subtitle}
           </p>
         </div>
-        <Dialog 
+        {canManage && <Dialog 
           open={isOpen} 
           onOpenChange={(open) => {
             setIsOpen(open);
@@ -271,7 +271,7 @@ export default function TeachersPage() {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+        </Dialog>}
       </div>
 
       <div className="border rounded-lg bg-white shadow-sm">
@@ -315,6 +315,7 @@ export default function TeachersPage() {
                   <TableCell className="text-right">{teacher.maxWeeklyHours}h</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      {canManage && <>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -348,6 +349,7 @@ export default function TeachersPage() {
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
+                      </>}
                     </div>
                   </TableCell>
                 </TableRow>

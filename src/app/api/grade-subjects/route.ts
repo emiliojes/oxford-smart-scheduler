@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { validateApiRequest } from "@/lib/auth-api";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     const { gradeId, subjectId } = body;
@@ -19,7 +24,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(request.url);
     const gradeId = searchParams.get("gradeId");

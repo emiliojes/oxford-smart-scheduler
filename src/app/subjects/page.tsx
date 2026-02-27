@@ -30,6 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { BookPlus, Pencil, Trash2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Subject {
   id: string;
@@ -43,6 +44,7 @@ interface Subject {
 
 export default function SubjectsPage() {
   const { t } = useLanguage();
+  const { canManage } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -124,7 +126,7 @@ export default function SubjectsPage() {
             {t.subjects.subtitle}
           </p>
         </div>
-        <Dialog 
+        {canManage && <Dialog 
           open={isOpen} 
           onOpenChange={(open) => {
             setIsOpen(open);
@@ -232,7 +234,7 @@ export default function SubjectsPage() {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+        </Dialog>}
       </div>
 
       <div className="border rounded-lg bg-white shadow-sm">
@@ -272,6 +274,7 @@ export default function SubjectsPage() {
                   <TableCell>{subject.requiresSpecialRoom ? subject.specialRoomType : "No"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      {canManage && <>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -294,6 +297,7 @@ export default function SubjectsPage() {
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
+                      </>}
                     </div>
                   </TableCell>
                 </TableRow>

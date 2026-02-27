@@ -29,6 +29,7 @@ import {
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { Plus, GraduationCap, BookOpen, Pencil, Trash2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Subject { id: string; name: string; }
 
@@ -44,6 +45,7 @@ interface Grade {
 
 export default function GradesPage() {
   const { t } = useLanguage();
+  const { canManage } = useAuth();
   const [grades, setGrades] = useState<Grade[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -169,7 +171,7 @@ export default function GradesPage() {
             {t.grades.subtitle}
           </p>
         </div>
-        <Dialog 
+        {canManage && <Dialog 
           open={isOpen} 
           onOpenChange={(open) => {
             setIsOpen(open);
@@ -262,7 +264,7 @@ export default function GradesPage() {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+        </Dialog>}
       </div>
 
       <div className="border rounded-lg bg-white shadow-sm">
@@ -308,6 +310,7 @@ export default function GradesPage() {
                   <TableCell className="text-right">{grade.studentCount}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      {canManage && <>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -341,6 +344,7 @@ export default function GradesPage() {
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
+                      </>}
                     </div>
                   </TableCell>
                 </TableRow>

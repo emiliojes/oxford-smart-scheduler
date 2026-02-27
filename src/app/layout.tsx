@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { Header } from "@/components/Header";
 import { validateRequest } from "@/lib/auth-utils";
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <LanguageProvider>
+          <AuthProvider user={user ? { username: user.username, role: (user as any).role } : null}>
           <TooltipProvider>
             <div className="min-h-screen flex flex-col">
               <Header user={user} />
@@ -37,6 +39,7 @@ export default async function RootLayout({
               </footer>
             </div>
           </TooltipProvider>
+          </AuthProvider>
         </LanguageProvider>
         <Toaster position="top-right" />
       </body>

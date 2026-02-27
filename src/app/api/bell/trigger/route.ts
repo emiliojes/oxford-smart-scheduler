@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { format } from "date-fns";
+import { validateApiRequest } from "@/lib/auth-api";
 
 /**
  * Endpoint para que el Arduino consulte si debe sonar el timbre.
@@ -51,7 +52,11 @@ export async function GET() {
 /**
  * Endpoint para activar el timbre manualmente desde la interfaz web.
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     const { duration, pattern } = body;

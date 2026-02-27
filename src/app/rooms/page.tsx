@@ -30,6 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { Plus, School, Pencil, Trash2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Room {
   id: string;
@@ -42,6 +43,7 @@ interface Room {
 
 export default function RoomsPage() {
   const { t } = useLanguage();
+  const { canManage } = useAuth();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -121,7 +123,7 @@ export default function RoomsPage() {
             {t.rooms.subtitle}
           </p>
         </div>
-        <Dialog 
+        {canManage && <Dialog 
           open={isOpen} 
           onOpenChange={(open) => {
             setIsOpen(open);
@@ -212,7 +214,7 @@ export default function RoomsPage() {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+        </Dialog>}
       </div>
 
       <div className="border rounded-lg bg-white shadow-sm">
@@ -248,6 +250,7 @@ export default function RoomsPage() {
                   <TableCell>{room.maxStudents || "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      {canManage && <>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -270,6 +273,7 @@ export default function RoomsPage() {
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
+                      </>}
                     </div>
                   </TableCell>
                 </TableRow>
