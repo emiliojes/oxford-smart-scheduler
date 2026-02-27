@@ -21,7 +21,7 @@ export default function GeneratePage() {
 
   const handleGenerate = async () => {
     if (!level) {
-      toast.error(t.home.generate.errorLevel);
+      toast.error(t.schedule.generate.errorLevel);
       return;
     }
 
@@ -36,12 +36,12 @@ export default function GeneratePage() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success(data.message || t.home.generate.success);
+        toast.success(data.message || t.schedule.generate.success);
       } else {
-        toast.error(data.error || t.home.generate.error);
+        toast.error(data.error || t.schedule.generate.error);
       }
     } catch (error) {
-      toast.error(t.home.generate.errorConnection);
+      toast.error(t.schedule.generate.errorConnection);
     } finally {
       setIsLoading(false);
     }
@@ -50,9 +50,9 @@ export default function GeneratePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t.home.generate.title}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t.schedule.generate.title}</h1>
         <p className="text-muted-foreground">
-          {t.home.generate.subtitle}
+          {t.schedule.generate.subtitle}
         </p>
       </div>
 
@@ -61,22 +61,22 @@ export default function GeneratePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="text-blue-600 w-5 h-5" />
-              {t.home.generate.autoTitle}
+              {t.schedule.generate.autoTitle}
             </CardTitle>
             <CardDescription>
-              {t.home.generate.autoDesc}
+              {t.schedule.generate.autoDesc}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t.home.generate.levelLabel}</label>
+              <label className="text-sm font-medium">{t.schedule.generate.levelLabel}</label>
               <Select onValueChange={setLevel} value={level}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t.home.generate.levelPlaceholder} />
+                  <SelectValue placeholder={t.schedule.generate.levelPlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PRIMARY">{t.home.generate.primaryDesc}</SelectItem>
-                  <SelectItem value="SECONDARY">{t.home.generate.secondaryDesc}</SelectItem>
+                  <SelectItem value="PRIMARY">{t.schedule.generate.primaryDesc}</SelectItem>
+                  <SelectItem value="SECONDARY">{t.schedule.generate.secondaryDesc}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -89,12 +89,12 @@ export default function GeneratePage() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  {t.home.generate.buttonGenerating}
+                  {t.schedule.generate.buttonGenerating}
                 </>
               ) : (
                 <>
                   <Calendar className="w-5 h-5 mr-2" />
-                  {t.home.generate.buttonStart}
+                  {t.schedule.generate.buttonStart}
                 </>
               )}
             </button>
@@ -105,21 +105,21 @@ export default function GeneratePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="text-amber-600 w-5 h-5" />
-              {t.home.generate.considerations}
+              {t.schedule.generate.considerations}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-amber-900 space-y-4">
             <p>
-              • {t.home.generate.con1}
+              • {t.schedule.generate.con1}
             </p>
             <p>
-              • {t.home.generate.con2}
+              • {t.schedule.generate.con2}
             </p>
             <p>
-              • {t.home.generate.con3}
+              • {t.schedule.generate.con3}
             </p>
             <p>
-              • {t.home.generate.con4}
+              • {t.schedule.generate.con4}
             </p>
           </CardContent>
         </Card>
