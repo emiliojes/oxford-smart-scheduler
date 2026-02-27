@@ -20,13 +20,19 @@ export default function AuthPage() {
     setIsLoading(true);
     const formData = new FormData(event.currentTarget);
     
-    const result = isLogin ? await login(formData) : await signup(formData);
-    
-    if (result?.error) {
-      toast.error(result.error);
+    try {
+      const result = isLogin ? await login(formData) : await signup(formData);
+      if (result?.error) {
+        toast.error(result.error);
+        setIsLoading(false);
+      }
+    } catch (e: any) {
+      // Next.js redirect() throws internally - this is expected on success
+      if (e?.message?.includes("NEXT_REDIRECT") || e?.digest?.includes("NEXT_REDIRECT")) {
+        return;
+      }
+      toast.error("Connection error");
       setIsLoading(false);
-    } else {
-      toast.success(isLogin ? t.auth.success : t.actions.success);
     }
   }
 
