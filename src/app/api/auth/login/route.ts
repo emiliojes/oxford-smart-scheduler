@@ -4,6 +4,8 @@ import { lucia } from "@/lib/auth";
 import { verify } from "@node-rs/argon2";
 import { cookies } from "next/headers";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
