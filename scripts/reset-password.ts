@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { hash } from "@node-rs/argon2";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -18,12 +18,7 @@ async function resetPassword() {
     process.exit(1);
   }
 
-  const passwordHash = await hash(newPassword, {
-    memoryCost: 19456,
-    timeCost: 2,
-    outputLen: 32,
-    parallelism: 1,
-  });
+  const passwordHash = await bcrypt.hash(newPassword, 10);
 
   await prisma.user.update({
     where: { username },

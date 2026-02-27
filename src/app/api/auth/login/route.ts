@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { lucia } from "@/lib/auth";
-import { verify } from "@node-rs/argon2";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
-
-export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,12 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Incorrect username or password" }, { status: 401 });
     }
 
-    const validPassword = await verify(user.password, password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return NextResponse.json({ error: "Incorrect username or password" }, { status: 401 });
     }

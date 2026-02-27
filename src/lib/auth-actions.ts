@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { generateIdFromEntropySize } from "lucia";
-import { hash, verify } from "@node-rs/argon2";
+import bcrypt from "bcryptjs";
 
 export async function login(formData: FormData) {
   const username = formData.get("username");
@@ -24,12 +24,7 @@ export async function login(formData: FormData) {
     return { error: "Incorrect username or password" };
   }
 
-  const validPassword = await verify(existingUser.password, password, {
-    memoryCost: 19456,
-    timeCost: 2,
-    outputLen: 32,
-    parallelism: 1
-  });
+  const validPassword = await bcrypt.compare(password, existingUser.password);
   if (!validPassword) {
     return { error: "Incorrect username or password" };
   }
@@ -50,12 +45,7 @@ export async function signup(formData: FormData) {
     return { error: "Invalid password" };
   }
 
-  const passwordHash = await hash(password, {
-    memoryCost: 19456,
-    timeCost: 2,
-    outputLen: 32,
-    parallelism: 1
-  });
+  const passwordHash = await bcrypt.hash(password, 10);
   const userId = generateIdFromEntropySize(10);
 
   try {

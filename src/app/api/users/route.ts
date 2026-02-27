@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { validateApiRequest } from "@/lib/auth-api";
 import { generateIdFromEntropySize } from "lucia";
-import { hash } from "@node-rs/argon2";
+import bcrypt from "bcryptjs";
 
 export async function GET() {
   const user = await validateApiRequest(["ADMIN"]);
@@ -43,12 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 
-    const passwordHash = await hash(password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
+    const passwordHash = await bcrypt.hash(password, 10);
     const userId = generateIdFromEntropySize(10);
 
     await prisma.user.create({
@@ -83,12 +78,7 @@ export async function PUT(request: NextRequest) {
       updateData.role = role;
     }
     if (password && password.length >= 6) {
-      updateData.password = await hash(password, {
-        memoryCost: 19456,
-        timeCost: 2,
-        outputLen: 32,
-        parallelism: 1,
-      });
+      updateData.password = await bcrypt.hash(password, 10);
     }
 
     const updated = await prisma.user.update({
