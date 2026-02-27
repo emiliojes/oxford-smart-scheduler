@@ -4,10 +4,10 @@ import { validateAssignment } from "@/lib/validations";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await request.json();
     const { teacherId, subjectId, gradeId, roomId, timeBlockId } = body;
 
@@ -62,10 +62,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await prisma.assignment.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
