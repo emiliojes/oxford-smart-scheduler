@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { login, signup } from "@/lib/auth-actions";
+import { signup } from "@/lib/auth-actions";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,28 +9,46 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const { t } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
     const formData = new FormData(event.currentTarget);
-    
+
     try {
-      const result = isLogin ? await login(formData) : await signup(formData);
-      if (result?.error) {
-        toast.error(result.error);
-        setIsLoading(false);
+      if (isLogin) {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: formData.get("username"),
+            password: formData.get("password"),
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          toast.error(result.error || "Login failed");
+          setIsLoading(false);
+        } else {
+          router.push("/");
+          router.refresh();
+        }
+      } else {
+        const result = await signup(formData);
+        if (result?.error) {
+          toast.error(result.error);
+          setIsLoading(false);
+        }
       }
     } catch (e: any) {
-      // Next.js redirect() throws internally - this is expected on success
-      if (e?.message?.includes("NEXT_REDIRECT") || e?.digest?.includes("NEXT_REDIRECT")) {
-        return;
-      }
+      if (e?.digest?.includes("NEXT_REDIRECT")) return;
       toast.error("Connection error");
       setIsLoading(false);
     }
