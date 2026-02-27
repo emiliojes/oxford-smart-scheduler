@@ -9,6 +9,22 @@ export const translations = {
       timeBlocks: "Blocks",
       bell: "Bell",
       schedule: "Schedules",
+      login: "Login",
+      logout: "Logout",
+    },
+    // Auth
+    auth: {
+      login: "Login",
+      register: "Register",
+      username: "Username",
+      password: "Password",
+      signIn: "Sign In",
+      signUp: "Sign Up",
+      signOut: "Sign Out",
+      noAccount: "Don't have an account?",
+      hasAccount: "Already have an account?",
+      error: "Invalid username or password",
+      success: "Logged in successfully",
     },
     // Home/Dashboard
     home: {
@@ -273,6 +289,22 @@ export const translations = {
       timeBlocks: "Bloques",
       bell: "Timbre",
       schedule: "Horarios",
+      login: "Iniciar Sesión",
+      logout: "Cerrar Sesión",
+    },
+    // Auth
+    auth: {
+      login: "Iniciar Sesión",
+      register: "Registrarse",
+      username: "Usuario",
+      password: "Contraseña",
+      signIn: "Entrar",
+      signUp: "Crear Cuenta",
+      signOut: "Cerrar Sesión",
+      noAccount: "¿No tienes una cuenta?",
+      hasAccount: "¿Ya tienes una cuenta?",
+      error: "Usuario o contraseña inválidos",
+      success: "Sesión iniciada correctamente",
     },
     // Home/Dashboard
     home: {

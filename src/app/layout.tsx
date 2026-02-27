@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { Header } from "@/components/Header";
+import { validateRequest } from "@/lib/auth-utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,18 +15,20 @@ export const metadata: Metadata = {
   description: "Intelligent school schedule management system",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = await validateRequest();
+
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <LanguageProvider>
           <TooltipProvider>
             <div className="min-h-screen flex flex-col">
-              <Header />
+              <Header user={user} />
               <main className="flex-1 container mx-auto py-8 px-4">
                 {children}
               </main>

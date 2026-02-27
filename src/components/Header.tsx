@@ -3,8 +3,15 @@
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { UserNav } from "@/components/UserNav";
 
-export function Header() {
+interface HeaderProps {
+  user: {
+    username: string;
+  } | null;
+}
+
+export function Header({ user }: HeaderProps) {
   const { t } = useLanguage();
   return (
     <header className="border-b bg-slate-900 text-white p-4">
@@ -21,7 +28,10 @@ export function Header() {
             <Link href="/schedule" className="bg-blue-600 px-4 py-1 rounded hover:bg-blue-700 transition-colors whitespace-nowrap">{t.nav.schedule}</Link>
           </nav>
         </div>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-4">
+          <UserNav user={user} />
+          <LanguageSwitcher />
+        </div>
       </div>
     </header>
   );
