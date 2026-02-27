@@ -1,0 +1,83 @@
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { validateAssignment } from "@/lib/validations";
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const teacherId = searchParams.get("teacherId");
+  const gradeId = searchParams.get("gradeId");
+  const roomId = searchParams.get("roomId");
+
+  try {
+    const assignments = await prisma.assignment.findMany({
+      where: {
+        ...(teacherId && { teacherId }),
+        ...(gradeId && { gradeId }),
+        ...(roomId && { roomId }),
+      },
+      include: {
+        teacher: true,
+        subject: true,
+        grade: true,
+        room: true,
+        timeBlock: true,
+        conflicts: true,
+      },
+    });
+    return NextResponse.json(assignments);
+  } catch (error) {
+    return NextResponse.json({ error: "Error fetching assignments" }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { teacherId, subjectId, gradeId, roomId, timeBlockId } = body;
+
+    // 1. Validar conflictos
+    const conflicts = await validateAssignment({
+      teacherId,
+      subjectId,
+      gradeId,
+      roomId,
+      timeBlockId,
+    });
+
+    // 2. Determinar estado basado en conflictos de severidad ERROR
+    const hasErrors = conflicts.some((c) => c.severity === "ERROR");
+    const status = hasErrors ? "CONFLICT" : "CONFIRMED";
+
+    // 3. Crear asignación
+    const assignment = await prisma.assignment.create({
+      data: {
+        teacherId,
+        subjectId,
+        gradeId,
+        roomId,
+        timeBlockId,
+        status,
+        conflicts: {
+          create: conflicts.map((c) => ({
+            conflictType: c.type,
+            description: c.description,
+            severity: c.severity,
+          })),
+        },
+      },
+      include: {
+        teacher: true,
+        subject: true,
+        grade: true,
+        room: true,
+        timeBlock: true,
+        conflicts: true,
+      },
+    });
+
+    return NextResponse.json(assignment);
+  } catch (error) {
+    console.error("Error creating assignment:", error);
+    return NextResponse.json({ error: "Error creating assignment" }, { status: 500 });
+  }
+}

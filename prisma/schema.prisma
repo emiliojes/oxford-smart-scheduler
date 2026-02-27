@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model Teacher {
+  id             String           @id @default(cuid())
+  name           String
+  email          String?          @unique
+  level          String           // "PRIMARY", "SECONDARY", "BOTH"
+  primaryType    String?          // "COUNSELOR", "SPECIALIST"
+  maxWeeklyHours Int              @default(27)
+  assignments    Assignment[]
+  subjects       TeacherSubject[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model Subject {
+  id                  String           @id @default(cuid())
+  name                String
+  level               String           // "PRIMARY", "SECONDARY", "BOTH"
+  weeklyFrequency     Int              // 3-5 horas por semana
+  defaultDuration     String           // "THIRTY", "FORTYFIVE", "SIXTY"
+  requiresSpecialRoom Boolean          @default(false)
+  specialRoomType     String?          // "Computing", "Gym", etc.
+  assignments         Assignment[]
+  teachers            TeacherSubject[]
+  grades              GradeSubject[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+}
+
+model TeacherSubject {
+  id        String  @id @default(cuid())
+  teacherId String
+  subjectId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, subjectId])
+}
+
+model Grade {
+  id           String         @id @default(cuid())
+  name         String         // "K", "1", "2", ..., "12"
+  section      String?        // "A", "B", "C"
+  level        String         // "PRIMARY" o "SECONDARY"
+  studentCount Int
+  subjectCount Int
+  assignments  Assignment[]
+  subjects     GradeSubject[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([name, section])
+}
+
+model GradeSubject {
+  id        String  @id @default(cuid())
+  gradeId   String
+  subjectId String
+  grade     Grade   @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([gradeId, subjectId])
+}
+
+model Room {
+  id             String       @id @default(cuid())
+  name           String       @unique
+  capacity       Int
+  isSpecialized  Boolean      @default(false)
+  specializedFor String?      // "Computing", "Gym", etc.
+  maxStudents    Int?
+  assignments    Assignment[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model TimeBlock {
+  id          String       @id @default(cuid())
+  dayOfWeek   Int          // 0-6
+  startTime   String       // "08:30"
+  duration    String       // "THIRTY", "FORTYFIVE", "SIXTY"
+  level       String       // "PRIMARY", "SECONDARY", "BOTH"
+  blockType   String       @default("CLASS")
+  assignments Assignment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Assignment {
+  id          String     @id @default(cuid())
+  teacherId   String
+  subjectId   String
+  gradeId     String
+  roomId      String
+  timeBlockId String
+  status      String     @default("TENTATIVE")
+  teacher     Teacher    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject     Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  grade       Grade      @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  room        Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  timeBlock   TimeBlock  @relation(fields: [timeBlockId], references: [id], onDelete: Cascade)
+  conflicts   Conflict[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Conflict {
+  id           String     @id @default(cuid())
+  assignmentId String
+  conflictType String
+  description  String
+  severity     String
+  resolved     Boolean    @default(false)
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Config {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BellSchedule {
+  id          String   @id @default(cuid())
+  dayOfWeek   Int      // 1-5 (Lunes-Viernes)
+  time        String   // "08:30"
+  duration    Int      // Duración en milisegundos (ej: 2000)
+  pattern     String   // "SINGLE", "DOUBLE", "TRIPLE", "CONTINUOUS"
+  level       String   // "PRIMARY", "SECONDARY", "BOTH"
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BellActivation {
+  id          String   @id @default(cuid())
+  scheduledAt DateTime?
+  activatedAt DateTime @default(now())
+  duration    Int
+  pattern     String
+  manual      Boolean  @default(false)
+  success     Boolean  @default(true)
+  errorMsg    String?
+}
+
+model BellConfig {
+  id              String   @id @default(cuid())
+  arduinoIp       String?
+  enabled         Boolean  @default(true)
+  lastPing        DateTime?
+  status          String   @default("DISCONNECTED") // "CONNECTED", "DISCONNECTED", "ERROR"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
