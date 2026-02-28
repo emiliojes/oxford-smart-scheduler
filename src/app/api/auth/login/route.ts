@@ -28,9 +28,17 @@ export async function POST(request: NextRequest) {
 
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
-    (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+    const cookieStore = await cookies();
+    cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+    // Store status in a readable cookie so middleware can redirect without DB
+    cookieStore.set("user_status", user.status ?? "ACTIVE", {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, status: user.status });
   } catch (error: any) {
     console.error("Login error:", error?.message, error?.stack);
     return NextResponse.json({ error: error?.message || "Internal server error" }, { status: 500 });

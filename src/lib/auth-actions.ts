@@ -67,11 +67,18 @@ export async function signup(formData: FormData) {
 
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
-    (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+    const cookieStore = await cookies();
+    cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+    cookieStore.set("user_status", status, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
   } catch (e) {
     return { error: "Username already taken" };
   }
-  return redirect("/");
+  return redirect(status === "PENDING" ? "/pending" : "/");
 }
 
 export async function logout() {
@@ -85,5 +92,6 @@ export async function logout() {
 
   const sessionCookie = lucia.createBlankSessionCookie();
   cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+  cookieStore.set("user_status", "", { maxAge: 0, path: "/" });
   return redirect("/login");
 }

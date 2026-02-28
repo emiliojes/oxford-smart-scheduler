@@ -11,6 +11,7 @@ export async function POST() {
     const blank = lucia.createBlankSessionCookie();
     cookieStore.set(blank.name, blank.value, blank.attributes);
   }
+  cookieStore.set("user_status", "", { maxAge: 0, path: "/" });
 
   return NextResponse.json({ success: true });
 }
