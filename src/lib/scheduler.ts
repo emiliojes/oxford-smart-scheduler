@@ -1,136 +1,118 @@
 import prisma from "@/lib/prisma";
-import { validateAssignment, ConflictResult } from "./validations";
-
-interface ScheduleRequirement {
-  gradeId: string;
-  subjectId: string;
-  requiredHours: number;
-}
-
-interface AssignedClass {
-  teacherId: string;
-  subjectId: string;
-  gradeId: string;
-  roomId: string;
-  timeBlockId: string;
-}
 
 /**
- * Algoritmo de generación automática de horarios usando CSP (Constraint Satisfaction Problem)
- * con backtracking y heurísticas básicas.
+ * Greedy scheduler: assigns as many classes as possible without conflicts.
+ * Reports unresolved slots instead of failing completely.
  */
 export async function generateAutoSchedule(level: "PRIMARY" | "SECONDARY") {
-  // 1. Cargar datos necesarios
-  const [teachers, subjects, grades, rooms, timeBlocks] = await Promise.all([
-    prisma.teacher.findMany({ where: { level: { in: [level, "BOTH"] } } }),
-    prisma.subject.findMany({ where: { level: { in: [level, "BOTH"] } } }),
-    prisma.grade.findMany({ where: { level: level } }),
+  // 1. Load data
+  const [teachers, grades, rooms, timeBlocks, teacherSubjects] = await Promise.all([
+    prisma.teacher.findMany({ where: { level: { in: [level, "BOTH"] } }, include: { subjects: true } }),
+    prisma.grade.findMany({ where: { level }, include: { subjects: { include: { subject: true } } } }),
     prisma.room.findMany(),
     prisma.timeBlock.findMany({ where: { level: { in: [level, "BOTH"] }, blockType: "CLASS" } }),
+    prisma.teacherSubject.findMany(),
   ]);
 
-  // 2. Construir lista de requerimientos (qué clases hay que dar y cuántas horas)
-  const requirements: ScheduleRequirement[] = [];
-  for (const grade of grades) {
-    const gradeSubjects = await prisma.gradeSubject.findMany({
-      where: { gradeId: grade.id },
-      include: { subject: true },
-    });
+  // 2. Clear previous assignments for this level
+  await prisma.assignment.deleteMany({ where: { grade: { level } } });
 
-    for (const gs of gradeSubjects) {
-      requirements.push({
-        gradeId: grade.id,
-        subjectId: gs.subjectId,
-        requiredHours: gs.subject.weeklyFrequency,
-      });
-    }
+  // 3. In-memory tracking to avoid conflicts without extra DB queries
+  // key = "teacherId:timeBlockId" | "gradeId:timeBlockId" | "roomId:timeBlockId"
+  const usedSlots = new Set<string>();
+
+  // Teacher weekly hours tracking
+  const teacherHours: Record<string, number> = {};
+  teachers.forEach((t) => { teacherHours[t.id] = 0; });
+
+  // Map subjectId -> teacher IDs that can teach it (filtered to this level)
+  const teacherIds = new Set(teachers.map((t) => t.id));
+  const subjectTeachers: Record<string, string[]> = {};
+  for (const ts of teacherSubjects) {
+    if (!teacherIds.has(ts.teacherId)) continue;
+    if (!subjectTeachers[ts.subjectId]) subjectTeachers[ts.subjectId] = [];
+    subjectTeachers[ts.subjectId].push(ts.teacherId);
   }
 
-  // 3. Obtener mapeo de profesores por materia
-  const teacherSubjects = await prisma.teacherSubject.findMany();
-  const getTeachersForSubject = (subjectId: string) => {
-    return teacherSubjects
-      .filter((ts) => ts.subjectId === subjectId)
-      .map((ts) => ts.teacherId)
-      .filter((tid) => teachers.some((t) => t.id === tid));
-  };
+  // Shuffle helper
+  const shuffle = <T>(arr: T[]): T[] => [...arr].sort(() => Math.random() - 0.5);
 
-  const assignments: AssignedClass[] = [];
+  let assigned = 0;
+  let skipped = 0;
 
-  // 4. Función recursiva de backtracking
-  async function solve(reqIndex: number, hourInReq: number): Promise<boolean> {
-    // Si hemos procesado todos los requerimientos, terminamos
-    if (reqIndex >= requirements.length) return true;
+  const shuffledTimeBlocks = shuffle(timeBlocks);
+  const shuffledRooms = shuffle(rooms);
 
-    const currentReq = requirements[reqIndex];
-    
-    // Si ya completamos las horas de este requerimiento, pasamos al siguiente
-    if (hourInReq >= currentReq.requiredHours) {
-      return solve(reqIndex + 1, 0);
-    }
+  // 4. For each grade, for each subject, assign required weekly slots
+  for (const grade of grades) {
+    for (const gs of grade.subjects) {
+      const subject = gs.subject;
+      const needed = subject.weeklyFrequency;
+      const possibleTeachers = subjectTeachers[subject.id] ?? [];
 
-    const possibleTeachers = getTeachersForSubject(currentReq.subjectId);
-    
-    // Barajar opciones para aleatoriedad (opcional, ayuda a no generar siempre lo mismo)
-    const shuffledTimeBlocks = [...timeBlocks].sort(() => Math.random() - 0.5);
-    const shuffledRooms = [...rooms].sort(() => Math.random() - 0.5);
+      if (possibleTeachers.length === 0) {
+        skipped += needed;
+        continue;
+      }
 
-    for (const teacherId of possibleTeachers) {
+      let assignedForThis = 0;
+
       for (const timeBlock of shuffledTimeBlocks) {
-        for (const room of shuffledRooms) {
-          // Validar si esta combinación es posible
-          const conflicts = await validateAssignment({
-            teacherId,
-            subjectId: currentReq.subjectId,
-            gradeId: currentReq.gradeId,
-            roomId: room.id,
+        if (assignedForThis >= needed) break;
+
+        // Grade must be free at this time
+        if (usedSlots.has(`grade:${grade.id}:${timeBlock.id}`)) continue;
+
+        // Find an available teacher for this subject at this time
+        const availableTeacher = possibleTeachers.find((tid) => {
+          const teacher = teachers.find((t) => t.id === tid);
+          if (!teacher) return false;
+          if (usedSlots.has(`teacher:${tid}:${timeBlock.id}`)) return false;
+          const maxHours = teacher.maxWeeklyHours ?? 27;
+          if ((teacherHours[tid] ?? 0) >= maxHours) return false;
+          return true;
+        });
+
+        if (!availableTeacher) continue;
+
+        // Find an available room
+        const needsSpecialRoom = subject.requiresSpecialRoom;
+        const specialType = subject.specialRoomType;
+        const availableRoom = shuffledRooms.find((r) => {
+          if (usedSlots.has(`room:${r.id}:${timeBlock.id}`)) return false;
+          if (needsSpecialRoom) return r.isSpecialized && r.specializedFor === specialType;
+          return !r.isSpecialized;
+        });
+
+        if (!availableRoom) continue;
+
+        // Assign
+        await prisma.assignment.create({
+          data: {
+            teacherId: availableTeacher,
+            subjectId: subject.id,
+            gradeId: grade.id,
+            roomId: availableRoom.id,
             timeBlockId: timeBlock.id,
-          });
+            status: "CONFIRMED",
+          },
+        });
 
-          const hasErrors = conflicts.some((c) => c.severity === "ERROR");
+        usedSlots.add(`grade:${grade.id}:${timeBlock.id}`);
+        usedSlots.add(`teacher:${availableTeacher}:${timeBlock.id}`);
+        usedSlots.add(`room:${availableRoom.id}:${timeBlock.id}`);
+        teacherHours[availableTeacher] = (teacherHours[availableTeacher] ?? 0) + 1;
 
-          if (!hasErrors) {
-            // Realizar asignación tentativa
-            const newAssignment: AssignedClass = {
-              teacherId,
-              subjectId: currentReq.subjectId,
-              gradeId: currentReq.gradeId,
-              roomId: room.id,
-              timeBlockId: timeBlock.id,
-            };
+        assignedForThis++;
+        assigned++;
+      }
 
-            // Guardar temporalmente en DB para que validateAssignment lo vea (o simularlo)
-            // Para simplicidad en este prototipo, vamos a usar una transacción o similar
-            // Pero validateAssignment consulta la DB real.
-            // MEJOR: Crear la asignación real y si falla el backtracking, borrarla.
-            const created = await prisma.assignment.create({
-              data: {
-                ...newAssignment,
-                status: "CONFIRMED",
-              }
-            });
-
-            if (await solve(reqIndex, hourInReq + 1)) {
-              return true;
-            }
-
-            // Backtrack: borrar la asignación si no llevó a una solución
-            await prisma.assignment.delete({ where: { id: created.id } });
-          }
-        }
+      if (assignedForThis < needed) {
+        skipped += needed - assignedForThis;
       }
     }
-
-    return false;
   }
 
-  // 5. Limpiar asignaciones previas del nivel para regenerar
-  await prisma.assignment.deleteMany({
-    where: { grade: { level: level } }
-  });
-
-  // 6. Iniciar proceso
-  const success = await solve(0, 0);
-  
-  return { success };
+  const success = skipped === 0;
+  return { success, assigned, skipped };
 }

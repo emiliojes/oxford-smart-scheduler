@@ -18,9 +18,13 @@ export async function POST(request: NextRequest) {
     const result = await generateAutoSchedule(level);
 
     if (result.success) {
-      return NextResponse.json({ message: "Horario generado con éxito" });
+      return NextResponse.json({ message: `Horario generado con éxito. ${result.assigned} clases asignadas.` });
     } else {
-      return NextResponse.json({ error: "No se pudo generar un horario completo sin conflictos" }, { status: 422 });
+      return NextResponse.json({
+        message: `Horario generado parcialmente. ${result.assigned} clases asignadas, ${result.skipped} sin cubrir.`,
+        assigned: result.assigned,
+        skipped: result.skipped,
+      }, { status: 200 });
     }
   } catch (error) {
     console.error("Error generating schedule:", error);
