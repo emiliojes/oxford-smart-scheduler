@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
-import { Users, BookOpen, GraduationCap, School, Calendar, AlertTriangle, CheckCircle, Bell } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Users, BookOpen, GraduationCap, School, Calendar, AlertTriangle, Bell } from "lucide-react";
 
 interface Stats {
   teachers: number;
@@ -16,14 +18,26 @@ interface Stats {
 
 export default function Home() {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState<Stats | null>(null);
 
+  const isTeacher = user?.role === "TEACHER";
+
   useEffect(() => {
+    // Teachers go directly to their schedule
+    if (isTeacher) {
+      router.replace("/schedule");
+      return;
+    }
     fetch("/api/stats")
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error("Error fetching stats:", err));
-  }, []);
+  }, [isTeacher]);
+
+  // Show nothing while redirecting
+  if (isTeacher) return null;
 
   return (
     <div className="space-y-8">
@@ -37,36 +51,36 @@ export default function Home() {
       </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card 
-          title={t.nav.teachers} 
+        <Card
+          title={t.nav.teachers}
           description={t.home.cards.teachersDesc}
           icon={<Users className="w-8 h-8 text-blue-600" />}
           href="/teachers"
           count={stats?.teachers}
         />
-        <Card 
-          title={t.nav.subjects} 
+        <Card
+          title={t.nav.subjects}
           description={t.home.cards.subjectsDesc}
           icon={<BookOpen className="w-8 h-8 text-green-600" />}
           href="/subjects"
           count={stats?.subjects}
         />
-        <Card 
-          title={t.nav.grades} 
+        <Card
+          title={t.nav.grades}
           description={t.home.cards.gradesDesc}
           icon={<GraduationCap className="w-8 h-8 text-purple-600" />}
           href="/grades"
           count={stats?.grades}
         />
-        <Card 
-          title={t.nav.rooms} 
+        <Card
+          title={t.nav.rooms}
           description={t.home.cards.roomsDesc}
           icon={<School className="w-8 h-8 text-orange-600" />}
           href="/rooms"
           count={stats?.rooms}
         />
-        <Card 
-          title={t.nav.schedule} 
+        <Card
+          title={t.nav.schedule}
           description={t.home.cards.generatorDesc}
           icon={<Calendar className="w-8 h-8 text-red-600" />}
           href="/schedule/generate"
@@ -74,8 +88,8 @@ export default function Home() {
           count={stats?.assignments}
           countLabel={t.home.stats.classes}
         />
-        <Card 
-          title={t.nav.bell} 
+        <Card
+          title={t.nav.bell}
           description={t.home.cards.bellDesc}
           icon={<Bell className="w-8 h-8 text-amber-600" />}
           href="/bell"

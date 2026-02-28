@@ -18,12 +18,13 @@ export function Header({ user }: HeaderProps) {
   
   const canManage = isCoordinator(user);
   const canSeeAdmin = isAdmin(user);
+  const isTeacher = user?.role === "TEACHER";
 
   return (
     <header className="border-b bg-slate-900 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-bold">Oxford Schedule</Link>
+          <Link href={isTeacher ? "/schedule" : "/"} className="text-xl font-bold">Oxford Schedule</Link>
           <nav className="flex gap-6 overflow-x-auto pb-2 md:pb-0">
             {canManage && (
               <>
