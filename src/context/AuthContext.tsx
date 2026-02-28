@@ -5,16 +5,20 @@ import { createContext, useContext } from "react";
 interface AuthUser {
   username: string;
   role: string;
+  status: string;
+  teacherId?: string | null;
 }
 
 interface AuthContextType {
   user: AuthUser | null;
   canManage: boolean;
+  isPending: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   canManage: false,
+  isPending: false,
 });
 
 export function AuthProvider({
@@ -25,9 +29,10 @@ export function AuthProvider({
   children: React.ReactNode;
 }) {
   const canManage = user?.role === "ADMIN" || user?.role === "COORDINATOR";
+  const isPending = user?.status === "PENDING";
 
   return (
-    <AuthContext.Provider value={{ user, canManage }}>
+    <AuthContext.Provider value={{ user, canManage, isPending }}>
       {children}
     </AuthContext.Provider>
   );

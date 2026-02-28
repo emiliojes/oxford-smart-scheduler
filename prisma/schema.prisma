@@ -14,7 +14,10 @@ model User {
   id        String    @id @default(cuid())
   username  String    @unique
   password  String
-  role      String    @default("ADMIN") // "ADMIN", "COORDINATOR", "TEACHER"
+  role      String    @default("PENDING") // "ADMIN", "COORDINATOR", "TEACHER", "PENDING"
+  status    String    @default("PENDING") // "PENDING", "ACTIVE"
+  teacherId String?   // linked teacher profile (for TEACHER role)
+  teacher   Teacher?  @relation(fields: [teacherId], references: [id])
   sessions  Session[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -36,6 +39,7 @@ model Teacher {
   maxWeeklyHours Int              @default(27)
   assignments    Assignment[]
   subjects       TeacherSubject[]
+  users          User[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 }

@@ -51,14 +51,17 @@ export async function signup(formData: FormData) {
   try {
     // Check if it's the first user to make it ADMIN
     const userCount = await prisma.user.count();
-    const role = userCount === 0 ? "ADMIN" : "TEACHER";
+    const isFirst = userCount === 0;
+    const role = isFirst ? "ADMIN" : "PENDING";
+    const status = isFirst ? "ACTIVE" : "PENDING";
 
     await prisma.user.create({
       data: {
         id: userId,
         username,
         password: passwordHash,
-        role: role
+        role,
+        status,
       }
     });
 

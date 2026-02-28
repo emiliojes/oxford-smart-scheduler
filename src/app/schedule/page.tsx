@@ -9,9 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import { Loader2, Printer, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +21,9 @@ import { AssignmentForm } from "@/components/AssignmentForm";
 
 export default function ScheduleViewPage() {
   const { t, language } = useLanguage();
+  const { user: currentUser, canManage } = useAuth();
+  const isTeacherView = currentUser?.role === "TEACHER" && !!currentUser?.teacherId;
+
   const [viewType, setViewType] = useState<"teacher" | "grade" | "room">("teacher");
   const [selectedId, setSelectedId] = useState<string>("");
   const [options, setOptions] = useState<any[]>([]);
@@ -28,14 +32,18 @@ export default function ScheduleViewPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Teachers with a linked profile: auto-load their schedule directly
+    if (isTeacherView) {
+      setSelectedId(currentUser!.teacherId!);
+      fetchTimeBlocks();
+      return;
+    }
     fetchOptions();
     fetchTimeBlocks();
-  }, [viewType]);
+  }, [viewType, isTeacherView]);
 
   useEffect(() => {
-    if (selectedId) {
-      fetchAssignments();
-    }
+    if (selectedId) fetchAssignments();
   }, [selectedId]);
 
   const fetchOptions = async () => {
@@ -119,7 +127,7 @@ export default function ScheduleViewPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <AssignmentForm onSuccess={fetchAssignments} />
+          {canManage && <AssignmentForm onSuccess={fetchAssignments} />}
           <Button variant="outline" onClick={handlePrint} className="gap-2">
             <Printer className="w-4 h-4" />
             {t.schedule.print}
@@ -139,46 +147,55 @@ export default function ScheduleViewPage() {
         </div>
       </div>
 
-      <Card className="no-print">
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="w-full md:w-1/3 space-y-2">
-              <label className="text-sm font-medium text-slate-700">{t.schedule.viewType}</label>
-              <Tabs 
-                value={viewType} 
-                onValueChange={(v) => setViewType(v as any)} 
-                className="w-full"
-              >
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="teacher">{t.schedule.types.teacher}</TabsTrigger>
-                  <TabsTrigger value="grade">{t.schedule.types.grade}</TabsTrigger>
-                  <TabsTrigger value="room">{t.schedule.types.room}</TabsTrigger>
-                </TabsList>
-              </Tabs>
+      {isTeacherView ? (
+        <Card className="no-print border-blue-200 bg-blue-50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold text-sm">
+                {currentUser?.username?.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-blue-800">Viendo tu horario personal</p>
+                <p className="text-xs text-blue-600">{currentUser?.username}</p>
+              </div>
             </div>
-
-            <div className="w-full md:w-2/3 space-y-2">
-              <label className="text-sm font-medium text-slate-700">
-                {t.schedule.select.replace('{type}', t.schedule.types[viewType])}
-              </label>
-              <Select value={selectedId} onValueChange={setSelectedId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {options.map((opt) => (
-                    <SelectItem key={opt.id} value={opt.id}>
-                      {viewType === "grade" 
-                        ? `${opt.name}${opt.section || ""}` 
-                        : opt.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="no-print">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="w-full md:w-1/3 space-y-2">
+                <label className="text-sm font-medium text-slate-700">{t.schedule.viewType}</label>
+                <Tabs value={viewType} onValueChange={(v) => setViewType(v as any)} className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="teacher">{t.schedule.types.teacher}</TabsTrigger>
+                    <TabsTrigger value="grade">{t.schedule.types.grade}</TabsTrigger>
+                    <TabsTrigger value="room">{t.schedule.types.room}</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <div className="w-full md:w-2/3 space-y-2">
+                <label className="text-sm font-medium text-slate-700">
+                  {t.schedule.select.replace('{type}', t.schedule.types[viewType])}
+                </label>
+                <Select value={selectedId} onValueChange={setSelectedId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {options.map((opt) => (
+                      <SelectItem key={opt.id} value={opt.id}>
+                        {viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {isLoading ? (
         <div className="h-64 flex flex-col items-center justify-center gap-4">

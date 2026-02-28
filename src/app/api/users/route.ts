@@ -4,8 +4,10 @@ import { validateApiRequest } from "@/lib/auth-api";
 import { generateIdFromEntropySize } from "lucia";
 import bcrypt from "bcryptjs";
 
+const ROLE_LEVEL: Record<string, number> = { ADMIN: 3, COORDINATOR: 2, TEACHER: 1, PENDING: 0 };
+
 export async function GET() {
-  const user = await validateApiRequest(["ADMIN"]);
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -15,8 +17,11 @@ export async function GET() {
         id: true,
         username: true,
         role: true,
+        status: true,
+        teacherId: true,
+        createdAt: true,
       },
-      orderBy: { username: "asc" },
+      orderBy: { createdAt: "asc" },
     });
     return NextResponse.json(users);
   } catch (error) {
@@ -25,8 +30,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await validateApiRequest(["ADMIN"]);
-  if (!user) {
+  const currentUser = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -41,6 +46,10 @@ export async function POST(request: NextRequest) {
     }
     if (!["ADMIN", "COORDINATOR", "TEACHER"].includes(role)) {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+    }
+    // Coordinator can only create users with roles <= their own
+    if ((ROLE_LEVEL[role] ?? 0) > (ROLE_LEVEL[currentUser.role] ?? 0)) {
+      return NextResponse.json({ error: "Cannot assign a role higher than your own" }, { status: 403 });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -65,18 +74,34 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const user = await validateApiRequest(["ADMIN"]);
-  if (!user) {
+  const currentUser = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
     const body = await request.json();
-    const { id, role, password } = body;
+    const { id, role, password, status, teacherId } = body;
 
     const updateData: any = {};
+
     if (role && ["ADMIN", "COORDINATOR", "TEACHER"].includes(role)) {
+      // Enforce hierarchy: cannot assign role higher than your own
+      if ((ROLE_LEVEL[role] ?? 0) > (ROLE_LEVEL[currentUser.role] ?? 0)) {
+        return NextResponse.json({ error: "Cannot assign a role higher than your own" }, { status: 403 });
+      }
       updateData.role = role;
+      updateData.status = "ACTIVE"; // Approving = activating
     }
+
+    if (status && ["PENDING", "ACTIVE"].includes(status)) {
+      updateData.status = status;
+    }
+
+    // teacherId can be set to a string or explicitly null to unlink
+    if (teacherId !== undefined) {
+      updateData.teacherId = teacherId || null;
+    }
+
     if (password && password.length >= 6) {
       updateData.password = await bcrypt.hash(password, 10);
     }
@@ -84,7 +109,7 @@ export async function PUT(request: NextRequest) {
     const updated = await prisma.user.update({
       where: { id },
       data: updateData,
-      select: { id: true, username: true, role: true },
+      select: { id: true, username: true, role: true, status: true, teacherId: true },
     });
 
     return NextResponse.json(updated);
@@ -94,7 +119,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const currentUser = await validateApiRequest(["ADMIN"]);
+  const currentUser = await validateApiRequest(["ADMIN", "COORDINATOR"]);
   if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

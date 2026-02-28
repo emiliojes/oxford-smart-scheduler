@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/context/LanguageContext";
@@ -22,12 +24,39 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { user } = await validateRequest();
+  const headersList = await headers();
+  const pathname = headersList.get("x-invoke-path") || "";
+
+  // Redirect PENDING users away from all pages except /pending and /login
+  if (user && (user as any).status === "PENDING" && !pathname.startsWith("/pending")) {
+    redirect("/pending");
+  }
+
+  const authUser = user
+    ? { username: user.username, role: (user as any).role, status: (user as any).status ?? "ACTIVE", teacherId: (user as any).teacherId ?? null }
+    : null;
+
+  // PENDING users: show a minimal layout without header/nav
+  if (user && (user as any).status === "PENDING") {
+    return (
+      <html lang="en">
+        <body className={`${inter.className} antialiased`}>
+          <LanguageProvider>
+            <AuthProvider user={authUser}>
+              {children}
+            </AuthProvider>
+          </LanguageProvider>
+          <Toaster position="top-right" />
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <LanguageProvider>
-          <AuthProvider user={user ? { username: user.username, role: (user as any).role } : null}>
+          <AuthProvider user={authUser}>
           <TooltipProvider>
             <div className="min-h-screen flex flex-col">
               <Header user={user} />
