@@ -250,6 +250,10 @@ export default function ScheduleViewPage() {
 
       <style jsx global>{`
         @media print {
+          @page {
+            size: A4 landscape;
+            margin: 8mm 6mm;
+          }
           .no-print {
             display: none !important;
           }
@@ -257,14 +261,33 @@ export default function ScheduleViewPage() {
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
           main {
             padding: 0 !important;
             margin: 0 !important;
             max-width: none !important;
           }
-          header, footer {
+          header, footer, nav {
             display: none !important;
+          }
+          #printable-schedule {
+            width: 100%;
+          }
+          #printable-schedule table {
+            width: 100%;
+            font-size: 8px;
+            border-collapse: collapse;
+          }
+          #printable-schedule th,
+          #printable-schedule td {
+            padding: 2px 3px !important;
+            line-height: 1.2;
+          }
+          #printable-schedule tr {
+            height: auto !important;
+            min-height: 0 !important;
           }
         }
       `}</style>

@@ -96,11 +96,11 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGrid
               const isSpecialBlock = blockInfo?.blockType !== "CLASS";
 
               return (
-                <TableRow key={startTime} className="h-24">
-                  <TableCell className="font-medium border-r bg-slate-50 align-top py-2">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm font-bold">{startTime}</span>
-                      <span className="text-xs text-slate-500">
+                <TableRow key={startTime} className={`h-auto ${isSpecialBlock ? "print:h-6" : "print:h-auto"}`}>
+                  <TableCell className="font-medium border-r bg-slate-50 align-middle py-1 print:py-0.5 print:w-14">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold print:text-[9px]">{startTime}</span>
+                      <span className="text-xs text-slate-500 print:hidden">
                         {t.subjects.durations[blockInfo?.duration as keyof typeof t.subjects.durations]}
                       </span>
                     </div>
@@ -111,37 +111,35 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGrid
                     const hasConflict = slotAssignments.some(a => a.status === "CONFLICT");
 
                     return (
-                      <TableCell 
-                        key={`${dayValue}-${startTime}`} 
-                        className={`border-r last:border-r-0 p-1 align-top ${
-                          isSpecialBlock ? "bg-slate-50/50" : ""
-                        }`}
+                      <TableCell
+                        key={`${dayValue}-${startTime}`}
+                        className={`border-r last:border-r-0 p-1 print:p-0.5 align-top ${isSpecialBlock ? "bg-slate-50/50" : ""}`}
                       >
                         {isSpecialBlock && slotAssignments.length === 0 ? (
-                          <div className="h-full flex items-center justify-center">
-                            <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">
+                          <div className="flex items-center justify-center py-1 print:py-0">
+                            <span className="text-xs font-bold text-slate-400 tracking-widest uppercase print:text-[8px]">
                               {t.timeBlocks.types[blockInfo?.blockType as keyof typeof t.timeBlocks.types] || blockInfo?.blockType}
                             </span>
                           </div>
                         ) : (
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1 print:gap-0">
                             {slotAssignments.map((a) => (
                               <AssignmentForm
                                 key={a.id}
                                 initialData={a}
                                 onSuccess={() => window.location.reload()}
                                 trigger={
-                                  <Card 
-                                    className={`p-2 text-xs border shadow-none relative group cursor-pointer hover:border-blue-400 transition-colors ${
-                                      a.status === "CONFLICT" 
-                                        ? "border-red-200 bg-red-50" 
+                                  <Card
+                                    className={`p-2 print:p-0.5 text-xs print:text-[8px] border shadow-none relative group cursor-pointer hover:border-blue-400 transition-colors ${
+                                      a.status === "CONFLICT"
+                                        ? "border-red-200 bg-red-50"
                                         : "border-blue-100 bg-blue-50/50"
                                     }`}
                                   >
                                     {a.status === "CONFLICT" && (
                                       <Tooltip>
                                         <TooltipTrigger asChild>
-                                          <div className="absolute top-1 right-1 text-red-500 cursor-help">
+                                          <div className="absolute top-1 right-1 text-red-500 cursor-help print:hidden">
                                             <AlertCircle className="w-3 h-3" />
                                           </div>
                                         </TooltipTrigger>
@@ -155,11 +153,8 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGrid
                                         </TooltipContent>
                                       </Tooltip>
                                     )}
-                                    
-                                    <div className="font-bold text-blue-900 truncate">
-                                      {a.subject.name}
-                                    </div>
-                                    <div className="flex flex-col text-slate-600 mt-1">
+                                    <div className="font-bold text-blue-900 truncate">{a.subject.name}</div>
+                                    <div className="flex flex-col text-slate-600 print:text-slate-700">
                                       {viewType !== "grade" && (
                                         <span className="truncate">{t.schedule.types.grade}: {a.grade.name}{a.grade.section}</span>
                                       )}
