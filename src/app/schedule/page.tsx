@@ -30,13 +30,22 @@ export default function ScheduleViewPage() {
   const [assignments, setAssignments] = useState([]);
   const [timeBlocks, setTimeBlocks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [teacherName, setTeacherName] = useState<string>("");
 
   useEffect(() => {
     fetchTimeBlocks();
     if (isTeacherView) {
-      // Teacher linked to a profile: load their schedule directly
-      setSelectedId(currentUser!.teacherId!);
-      fetchAssignments(currentUser!.teacherId!);
+      const tid = currentUser!.teacherId!;
+      setSelectedId(tid);
+      fetchAssignments(tid);
+      // Fetch teacher name for display and print header
+      fetch(`/api/teachers`)
+        .then(r => r.json())
+        .then((list: any[]) => {
+          const found = list.find((t: any) => t.id === tid);
+          if (found) setTeacherName(found.name);
+        })
+        .catch(() => {});
     } else {
       fetchOptions();
     }
@@ -89,12 +98,16 @@ export default function ScheduleViewPage() {
     }
   };
 
-  const handleExportPDF = () => {
+  const getExportTitle = () => {
+    if (isTeacherView) return `HORARIO: ${teacherName || currentUser?.username}`;
     const selectedName = options.find(o => o.id === selectedId)?.name || "";
     const selectedSection = viewType === "grade" ? options.find(o => o.id === selectedId)?.section || "" : "";
-    
+    return `${t.schedule.types[viewType].toUpperCase()}: ${selectedName} ${selectedSection}`.trim();
+  };
+
+  const handleExportPDF = () => {
     exportToPDF({
-      title: `${t.schedule.types[viewType].toUpperCase()}: ${selectedName} ${selectedSection}`,
+      title: getExportTitle(),
       subtitle: t.schedule.export.subtitle,
       viewType,
       timeBlocks,
@@ -103,11 +116,8 @@ export default function ScheduleViewPage() {
   };
 
   const handleExportWord = async () => {
-    const selectedName = options.find(o => o.id === selectedId)?.name || "";
-    const selectedSection = viewType === "grade" ? options.find(o => o.id === selectedId)?.section || "" : "";
-
     await exportToWord({
-      title: `${t.schedule.types[viewType].toUpperCase()}: ${selectedName} ${selectedSection}`,
+      title: getExportTitle(),
       subtitle: t.schedule.export.subtitle,
       viewType,
       timeBlocks,
@@ -116,8 +126,8 @@ export default function ScheduleViewPage() {
   };
 
   const handleExportImage = async () => {
-    const selectedName = options.find(o => o.id === selectedId)?.name || "";
-    await exportToImage("printable-schedule", `${t.nav.schedule}_${selectedName.replace(/\s+/g, "_")}`);
+    const name = isTeacherView ? (teacherName || currentUser?.username || "") : (options.find(o => o.id === selectedId)?.name || "");
+    await exportToImage("printable-schedule", `${t.nav.schedule}_${name.replace(/\s+/g, "_")}`);
   };
 
   const handlePrint = () => {
@@ -159,11 +169,14 @@ export default function ScheduleViewPage() {
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold text-sm">
-                {currentUser?.username?.charAt(0).toUpperCase()}
+                {(teacherName || currentUser?.username)?.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="text-sm font-semibold text-blue-800">Viendo tu horario personal</p>
-                <p className="text-xs text-blue-600">{currentUser?.username}</p>
+                <p className="text-sm font-semibold text-blue-800">Mi horario</p>
+                <p className="text-base font-bold text-blue-900">{teacherName || currentUser?.username}</p>
+                {teacherName && currentUser?.username && (
+                  <p className="text-xs text-blue-500">usuario: {currentUser.username}</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -214,7 +227,10 @@ export default function ScheduleViewPage() {
           <div className="hidden print:block mb-8 text-center border-b pb-4">
             <h2 className="text-2xl font-bold uppercase">{t.schedule.export.school}</h2>
             <h3 className="text-xl font-medium mt-2">
-              {t.nav.schedule.toUpperCase()}: {options.find(o => o.id === selectedId)?.name} {viewType === "grade" && options.find(o => o.id === selectedId)?.section}
+              {isTeacherView
+                ? `HORARIO: ${teacherName || currentUser?.username}`
+                : `${t.nav.schedule.toUpperCase()}: ${options.find(o => o.id === selectedId)?.name ?? ""}${viewType === "grade" ? " " + (options.find(o => o.id === selectedId)?.section ?? "") : ""}`
+              }
             </h3>
             <p className="text-sm text-slate-500 mt-1">{t.schedule.export.subtitle.split('|')[1]}</p>
           </div>
