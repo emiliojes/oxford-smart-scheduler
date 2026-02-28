@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signup } from "@/lib/auth-actions";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,10 +41,22 @@ export default function AuthPage() {
           router.refresh();
         }
       } else {
-        const result = await signup(formData);
-        if (result?.error) {
-          toast.error(result.error);
+        const response = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: formData.get("username"),
+            password: formData.get("password"),
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          toast.error(result.error || "Error al registrarse");
           setIsLoading(false);
+        } else {
+          // Redirect based on status returned by the API
+          router.push(result.status === "PENDING" ? "/pending" : "/");
+          router.refresh();
         }
       }
     } catch (e: any) {
