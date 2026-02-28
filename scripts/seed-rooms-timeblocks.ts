@@ -60,7 +60,7 @@ async function main() {
       });
       if (!existing) {
         await prisma.timeBlock.create({
-          data: { dayOfWeek: day, startTime: time, duration: "FORTYFIVE", level: "PRIMARY", blockType: "CLASS" },
+          data: { dayOfWeek: day, startTime: time, endTime: time, duration: "FORTYFIVE", level: "PRIMARY", blockType: "CLASS" },
         });
         created++;
       }
@@ -72,7 +72,7 @@ async function main() {
       });
       if (!existing) {
         await prisma.timeBlock.create({
-          data: { dayOfWeek: day, startTime: time, duration: "SIXTY", level: "SECONDARY", blockType: "CLASS" },
+          data: { dayOfWeek: day, startTime: time, endTime: time, duration: "SIXTY", level: "SECONDARY", blockType: "CLASS" },
         });
         created++;
       }
