@@ -79,13 +79,15 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGrid
   return (
     <TooltipProvider>
       <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
-        <Table className="border-collapse">
+        <div className="overflow-x-auto w-full">
+        <Table className="border-collapse min-w-[600px]">
           <TableHeader>
             <TableRow className="bg-slate-50">
-              <TableHead className="w-[120px] border-r font-bold text-slate-900">{t.schedule.grid.time}</TableHead>
+              <TableHead className="w-[70px] md:w-[100px] border-r font-bold text-slate-900 text-xs md:text-sm">{t.schedule.grid.time}</TableHead>
               {t.timeBlocks.days.map((dayLabel: string, index: number) => (
-                <TableHead key={index + 1} className="text-center font-bold text-slate-900 border-r last:border-r-0">
-                  {dayLabel.toUpperCase()}
+                <TableHead key={index + 1} className="text-center font-bold text-slate-900 border-r last:border-r-0 text-xs md:text-sm">
+                  <span className="hidden sm:inline">{dayLabel.toUpperCase()}</span>
+                  <span className="sm:hidden">{dayLabel.slice(0, 3).toUpperCase()}</span>
                 </TableHead>
               ))}
             </TableRow>
@@ -179,6 +181,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGrid
             })}
           </TableBody>
         </Table>
+        </div>
       </div>
     </TooltipProvider>
   );
