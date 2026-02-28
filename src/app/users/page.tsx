@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -51,6 +52,7 @@ const ROLE_LEVEL: Record<string, number> = { ADMIN: 3, COORDINATOR: 2, TEACHER: 
 export default function UsersPage() {
   const { t } = useLanguage();
   const { user: currentUser } = useAuth();
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,9 +61,14 @@ export default function UsersPage() {
   const [approveState, setApproveState] = useState<{ user: User; role: string; teacherId: string } | null>(null);
 
   useEffect(() => {
+    if (!currentUser) return;
+    if (currentUser.role !== "ADMIN") {
+      router.replace(currentUser.role === "COORDINATOR" ? "/approvals" : "/");
+      return;
+    }
     fetchUsers();
     fetchTeachers();
-  }, []);
+  }, [currentUser]);
 
   const fetchTeachers = async () => {
     try {

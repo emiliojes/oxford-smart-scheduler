@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import { Plus, Clock, Trash2, Pencil } from "lucide-react";
 
 interface TimeBlock {
@@ -50,14 +52,18 @@ const DAYS = [
 
 export default function TimeBlocksPage() {
   const { t } = useLanguage();
+  const { user: currentUser } = useAuth();
+  const router = useRouter();
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
 
   useEffect(() => {
+    if (!currentUser) return;
+    if (currentUser.role !== "ADMIN") { router.replace("/"); return; }
     fetchBlocks();
-  }, []);
+  }, [currentUser]);
 
   const fetchBlocks = async () => {
     try {

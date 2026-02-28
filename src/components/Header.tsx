@@ -19,6 +19,7 @@ export function Header({ user }: HeaderProps) {
   const canManage = isCoordinator(user);
   const canSeeAdmin = isAdmin(user);
   const isTeacher = user?.role === "TEACHER";
+  const isCoordinatorOnly = user?.role === "COORDINATOR";
 
   return (
     <header className="border-b bg-slate-900 text-white p-4">
@@ -32,12 +33,17 @@ export function Header({ user }: HeaderProps) {
                 <Link href="/subjects" className="hover:text-blue-400 transition-colors whitespace-nowrap">{t.nav.subjects}</Link>
                 <Link href="/grades" className="hover:text-blue-400 transition-colors whitespace-nowrap">{t.nav.grades}</Link>
                 <Link href="/rooms" className="hover:text-blue-400 transition-colors whitespace-nowrap">{t.nav.rooms}</Link>
-                <Link href="/settings/time-blocks" className="hover:text-blue-400 transition-colors whitespace-nowrap">{t.nav.timeBlocks}</Link>
+                {canSeeAdmin && (
+                  <Link href="/settings/time-blocks" className="hover:text-blue-400 transition-colors whitespace-nowrap">{t.nav.timeBlocks}</Link>
+                )}
                 <Link href="/bell" className="hover:text-blue-400 transition-colors whitespace-nowrap">{t.nav.bell}</Link>
               </>
             )}
             {canSeeAdmin && (
               <Link href="/users" className="hover:text-yellow-400 transition-colors whitespace-nowrap">Users</Link>
+            )}
+            {isCoordinatorOnly && (
+              <Link href="/approvals" className="hover:text-amber-400 transition-colors whitespace-nowrap">Aprobaciones</Link>
             )}
             <Link href="/schedule" className="bg-blue-600 px-4 py-1 rounded hover:bg-blue-700 transition-colors whitespace-nowrap">{t.nav.schedule}</Link>
           </nav>
