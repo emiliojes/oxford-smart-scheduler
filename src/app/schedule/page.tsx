@@ -32,18 +32,18 @@ export default function ScheduleViewPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Teachers with a linked profile: auto-load their schedule directly
-    if (isTeacherView) {
-      setSelectedId(currentUser!.teacherId!);
-      fetchTimeBlocks();
-      return;
-    }
-    fetchOptions();
     fetchTimeBlocks();
+    if (isTeacherView) {
+      // Teacher linked to a profile: load their schedule directly
+      setSelectedId(currentUser!.teacherId!);
+      fetchAssignments(currentUser!.teacherId!);
+    } else {
+      fetchOptions();
+    }
   }, [viewType, isTeacherView]);
 
   useEffect(() => {
-    if (selectedId) fetchAssignments();
+    if (selectedId && !isTeacherView) fetchAssignments();
   }, [selectedId]);
 
   const fetchOptions = async () => {
@@ -68,11 +68,18 @@ export default function ScheduleViewPage() {
     }
   };
 
-  const fetchAssignments = async () => {
+  const fetchAssignments = async (overrideTeacherId?: string) => {
     setIsLoading(true);
     try {
-      const queryParam = viewType === "teacher" ? "teacherId" : viewType === "grade" ? "gradeId" : "roomId";
-      const response = await fetch(`/api/assignments?${queryParam}=${selectedId}`);
+      let url: string;
+      if (isTeacherView) {
+        // Always filter by this user's linked teacher ID
+        url = `/api/assignments?teacherId=${overrideTeacherId ?? currentUser!.teacherId}`;
+      } else {
+        const queryParam = viewType === "teacher" ? "teacherId" : viewType === "grade" ? "gradeId" : "roomId";
+        url = `/api/assignments?${queryParam}=${selectedId}`;
+      }
+      const response = await fetch(url);
       const data = await response.json();
       setAssignments(data);
     } catch (error) {

@@ -9,16 +9,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { searchParams } = new URL(request.url);
-  const teacherId = searchParams.get("teacherId");
+  let teacherId = searchParams.get("teacherId");
   const gradeId = searchParams.get("gradeId");
   const roomId = searchParams.get("roomId");
+
+  // TEACHER role: can only see their own assignments
+  const linkedTeacherId = (user as any).teacherId ?? null;
+  if ((user as any).role === "TEACHER" && linkedTeacherId) {
+    teacherId = linkedTeacherId;
+  }
 
   try {
     const assignments = await prisma.assignment.findMany({
       where: {
         ...(teacherId && { teacherId }),
-        ...(gradeId && { gradeId }),
-        ...(roomId && { roomId }),
+        ...((user as any).role !== "TEACHER" && gradeId && { gradeId }),
+        ...((user as any).role !== "TEACHER" && roomId && { roomId }),
       },
       include: {
         teacher: true,
