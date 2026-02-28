@@ -1,39 +1,84 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Clock, LogOut } from "lucide-react";
+import { Clock, LogOut, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function PendingPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const [approved, setApproved] = useState(false);
+  const [dots, setDots] = useState(".");
 
+  // Animate the waiting dots
   useEffect(() => {
-    if (user && user.status === "ACTIVE") {
-      router.replace("/");
-    }
-  }, [user, router]);
+    const interval = setInterval(() => {
+      setDots((d) => (d.length >= 3 ? "." : d + "."));
+    }, 600);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Poll every 8 seconds to check if the user was approved
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch("/api/auth/status");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "ACTIVE") {
+            setApproved(true);
+            // Update the cookie so middleware allows through
+            setTimeout(() => {
+              router.replace("/");
+              router.refresh();
+            }, 2000);
+          }
+        }
+      } catch {}
+    };
+
+    const interval = setInterval(check, 8000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/login");
   };
 
+  if (approved) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
+              <CheckCircle2 className="w-10 h-10 text-green-500" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-green-700">¡Cuenta aprobada!</h1>
+            <p className="text-slate-500 text-sm">Redirigiendo al sistema...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center space-y-6">
         <div className="flex justify-center">
           <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center">
-            <Clock className="w-10 h-10 text-amber-500" />
+            <Clock className="w-10 h-10 text-amber-500 animate-pulse" />
           </div>
         </div>
 
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-slate-800">Cuenta pendiente de aprobación</h1>
           <p className="text-slate-500 text-sm leading-relaxed">
-            Tu cuenta ha sido registrada exitosamente. Un administrador o coordinador 
+            Tu cuenta ha sido registrada exitosamente. Un administrador o coordinador
             necesita aprobarla y asignarte un rol antes de que puedas acceder al sistema.
           </p>
         </div>
@@ -53,11 +98,9 @@ export default function PendingPage() {
           </div>
         )}
 
-        <Button
-          variant="outline"
-          className="w-full gap-2"
-          onClick={handleLogout}
-        >
+        <p className="text-xs text-slate-400">Verificando estado{dots}</p>
+
+        <Button variant="outline" className="w-full gap-2" onClick={handleLogout}>
           <LogOut className="w-4 h-4" />
           Cerrar sesión
         </Button>
