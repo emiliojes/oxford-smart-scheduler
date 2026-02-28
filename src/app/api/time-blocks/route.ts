@@ -33,13 +33,14 @@ export async function POST(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const { dayOfWeek, startTime, duration, level, blockType } = body;
+    const { dayOfWeek, startTime, endTime, duration, level, blockType } = body;
 
     const timeBlock = await prisma.timeBlock.create({
       data: {
         dayOfWeek: parseInt(dayOfWeek),
         startTime,
-        duration,
+        endTime,
+        duration: duration || null,
         level,
         blockType: blockType || "CLASS",
       },
@@ -58,14 +59,15 @@ export async function PUT(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const { id, dayOfWeek, startTime, duration, level, blockType } = body;
+    const { id, dayOfWeek, startTime, endTime, duration, level, blockType } = body;
 
     const timeBlock = await prisma.timeBlock.update({
       where: { id },
       data: {
         dayOfWeek: parseInt(dayOfWeek),
         startTime,
-        duration,
+        endTime,
+        duration: duration || null,
         level,
         blockType: blockType || "CLASS",
       },

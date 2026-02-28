@@ -104,9 +104,10 @@ model Room {
 
 model TimeBlock {
   id          String       @id @default(cuid())
-  dayOfWeek   Int          // 0-6
-  startTime   String       // "08:30"
-  duration    String       // "THIRTY", "FORTYFIVE", "SIXTY"
+  dayOfWeek   Int          // 1-5 (Mon-Fri)
+  startTime   String       // "07:30"
+  endTime     String       // "08:30"
+  duration    String?      // "THIRTY", "FORTYFIVE", "SIXTY" (optional, derived from start/end)
   level       String       // "PRIMARY", "SECONDARY", "BOTH"
   blockType   String       @default("CLASS")
   assignments Assignment[]

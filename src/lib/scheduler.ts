@@ -10,7 +10,7 @@ export async function generateAutoSchedule(level: "PRIMARY" | "SECONDARY") {
     prisma.teacher.findMany({ where: { level: { in: [level, "BOTH"] } }, include: { subjects: true } }),
     prisma.grade.findMany({ where: { level }, include: { subjects: { include: { subject: true } } } }),
     prisma.room.findMany(),
-    prisma.timeBlock.findMany({ where: { level: { in: [level, "BOTH"] }, blockType: "CLASS" } }),
+    prisma.timeBlock.findMany({ where: { level: { in: [level, "BOTH"] }, blockType: "CLASS" }, orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }] }),
     prisma.teacherSubject.findMany(),
   ]);
 

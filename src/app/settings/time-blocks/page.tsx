@@ -34,7 +34,8 @@ interface TimeBlock {
   id: string;
   dayOfWeek: number;
   startTime: string;
-  duration: string;
+  endTime: string;
+  duration?: string | null;
   level: string;
   blockType: string;
 }
@@ -76,7 +77,8 @@ export default function TimeBlocksPage() {
     const data = {
       dayOfWeek: formData.get("dayOfWeek"),
       startTime: formData.get("startTime"),
-      duration: formData.get("duration"),
+      endTime: formData.get("endTime"),
+      duration: formData.get("duration") || null,
       level: formData.get("level"),
       blockType: formData.get("blockType"),
     };
@@ -174,8 +176,18 @@ export default function TimeBlocksPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="duration">{t.timeBlocks.duration}</Label>
-                  <Select name="duration" defaultValue={editingBlock?.duration || "SIXTY"}>
+                  <Label htmlFor="endTime">End Time</Label>
+                  <Input 
+                    id="endTime" 
+                    name="endTime" 
+                    type="time" 
+                    required 
+                    defaultValue={editingBlock?.endTime}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="duration">{t.timeBlocks.duration} (optional)</Label>
+                  <Select name="duration" defaultValue={editingBlock?.duration || ""}>
                     <SelectTrigger>
                       <SelectValue placeholder={t.timeBlocks.duration} />
                     </SelectTrigger>
@@ -241,7 +253,7 @@ export default function TimeBlocksPage() {
           <TableHeader>
             <TableRow>
               <TableHead>{t.timeBlocks.day}</TableHead>
-              <TableHead>{t.timeBlocks.start}</TableHead>
+              <TableHead>Time</TableHead>
               <TableHead>{t.timeBlocks.duration}</TableHead>
               <TableHead>{t.timeBlocks.level}</TableHead>
               <TableHead>{t.timeBlocks.type}</TableHead>
@@ -265,9 +277,9 @@ export default function TimeBlocksPage() {
               blocks.map((block) => (
                 <TableRow key={block.id}>
                   <TableCell>{getDayLabel(block.dayOfWeek)}</TableCell>
-                  <TableCell className="font-medium">{block.startTime}</TableCell>
+                  <TableCell className="font-medium">{block.startTime} – {block.endTime}</TableCell>
                   <TableCell>
-                    {t.subjects.durations[block.duration as keyof typeof t.subjects.durations]}
+                    {block.duration ? t.subjects.durations[block.duration as keyof typeof t.subjects.durations] : "—"}
                   </TableCell>
                   <TableCell>{t.teachers.levels[block.level as keyof typeof t.teachers.levels]}</TableCell>
                   <TableCell>

@@ -91,6 +91,7 @@ async function main() {
           data: {
             dayOfWeek: day,
             startTime: time,
+            endTime: time,
             duration: 'SIXTY',
             level: 'SECONDARY',
             blockType: 'CLASS',
