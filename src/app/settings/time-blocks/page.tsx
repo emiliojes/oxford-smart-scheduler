@@ -120,6 +120,74 @@ export default function TimeBlocksPage() {
 
   const getDayLabel = (day: number) => t.timeBlocks.days[day - 1] || day;
 
+  const LEVEL_GROUPS = [
+    { key: "PRIMARY",   label: "🏫 Primaria",        color: "border-green-400",  badge: "bg-green-100 text-green-800" },
+    { key: "SECONDARY", label: "🎓 Secundaria",       color: "border-blue-400",   badge: "bg-blue-100 text-blue-800" },
+    { key: "BOTH",      label: "🔄 Ambos niveles",    color: "border-purple-400", badge: "bg-purple-100 text-purple-800" },
+  ];
+
+  const blockTypeColor = (bt: string) =>
+    bt === "CLASS"        ? "bg-blue-100 text-blue-700" :
+    bt === "BREAK"        ? "bg-orange-100 text-orange-700" :
+    bt === "LUNCH"        ? "bg-yellow-100 text-yellow-700" :
+    bt === "REGISTRATION" ? "bg-slate-100 text-slate-600" :
+    bt === "HOMEROOM"     ? "bg-teal-100 text-teal-700" :
+    "bg-slate-100 text-slate-700";
+
+  const BlockTable = ({ levelBlocks }: { levelBlocks: TimeBlock[] }) => (
+    <Table>
+      <TableHeader>
+        <TableRow className="bg-slate-50">
+          <TableHead className="w-[110px]">{t.timeBlocks.day}</TableHead>
+          <TableHead className="w-[140px]">Hora</TableHead>
+          <TableHead>{t.timeBlocks.type}</TableHead>
+          <TableHead className="w-[100px] text-right">{t.actions.actions}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {levelBlocks.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={4} className="text-center py-6 text-muted-foreground text-sm">
+              {t.actions.noData}
+            </TableCell>
+          </TableRow>
+        ) : (
+          levelBlocks.map((block) => (
+            <TableRow key={block.id} className="hover:bg-slate-50/50">
+              <TableCell className="font-medium">{getDayLabel(block.dayOfWeek)}</TableCell>
+              <TableCell className="font-mono text-sm">{block.startTime} – {block.endTime}</TableCell>
+              <TableCell>
+                <span className={`px-2 py-0.5 rounded text-xs font-semibold ${blockTypeColor(block.blockType)}`}>
+                  {t.timeBlocks.types[block.blockType as keyof typeof t.timeBlocks.types]}
+                </span>
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex gap-1 justify-end">
+                  <Button
+                    variant="ghost" size="icon"
+                    className="h-7 w-7 text-amber-500 hover:text-amber-700"
+                    onClick={() => { setEditingBlock(block); setIsOpen(true); }}
+                    title={t.actions.edit}
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost" size="icon"
+                    className="h-7 w-7 text-red-500 hover:text-red-700"
+                    onClick={() => deleteBlock(block.id)}
+                    title={t.actions.delete}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -248,81 +316,28 @@ export default function TimeBlocksPage() {
         </Dialog>
       </div>
 
-      <div className="border rounded-lg bg-white shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t.timeBlocks.day}</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead>{t.timeBlocks.duration}</TableHead>
-              <TableHead>{t.timeBlocks.level}</TableHead>
-              <TableHead>{t.timeBlocks.type}</TableHead>
-              <TableHead className="w-[100px]">{t.actions.actions}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  {t.actions.loading}
-                </TableCell>
-              </TableRow>
-            ) : blocks.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  {t.actions.noData}
-                </TableCell>
-              </TableRow>
-            ) : (
-              blocks.map((block) => (
-                <TableRow key={block.id}>
-                  <TableCell>{getDayLabel(block.dayOfWeek)}</TableCell>
-                  <TableCell className="font-medium">{block.startTime} – {block.endTime}</TableCell>
-                  <TableCell>
-                    {block.duration ? t.subjects.durations[block.duration as keyof typeof t.subjects.durations] : "—"}
-                  </TableCell>
-                  <TableCell>{t.teachers.levels[block.level as keyof typeof t.teachers.levels]}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                      block.blockType === "CLASS" ? "bg-blue-100 text-blue-700" :
-                      block.blockType === "BREAK" ? "bg-orange-100 text-orange-700" :
-                      block.blockType === "LUNCH" ? "bg-yellow-100 text-yellow-700" :
-                      "bg-slate-100 text-slate-700"
-                    }`}>
-                      {t.timeBlocks.types[block.blockType as keyof typeof t.timeBlocks.types]}
+      {isLoading ? (
+        <div className="text-center py-12 text-muted-foreground">{t.actions.loading}</div>
+      ) : (
+        <div className="space-y-6">
+          {LEVEL_GROUPS.map(({ key, label, color, badge }) => {
+            const levelBlocks = blocks.filter((b) => b.level === key);
+            return (
+              <div key={key} className={`border-l-4 ${color} rounded-lg bg-white shadow-sm overflow-hidden`}>
+                <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50/70">
+                  <div className="flex items-center gap-3">
+                    <h2 className="font-semibold text-base">{label}</h2>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge}`}>
+                      {levelBlocks.length} bloques
                     </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-amber-500 hover:text-amber-700"
-                        onClick={() => {
-                          setEditingBlock(block);
-                          setIsOpen(true);
-                        }}
-                        title={t.actions.edit}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => deleteBlock(block.id)}
-                        title={t.actions.delete}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                  </div>
+                </div>
+                <BlockTable levelBlocks={levelBlocks} />
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
