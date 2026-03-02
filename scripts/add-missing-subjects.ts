@@ -6,6 +6,9 @@ async function main() {
     { name: "Social Science", level: "SECONDARY" },
     { name: "Literature", level: "SECONDARY" },
     { name: "Biology", level: "SECONDARY" },
+    { name: "Arrival Duty", level: "BOTH" },
+    { name: "Lunch Duty - School Bus Area", level: "BOTH" },
+    { name: "Lunch Duty - Parking Lot", level: "BOTH" },
   ];
   for (const s of toCreate) {
     const existing = await prisma.subject.findFirst({ where: { name: s.name } });

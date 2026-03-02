@@ -12,7 +12,7 @@ const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 const c = (row: any[], col: number): string => String((row ?? [])[col] ?? "").trim();
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision", "www", "time", "07.15", "student", "arrival duty"];
+const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision", "www", "time", "student"];
 
 // PRIMARY teachers share rows with SECONDARY in the Excel.
 // Map SECONDARY row start times to the correct PRIMARY time block start times.
@@ -107,7 +107,9 @@ function getLabRoom(subject: string): string {
 }
 
 function parseStartTime(t: string): string | null {
-  const m = t.match(/(\d{1,2}):(\d{2})/);
+  // Handle both "07:30" and "07.15" (dot notation in some cells)
+  const normalized = t.replace(/^(\d{1,2})\.(\d{2})/, "$1:$2");
+  const m = normalized.match(/(\d{1,2}):(\d{2})/);
   if (!m) return null;
   let hour = parseInt(m[1]);
   const min = m[2];
@@ -262,7 +264,7 @@ for (const block of blocks) {
       }
       // LUNCH with supervision = Lunch Duty; plain LUNCH = free time, skip
       if (gradeUpper.startsWith("LUNCH")) {
-        if (block.homeroomGrade && (gradeUpper.includes("SUPERVISION") || gradeUpper.includes("DUTY"))) {
+        if (gradeUpper.includes("SUPERVISION") || gradeUpper.includes("DUTY")) {
           // Map supervision location to subject name
           let lunchSubject = "Lunch Duty";
           if (gradeUpper.includes("GYM")) lunchSubject = "Lunch Duty - GYM";
@@ -275,8 +277,14 @@ for (const block of blocks) {
         }
         continue;
       }
+      // STUDENT ARRIVAL DUTY
+      if (gradeUpper.includes("ARRIVAL") || gradeUpper.includes("ARRIVAL DUTY")) {
+        csvRows.push(`${teacherSafe},Arrival Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+        total++;
+        continue;
+      }
       // STUDENT DISMISSAL DUTY (always Friday col d=4, or special rows)
-      if (gradeUpper.includes("DISMISSAL") && block.homeroomGrade) {
+      if (gradeUpper.includes("DISMISSAL")) {
         csvRows.push(`${teacherSafe},Dismissal Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
         total++;
         continue;

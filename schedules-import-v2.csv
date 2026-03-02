@@ -345,6 +345,7 @@ ENIS RODRIGUEZ,English,8,A,,Monday,14:15,
 ENIS RODRIGUEZ,English,8,A,,Tuesday,14:15,
 ENIS RODRIGUEZ,Literature,6,B,,Wednesday,14:15,
 ENIS RODRIGUEZ,English,8,B,,Thursday,14:15,
+ANDREA GUERRA,Arrival Duty,12,A,,Friday,07:15
 ANDREA GUERRA,English,10,B,,Friday,07:30,
 ANDREA GUERRA,Resource Room Support,,,,Tuesday,08:30
 ANDREA GUERRA,Resource Room Support,,,,Wednesday,08:30
@@ -360,6 +361,8 @@ ANDREA GUERRA,English,11,A,,Tuesday,11:45,
 ANDREA GUERRA,English,11,A,,Wednesday,11:45,
 ANDREA GUERRA,English,11,A,,Thursday,11:45,
 ANDREA GUERRA,English,11,A,,Friday,11:45,
+ANDREA GUERRA,Lunch Duty - School Bus Area,12,A,,Wednesday,12:45
+ANDREA GUERRA,Dismissal Duty,12,A,,Friday,12:45
 ANDREA GUERRA,English,10,B,,Monday,13:15,
 ANDREA GUERRA,English,11,B,,Wednesday,13:15,
 ANDREA GUERRA,English,11,B,,Thursday,13:15,
@@ -367,6 +370,15 @@ ANDREA GUERRA,English,10,A,,Monday,14:15,
 ANDREA GUERRA,English,12,A,,Tuesday,14:15,
 ANDREA GUERRA,English,12,A,,Wednesday,14:15,
 ANDREA GUERRA,English,12,A,,Thursday,14:15,
+ANDREA GUERRA,Dismissal Duty,12,A,,Monday,15:15
+ANDREA GUERRA,Dismissal Duty,12,A,,Tuesday,15:15
+ANDREA GUERRA,Dismissal Duty,12,A,,Wednesday,15:15
+ANDREA GUERRA,Dismissal Duty,12,A,,Thursday,15:15
+VANESSA MUÑOZ,Arrival Duty,12,A,,Monday,07:15
+VANESSA MUÑOZ,Arrival Duty,12,A,,Tuesday,07:15
+VANESSA MUÑOZ,Arrival Duty,12,A,,Wednesday,07:15
+VANESSA MUÑOZ,Arrival Duty,12,A,,Thursday,07:15
+VANESSA MUÑOZ,Arrival Duty,12,A,,Friday,07:15
 VANESSA MUÑOZ,Social Science,8,A,,Tuesday,07:30,
 VANESSA MUÑOZ,Social Science,8,B,,Wednesday,07:30,
 VANESSA MUÑOZ,Social Science,7,B,,Thursday,07:30,
@@ -389,10 +401,17 @@ VANESSA MUÑOZ,Social Science,10,B,,Tuesday,11:45,
 VANESSA MUÑOZ,Social Science,11,B,,Wednesday,11:45,
 VANESSA MUÑOZ,Social Science,11,A,,Thursday,11:45,
 VANESSA MUÑOZ,Social Science,12,A,,Friday,11:45,
+VANESSA MUÑOZ,Lunch Duty - GYM,12,A,,Wednesday,12:45
+VANESSA MUÑOZ,Dismissal Duty,12,A,,Friday,12:45
 VANESSA MUÑOZ,Social Science,7,A,,Monday,13:15,
 VANESSA MUÑOZ,Social Science,9,B,,Tuesday,13:15,
 VANESSA MUÑOZ,Social Science,7,A,,Wednesday,13:15,
 VANESSA MUÑOZ,Social Science,8,B,,Thursday,13:15,
+LEONEL VEGA,Arrival Duty,12,A,,Monday,07:15
+LEONEL VEGA,Arrival Duty,12,A,,Tuesday,07:15
+LEONEL VEGA,Arrival Duty,12,A,,Wednesday,07:15
+LEONEL VEGA,Arrival Duty,12,A,,Thursday,07:15
+LEONEL VEGA,Arrival Duty,12,A,,Friday,07:15
 LEONEL VEGA,English,9,B,,Tuesday,07:30,
 LEONEL VEGA,English,9,B,,Wednesday,07:30,
 LEONEL VEGA,English,9,A,,Thursday,07:30,
@@ -426,9 +445,15 @@ ADOLFO DIAZ,Music,6,A,,Monday,11:45,
 ADOLFO DIAZ,Music,7,B,,Tuesday,11:45,
 ADOLFO DIAZ,Music,7,A,,Wednesday,11:45,
 ADOLFO DIAZ,Music,6,B,,Thursday,11:45,
+ADOLFO DIAZ,Lunch Duty - School Bus Area,12,A,,Monday,12:45
+ADOLFO DIAZ,Dismissal Duty,12,A,,Friday,12:45
 ADOLFO DIAZ,Music,K,C,,Tuesday,12:30,1:00-1:50
 ADOLFO DIAZ,Music,5,B,,Wednesday,12:30,12:45-1:50
 ADOLFO DIAZ,Music,8,A,,Monday,13:15,
+ADOLFO DIAZ,Dismissal Duty,12,A,,Monday,15:15
+ADOLFO DIAZ,Dismissal Duty,12,A,,Tuesday,15:15
+ADOLFO DIAZ,Dismissal Duty,12,A,,Wednesday,15:15
+ADOLFO DIAZ,Dismissal Duty,12,A,,Thursday,15:15
 FRANCISCO MENDOZA,Math 8,7,B,,Tuesday,07:30,
 FRANCISCO MENDOZA,Math 8,7,B,,Wednesday,07:30,
 FRANCISCO MENDOZA,Math 8,6,A,,Thursday,07:30,
@@ -447,15 +472,26 @@ FRANCISCO MENDOZA,Math 8,7,B,,Thursday,10:45,
 FRANCISCO MENDOZA,Math 8,7,B,,Friday,10:45,
 FRANCISCO MENDOZA,Math 8,6,B,,Wednesday,11:45,
 FRANCISCO MENDOZA,Math 8,7,A,,Thursday,11:45,
+FRANCISCO MENDOZA,Lunch Duty - Synthetic Field,12,A,,Thursday,12:45
+FRANCISCO MENDOZA,Dismissal Duty,12,A,,Friday,12:45
 FRANCISCO MENDOZA,Resource Room Support,,,,Monday,13:15
 FRANCISCO MENDOZA,Resource Room Support,,,,Tuesday,13:15
 FRANCISCO MENDOZA,Resource Room Support,,,,Wednesday,13:15
 FRANCISCO MENDOZA,Math 8,6,B,,Thursday,13:15,
 FRANCISCO MENDOZA,Math 8,6,B,,Monday,14:15,
-DEYANIRA DOMINGUEZ,Spanish,1,A,,Tuesday,08:30,
-DEYANIRA DOMINGUEZ,Spanish,1,A,,Wednesday,08:30,
-DEYANIRA DOMINGUEZ,Spanish,K,A,,Thursday,08:30,
-DEYANIRA DOMINGUEZ,Spanish,1,C,,Friday,08:30,
+FRANCISCO MENDOZA,Dismissal Duty,12,A,,Monday,15:15
+FRANCISCO MENDOZA,Dismissal Duty,12,A,,Tuesday,15:15
+FRANCISCO MENDOZA,Dismissal Duty,12,A,,Wednesday,15:15
+FRANCISCO MENDOZA,Dismissal Duty,12,A,,Thursday,15:15
+DEYANIRA DOMINGUEZ,Arrival Duty,12,A,,Monday,07:15
+DEYANIRA DOMINGUEZ,Arrival Duty,12,A,,Tuesday,07:15
+DEYANIRA DOMINGUEZ,Arrival Duty,12,A,,Wednesday,07:15
+DEYANIRA DOMINGUEZ,Arrival Duty,12,A,,Thursday,07:15
+DEYANIRA DOMINGUEZ,Arrival Duty,12,A,,Friday,07:15
+DEYANIRA DOMINGUEZ,Spanish,1,A,,Tuesday,07:30,
+DEYANIRA DOMINGUEZ,Spanish,1,A,,Wednesday,07:30,
+DEYANIRA DOMINGUEZ,Spanish,K,A,,Thursday,07:30,
+DEYANIRA DOMINGUEZ,Spanish,1,C,,Friday,07:30,
 DEYANIRA DOMINGUEZ,Spanish,1,C,,Monday,07:30,
 DEYANIRA DOMINGUEZ,Spanish,K,C,,Monday,09:15,
 DEYANIRA DOMINGUEZ,Spanish,K,C,,Tuesday,09:15,
@@ -472,10 +508,16 @@ DEYANIRA DOMINGUEZ,Spanish,K,A,,Tuesday,11:15,
 DEYANIRA DOMINGUEZ,Spanish,K,A,,Wednesday,11:15,
 DEYANIRA DOMINGUEZ,Spanish,1,C,,Thursday,11:15,
 DEYANIRA DOMINGUEZ,Spanish,1,A,,Friday,11:15,
+DEYANIRA DOMINGUEZ,Dismissal Duty,12,A,,Friday,12:00
 DEYANIRA DOMINGUEZ,Spanish,K,B,,Monday,12:30,
 DEYANIRA DOMINGUEZ,Spanish,K,B,,Tuesday,12:30,
 DEYANIRA DOMINGUEZ,Spanish,K,B,,Wednesday,12:30,
 DEYANIRA DOMINGUEZ,Spanish,K,B,,Thursday,12:30,
+AVIDEL GONZALEZ,Arrival Duty,12,A,,Monday,07:15
+AVIDEL GONZALEZ,Arrival Duty,12,A,,Tuesday,07:15
+AVIDEL GONZALEZ,Arrival Duty,12,A,,Wednesday,07:15
+AVIDEL GONZALEZ,Arrival Duty,12,A,,Thursday,07:15
+AVIDEL GONZALEZ,Arrival Duty,12,A,,Friday,07:15
 AVIDEL GONZALEZ,Spanish,2,B,,Tuesday,07:30,
 AVIDEL GONZALEZ,Spanish,2,B,,Wednesday,07:30,
 AVIDEL GONZALEZ,Spanish,2,A,,Thursday,07:30,
@@ -492,6 +534,7 @@ AVIDEL GONZALEZ,Spanish,3,B,,Tuesday,11:15,
 AVIDEL GONZALEZ,Spanish,3,A,,Wednesday,11:15,
 AVIDEL GONZALEZ,Spanish,3,A,,Thursday,11:15,
 AVIDEL GONZALEZ,Spanish,3,B,,Friday,11:15,
+AVIDEL GONZALEZ,Dismissal Duty,12,A,,Friday,12:00
 AVIDEL GONZALEZ,Spanish,3,A,,Monday,12:30,
 AVIDEL GONZALEZ,Spanish,2,A,,Tuesday,12:30,12:30-1:30
 AVIDEL GONZALEZ,Spanish,3,B,,Wednesday,12:30,
@@ -500,6 +543,11 @@ AVIDEL GONZALEZ,Resource Room Support,,,,Monday,13:15
 AVIDEL GONZALEZ,Resource Room Support,,,,Tuesday,13:15
 AVIDEL GONZALEZ,Resource Room Support,,,,Wednesday,13:15
 AVIDEL GONZALEZ,Resource Room Support,,,,Thursday,13:15
+ARACELLYS DOMINGUEZ,Arrival Duty,12,A,,Monday,07:15
+ARACELLYS DOMINGUEZ,Arrival Duty,12,A,,Tuesday,07:15
+ARACELLYS DOMINGUEZ,Arrival Duty,12,A,,Wednesday,07:15
+ARACELLYS DOMINGUEZ,Arrival Duty,12,A,,Thursday,07:15
+ARACELLYS DOMINGUEZ,Arrival Duty,12,A,,Friday,07:15
 ARACELLYS DOMINGUEZ,Social Studies,6,B,,Tuesday,07:30,
 ARACELLYS DOMINGUEZ,Social Studies,5,A,,Wednesday,07:30,
 ARACELLYS DOMINGUEZ,Social Studies,6,B,,Thursday,07:30,
@@ -514,6 +562,7 @@ ARACELLYS DOMINGUEZ,Social Studies,6,A,,Monday,10:45,
 ARACELLYS DOMINGUEZ,Social Studies,6,A,,Wednesday,10:45,
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Tuesday,11:15,
 ARACELLYS DOMINGUEZ,Social Studies,5,B,,Friday,11:15,
+ARACELLYS DOMINGUEZ,Dismissal Duty,12,A,,Friday,12:00
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Monday,12:30,
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Wednesday,12:30,12:30-1:30
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Thursday,12:30,12:30-1:30
@@ -521,6 +570,11 @@ ARACELLYS DOMINGUEZ,Resource Room Support,,,,Monday,14:15
 ARACELLYS DOMINGUEZ,Social Studies,6,A,,Tuesday,14:15,
 ARACELLYS DOMINGUEZ,Resource Room Support,,,,Wednesday,14:15
 ARACELLYS DOMINGUEZ,Resource Room Support,,,,Thursday,14:15
+MANUEL ABREGO,Arrival Duty,12,A,,Monday,07:15
+MANUEL ABREGO,Arrival Duty,12,A,,Tuesday,07:15
+MANUEL ABREGO,Arrival Duty,12,A,,Wednesday,07:15
+MANUEL ABREGO,Arrival Duty,12,A,,Thursday,07:15
+MANUEL ABREGO,Arrival Duty,12,A,,Friday,07:15
 MANUEL ABREGO,P.E.,3,A,,Wednesday,07:30,
 MANUEL ABREGO,P.E.,2,C,,Thursday,07:30,
 MANUEL ABREGO,P.E.,3,B,,Wednesday,08:30,
@@ -537,6 +591,7 @@ MANUEL ABREGO,P.E.,PK,,,Monday,11:15,10:30-11:00
 MANUEL ABREGO,P.E.,2,B,,Tuesday,11:15,
 MANUEL ABREGO,P.E.,2,A,,Thursday,11:15,
 MANUEL ABREGO,P.E.,1,B,,Monday,11:15,11:00-12:00
+MANUEL ABREGO,Dismissal Duty,12,A,,Friday,12:00
 MANUEL ABREGO,P.E.,4,B,,Monday,12:30,
 MANUEL ABREGO,P.E.,6,B,,Monday,14:15,
 MANUEL ABREGO,P.E.,7,A,,Tuesday,14:15,
@@ -556,6 +611,11 @@ ELSI DIAZ,French,6,A,,Wednesday,13:15,
 ELSI DIAZ,French,8,A,,Thursday,13:15,
 ELSI DIAZ,French,7,B,,Wednesday,14:15,
 ELSI DIAZ,French,6,B,,Thursday,14:15,
+MADELAINE ARROYO,Arrival Duty,12,A,,Monday,07:15
+MADELAINE ARROYO,Arrival Duty,12,A,,Tuesday,07:15
+MADELAINE ARROYO,Arrival Duty,12,A,,Wednesday,07:15
+MADELAINE ARROYO,Arrival Duty,12,A,,Thursday,07:15
+MADELAINE ARROYO,Arrival Duty,12,A,,Friday,07:15
 MADELAINE ARROYO,Social Science,4,A,,Wednesday,07:30,
 MADELAINE ARROYO,Social Science,4,B,,Thursday,07:30,
 MADELAINE ARROYO,Social Science,4,A,,Friday,07:30,
@@ -572,6 +632,7 @@ MADELAINE ARROYO,Social Science,3,A,,Monday,11:15,
 MADELAINE ARROYO,Social Science,3,A,,Tuesday,11:15,
 MADELAINE ARROYO,Social Science,2,C,,Wednesday,11:15,
 MADELAINE ARROYO,Social Science,1,C,,Friday,11:15,
+MADELAINE ARROYO,Lunch Duty - GYM,12,A,,Tuesday,12:00
 MADELAINE ARROYO,Social Science,1,A,,Monday,12:30,
 MADELAINE ARROYO,Social Science,1,C,,Tuesday,12:30,12:30-1:30
 MADELAINE ARROYO,Social Science,2,A,,Wednesday,12:30,
