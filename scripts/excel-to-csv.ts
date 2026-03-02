@@ -19,14 +19,25 @@ const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision"
 const PRIMARY_LEVEL_GRADES = new Set(["K", "PK", "1", "2", "3", "4", "5", "6"]);
 const SECONDARY_TO_PRIMARY_TIME: Record<string, string> = {
   "07:30": "07:30",
+  "08:00": "07:30", // PK/K early start -> closest PRIMARY slot
+  "08:15": "08:30", // PK/K slot -> PRIMARY 08:30
   "08:30": "08:30",
-  "09:30": "09:00", // SECONDARY break -> PRIMARY break start
-  "09:45": "09:15", // SECONDARY class -> PRIMARY 09:15 slot
-  "10:45": "10:15", // SECONDARY class -> PRIMARY 10:15 slot
-  "11:45": "11:15", // SECONDARY class -> PRIMARY 11:15 slot
-  "12:45": "12:00", // SECONDARY lunch -> PRIMARY lunch
-  "13:15": "12:30", // SECONDARY after-lunch -> PRIMARY 12:30 slot
-  "14:15": "13:15", // SECONDARY last slot -> PRIMARY 13:15 slot
+  "09:00": "09:15", // PK/K slot -> PRIMARY 09:15
+  "09:15": "09:15",
+  "09:30": "09:15",
+  "09:45": "09:45", // keep as-is (SECONDARY time block also exists)
+  "10:00": "10:15", // PK/K slot -> PRIMARY 10:15
+  "10:15": "10:15",
+  "10:30": "10:15", // PK/K slot -> PRIMARY 10:15
+  "10:45": "10:15", // SECONDARY row time -> PRIMARY 10:15
+  "11:00": "11:15", // PK/K slot -> PRIMARY 11:15
+  "11:15": "11:15",
+  "11:45": "11:15", // SECONDARY row time -> PRIMARY 11:15
+  "12:00": "12:00",
+  "12:30": "12:30",
+  "12:45": "12:00",
+  "13:15": "12:30",
+  "14:15": "13:15",
 };
 
 function mapToPrimaryTime(startTime: string, grade: string): string {
@@ -282,8 +293,10 @@ for (const block of blocks) {
       const subjectMapped = overrideSubject ?? mapSubject(block.subject, grade);
       const room = isLab ? getLabRoom(block.subject) : "";
       // If cell has embedded time (e.g. "6B (9:45-10:45)"), use that as the real start time.
+      // Also apply primary time mapping to ensure it lands on a valid DB time block.
       // Otherwise map the row time to the correct level's time block.
-      const effectiveStart = overrideStartTime ?? mapToPrimaryTime(startTime, grade);
+      const rawStart = overrideStartTime ?? startTime;
+      const effectiveStart = mapToPrimaryTime(rawStart, grade);
       csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart}`);
       total++;
     }
