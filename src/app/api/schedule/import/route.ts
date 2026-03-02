@@ -64,7 +64,18 @@ export async function POST(request: NextRequest) {
 
     // Optional: clear assignments for a level before import
     if (clearLevel && ["PRIMARY", "LOW_SECONDARY", "SECONDARY"].includes(clearLevel)) {
+      // Delete assignments with matching grade level
       await prisma.assignment.deleteMany({ where: { grade: { level: clearLevel } } });
+      // Also delete grade-less assignments for teachers who teach that level
+      const teachersInLevel = await prisma.teacher.findMany({
+        where: { assignments: { some: { grade: { level: clearLevel } } } },
+        select: { id: true },
+      });
+      if (teachersInLevel.length > 0) {
+        await prisma.assignment.deleteMany({
+          where: { gradeId: { equals: null }, teacherId: { in: teachersInLevel.map(t => t.id) } } as any,
+        });
+      }
     }
 
     const errors: string[] = [];
