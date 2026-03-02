@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 // who have classes at non-standard times embedded in Excel cells
 const DAYS = [1, 2, 3, 4, 5]; // Mon-Fri
 
+// These are SECONDARY-aligned slots that PRIMARY teachers (like Omely) also use
+// when teaching grade 6 classes that share the SECONDARY timetable.
 const missingSlots = [
-  { startTime: "08:00", endTime: "09:00", duration: "60", blockType: "CLASS" },
-  { startTime: "08:15", endTime: "09:15", duration: "60", blockType: "CLASS" },
-  { startTime: "10:00", endTime: "11:00", duration: "60", blockType: "CLASS" },
-  { startTime: "10:30", endTime: "11:30", duration: "60", blockType: "CLASS" },
-  { startTime: "11:00", endTime: "12:00", duration: "60", blockType: "CLASS" },
+  { startTime: "09:45", endTime: "10:45", duration: "60", blockType: "CLASS" },
+  { startTime: "10:45", endTime: "11:45", duration: "60", blockType: "CLASS" },
+  { startTime: "11:45", endTime: "12:45", duration: "60", blockType: "CLASS" },
 ];
 
 async function main() {
