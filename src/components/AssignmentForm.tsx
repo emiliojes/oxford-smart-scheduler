@@ -88,33 +88,36 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
   };
 
   // Cascading filters
+  const activeLevel = (selectedLevel && selectedLevel !== "ALL") ? selectedLevel : "";
+  const activeDay   = (selectedDay   && selectedDay   !== "ALL") ? selectedDay   : "";
+
   const filteredGrades = useMemo(() =>
-    selectedLevel ? grades.filter(g => g.level === selectedLevel) : grades,
-    [grades, selectedLevel]);
+    activeLevel ? grades.filter(g => g.level === activeLevel) : grades,
+    [grades, activeLevel]);
 
   const filteredTimeBlocks = useMemo(() => {
     let tb = timeBlocks;
-    if (selectedDay) tb = tb.filter(b => b.dayOfWeek === parseInt(selectedDay));
-    if (selectedLevel) {
-      const tlevel = selectedLevel === "LOW_SECONDARY" ? "SECONDARY" : selectedLevel;
+    if (activeDay) tb = tb.filter(b => b.dayOfWeek === parseInt(activeDay));
+    if (activeLevel) {
+      const tlevel = activeLevel === "LOW_SECONDARY" ? "SECONDARY" : activeLevel;
       tb = tb.filter(b => b.level === tlevel || b.level === "BOTH");
     }
     return tb;
-  }, [timeBlocks, selectedDay, selectedLevel]);
+  }, [timeBlocks, activeDay, activeLevel]);
 
   const filteredTeachers = useMemo(() => {
-    if (!selectedLevel) return teachers;
-    const levels = selectedLevel === "LOW_SECONDARY"
+    if (!activeLevel) return teachers;
+    const levels = activeLevel === "LOW_SECONDARY"
       ? ["LOW_SECONDARY", "SECONDARY", "BOTH"]
-      : [selectedLevel, "BOTH"];
+      : [activeLevel, "BOTH"];
     return teachers.filter(t => levels.includes(t.level));
-  }, [teachers, selectedLevel]);
+  }, [teachers, activeLevel]);
 
   const filteredSubjects = useMemo(() => {
-    if (!selectedLevel) return subjects;
-    const tlevel = selectedLevel === "LOW_SECONDARY" ? "SECONDARY" : selectedLevel;
+    if (!activeLevel) return subjects;
+    const tlevel = activeLevel === "LOW_SECONDARY" ? "SECONDARY" : activeLevel;
     return subjects.filter(s => s.level === tlevel || s.level === "BOTH");
-  }, [subjects, selectedLevel]);
+  }, [subjects, activeLevel]);
 
   // Conflict detection
   const conflicts = useMemo(() => {
