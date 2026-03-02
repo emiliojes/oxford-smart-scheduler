@@ -72,8 +72,15 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     levelCounts[lvl] = (levelCounts[lvl] ?? 0) + 1;
   }
   const dominantLevel = Object.entries(levelCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
-  // Map LOW_SECONDARY -> SECONDARY for time block level matching
-  const tbLevel = dominantLevel === "LOW_SECONDARY" ? "SECONDARY" : dominantLevel;
+  // If teacher has PRIMARY grades mixed with LOW_SECONDARY (e.g. Omely: 4B,5A,6B), use PRIMARY.
+  // Pure LOW_SECONDARY teachers (grades 7-8 only) use SECONDARY time blocks.
+  // Pure SECONDARY (9-12) stays SECONDARY.
+  const hasPrimary = (levelCounts["PRIMARY"] ?? 0) > 0;
+  const hasLowSec  = (levelCounts["LOW_SECONDARY"] ?? 0) > 0;
+  const tbLevel = (hasPrimary && hasLowSec)
+    ? "PRIMARY"                                         // mixed PRIMARY+LOW_SEC -> PRIMARY schedule
+    : dominantLevel === "LOW_SECONDARY" ? "SECONDARY"   // pure 7-8 -> SECONDARY schedule
+    : dominantLevel;
   // Filter time blocks to only the relevant level (or BOTH), falling back to all if unclear
   const relevantTimeBlocks = tbLevel
     ? timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
