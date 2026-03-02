@@ -190,7 +190,14 @@ for (const block of blocks) {
       // LUNCH with supervision = Lunch Duty; plain LUNCH = free time, skip
       if (gradeUpper.startsWith("LUNCH")) {
         if (block.homeroomGrade && (gradeUpper.includes("SUPERVISION") || gradeUpper.includes("DUTY"))) {
-          csvRows.push(`${teacherSafe},Lunch Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+          // Map supervision location to subject name
+          let lunchSubject = "Lunch Duty";
+          if (gradeUpper.includes("GYM")) lunchSubject = "Lunch Duty - GYM";
+          else if (gradeUpper.includes("CAFETERIA")) lunchSubject = "Lunch Duty - Cafeteria";
+          else if (gradeUpper.includes("SYNTHETIC")) lunchSubject = "Lunch Duty - Synthetic Field";
+          else if (gradeUpper.includes("SCHOOL BUS") || gradeUpper.includes("BUS")) lunchSubject = "Lunch Duty - School Bus Area";
+          else if (gradeUpper.includes("PARKING")) lunchSubject = "Lunch Duty - Parking Lot";
+          csvRows.push(`${teacherSafe},${lunchSubject},${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
           total++;
         }
         continue;

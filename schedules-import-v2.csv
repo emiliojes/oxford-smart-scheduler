@@ -21,7 +21,7 @@ IRLANDA TUÑON,Math 9,9,B,,Tuesday,11:45
 IRLANDA TUÑON,Math 9,9,A,,Wednesday,11:45
 IRLANDA TUÑON,Math 9,9,B,,Thursday,11:45
 IRLANDA TUÑON,Math 9,9,B,,Friday,11:45
-IRLANDA TUÑON,Lunch Duty,12,A,,Monday,12:45
+IRLANDA TUÑON,Lunch Duty - GYM,12,A,,Monday,12:45
 IRLANDA TUÑON,Dismissal Duty,12,A,,Friday,12:45
 IRLANDA TUÑON,Math 9,9,A,,Tuesday,13:15
 IRLANDA TUÑON,Math 9,9,B,,Wednesday,13:15
@@ -48,7 +48,7 @@ ANDREA CONCEPCION,Biology,11,B,,Tuesday,11:45
 ANDREA CONCEPCION,Biology,10,B,,Wednesday,11:45
 ANDREA CONCEPCION,Biology,11,B,,Thursday,11:45
 ANDREA CONCEPCION,Biology,11,B,,Friday,11:45
-ANDREA CONCEPCION,Lunch Duty,11,A,,Thursday,12:45
+ANDREA CONCEPCION,Lunch Duty - Cafeteria,11,A,,Thursday,12:45
 ANDREA CONCEPCION,Dismissal Duty,11,A,,Friday,12:45
 ANDREA CONCEPCION,Biology,11,B,,Monday,13:15
 ANDREA CONCEPCION,Biology,10,B,,Tuesday,13:15
@@ -78,7 +78,7 @@ RICARDO FERRAN,Chemistry,10,A,,Tuesday,11:45
 RICARDO FERRAN,Chemistry,10,A,,Wednesday,11:45
 RICARDO FERRAN,Chemistry,10,B,,Thursday,11:45
 RICARDO FERRAN,Chemistry,10,B,,Friday,11:45
-RICARDO FERRAN,Lunch Duty,11,B,,Monday,12:45
+RICARDO FERRAN,Lunch Duty - Synthetic Field,11,B,,Monday,12:45
 RICARDO FERRAN,Dismissal Duty,11,B,,Friday,12:45
 RICARDO FERRAN,Chemistry,9,A,,Monday,13:15
 RICARDO FERRAN,Chemistry,11,A,,Tuesday,13:15
@@ -102,7 +102,7 @@ EDUARDO BELL,Math 11,10,B,,Wednesday,10:45
 EDUARDO BELL,Math 11,10,A,,Thursday,10:45
 EDUARDO BELL,Math 9,8,A,,Friday,10:45
 EDUARDO BELL,Math 9,8,A,,Monday,11:45
-EDUARDO BELL,Lunch Duty,10,A,,Wednesday,12:45
+EDUARDO BELL,Lunch Duty - Synthetic Field,10,A,,Wednesday,12:45
 EDUARDO BELL,Dismissal Duty,10,A,,Friday,12:45
 EDUARDO BELL,Math 11,10,A,,Monday,13:15
 EDUARDO BELL,Math 9,8,A,,Tuesday,13:15
@@ -127,7 +127,7 @@ ARISTIDES GUERRA,Physics,11,B,,Thursday,10:45
 ARISTIDES GUERRA,Physics,12,A,,Friday,10:45
 ARISTIDES GUERRA,Physics,9,B,,Monday,11:45
 ARISTIDES GUERRA,Physics,10,A,,Friday,11:45
-ARISTIDES GUERRA,Lunch Duty,10,B,,Thursday,12:45
+ARISTIDES GUERRA,Lunch Duty - GYM,10,B,,Thursday,12:45
 ARISTIDES GUERRA,Dismissal Duty,10,B,,Friday,12:45
 ARISTIDES GUERRA,Physics,11,A,,Monday,13:15
 ARISTIDES GUERRA,Physics,10,A,,Tuesday,13:15
@@ -140,7 +140,7 @@ ARISTIDES GUERRA,Physics,10,B,,Thursday,14:15
 EMILIO NUÑEZ,Homeroom,9,A,,Monday,07:30
 EMILIO NUÑEZ,Computing,6,B,,Wednesday,09:45
 EMILIO NUÑEZ,Computing,10,B,,Friday,10:45
-EMILIO NUÑEZ,Lunch Duty,9,A,,Wednesday,12:45
+EMILIO NUÑEZ,Lunch Duty - Synthetic Field,9,A,,Wednesday,12:45
 EMILIO NUÑEZ,Dismissal Duty,9,A,,Friday,12:45
 JUDITH GIL,Homeroom,9,B,,Monday,07:30
 JUDITH GIL,Literature,9,A,,Tuesday,07:30
@@ -158,7 +158,7 @@ JUDITH GIL,Literature,10,B,,Monday,11:45
 JUDITH GIL,Literature,12,A,,Tuesday,11:45
 JUDITH GIL,Literature,12,A,,Thursday,11:45
 JUDITH GIL,Literature,8,A,,Friday,11:45
-JUDITH GIL,Lunch Duty,9,B,,Thursday,12:45
+JUDITH GIL,Lunch Duty - School Bus Area,9,B,,Thursday,12:45
 JUDITH GIL,Dismissal Duty,9,B,,Friday,12:45
 JUDITH GIL,Literature,9,B,,Monday,13:15
 JUDITH GIL,Literature,11,B,,Tuesday,13:15
@@ -186,7 +186,7 @@ CONRADO DE LEÓN,Science,9,A,,Wednesday,10:45
 CONRADO DE LEÓN,Science,9,A,,Thursday,10:45
 CONRADO DE LEÓN,Science,7,B,,Monday,11:45
 CONRADO DE LEÓN,Science,8,B,,Tuesday,11:45
-CONRADO DE LEÓN,Lunch Duty,8,A,,Tuesday,12:45
+CONRADO DE LEÓN,Lunch Duty - Synthetic Field,8,A,,Tuesday,12:45
 CONRADO DE LEÓN,Dismissal Duty,8,A,,Friday,12:45
 CONRADO DE LEÓN,Science,9,A,,Monday,14:15
 ELIDA BARRIA,Homeroom,8,B,,Monday,07:30
@@ -207,7 +207,7 @@ ELIDA BARRIA,Spanish,9,A,,Tuesday,11:45
 ELIDA BARRIA,Spanish,8,B,,Wednesday,11:45
 ELIDA BARRIA,Spanish,8,B,,Thursday,11:45
 ELIDA BARRIA,Spanish,8,B,,Friday,11:45
-ELIDA BARRIA,Lunch Duty,8,B,,Tuesday,12:45
+ELIDA BARRIA,Lunch Duty - School Bus Area,8,B,,Tuesday,12:45
 ELIDA BARRIA,Dismissal Duty,8,B,,Friday,12:45
 ELIDA BARRIA,Spanish,12,A,,Monday,13:15
 ELIDA BARRIA,Spanish,12,A,,Tuesday,13:15
@@ -231,7 +231,7 @@ VIELKA VEGA,English,7,A,,Friday,10:45
 VIELKA VEGA,English,6,A,,Tuesday,11:45
 VIELKA VEGA,English,6,A,,Wednesday,11:45
 VIELKA VEGA,English,6,A,,Friday,11:45
-VIELKA VEGA,Lunch Duty,7,A,,Monday,12:45
+VIELKA VEGA,Lunch Duty - Cafeteria,7,A,,Monday,12:45
 VIELKA VEGA,Dismissal Duty,7,A,,Friday,12:45
 VIELKA VEGA,English,6,B,,Monday,13:15
 VIELKA VEGA,English,6,B,,Tuesday,13:15
@@ -258,7 +258,7 @@ MARIA PITTI,Spanish,7,A,,Monday,11:45
 MARIA PITTI,Spanish,7,A,,Tuesday,11:45
 MARIA PITTI,Spanish,7,B,,Wednesday,11:45
 MARIA PITTI,Spanish,8,A,,Thursday,11:45
-MARIA PITTI,Lunch Duty,7,B,,Tuesday,12:45
+MARIA PITTI,Lunch Duty - Cafeteria,7,B,,Tuesday,12:45
 MARIA PITTI,Dismissal Duty,7,B,,Friday,12:45
 MARIA PITTI,Spanish,7,B,,Monday,13:15
 MARIA PITTI,Spanish,7,B,,Tuesday,13:15
@@ -285,7 +285,7 @@ OMELY RUJANO,Spanish,6,A,,Tuesday,13:15
 OMELY RUJANO,Spanish,6,A,,Monday,14:15
 OMELY RUJANO,Spanish,6,A,,Thursday,14:15
 ENIS RODRIGUEZ,Homeroom,6,B,,Monday,07:30
-ENIS RODRIGUEZ,Lunch Duty,6,B,,Wednesday,12:45
+ENIS RODRIGUEZ,Lunch Duty - Cafeteria,6,B,,Wednesday,12:45
 ENIS RODRIGUEZ,Dismissal Duty,6,B,,Friday,12:45
 ANDREA GUERRA,English,10,B,,Friday,07:30
 ANDREA GUERRA,English,11,B,,Monday,09:45

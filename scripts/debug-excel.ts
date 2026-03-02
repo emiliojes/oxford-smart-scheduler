@@ -8,6 +8,14 @@ const wb = XLSX.readFile(FILE);
 const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
+// Show Andrea Concepcion full block
+console.log("=== Andrea Concepcion block ===");
+for (let r = 22; r <= 38; r++) {
+  const row = rows[r] ?? [];
+  const cols = row.map((c: any, i: number) => `[${i}]="${String(c).trim()}"`).filter((s: string) => !s.includes('""')).join("  ");
+  if (cols) console.log(`Row ${r}: ${cols}`);
+}
+
 // For each teacher block, show the lunch row with teacher name
 const DAYS2 = ["Mon","Tue","Wed","Thu","Fri"];
 console.log("=== Lunch duties per teacher ===");
