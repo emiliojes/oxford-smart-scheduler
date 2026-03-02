@@ -101,6 +101,15 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
     if (activeLevel) {
       const tlevel = activeLevel === "LOW_SECONDARY" ? "SECONDARY" : activeLevel;
       tb = tb.filter(b => b.level === tlevel || b.level === "BOTH");
+    } else {
+      // Deduplicate by dayOfWeek+startTime to avoid showing PRIMARY and SECONDARY duplicates
+      const seen = new Set<string>();
+      tb = tb.filter(b => {
+        const key = `${b.dayOfWeek}-${b.startTime}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     }
     return tb;
   }, [timeBlocks, activeDay, activeLevel]);
