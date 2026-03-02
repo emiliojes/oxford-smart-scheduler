@@ -26,7 +26,7 @@ interface Assignment {
   teacher: { name: string };
   subject: { name: string };
   grade: { name: string; section: string | null };
-  room: { name: string };
+  room: { name: string } | null;
   timeBlock: {
     dayOfWeek: number;
     startTime: string;
@@ -163,7 +163,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGrid
                                       {viewType !== "teacher" && (
                                         <span className="truncate">{t.schedule.types.teacher}: {a.teacher.name}</span>
                                       )}
-                                      {viewType !== "room" && (
+                                      {viewType !== "room" && a.room && (
                                         <span className="truncate">{t.schedule.types.room}: {a.room.name}</span>
                                       )}
                                     </div>

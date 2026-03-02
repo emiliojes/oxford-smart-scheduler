@@ -1,0 +1,450 @@
+teacher,subject,grade,section,room,day,start_time
+IRLANDA TUÑON,Maths 12,12,A,,Tuesday,07:30
+IRLANDA TUÑON,Maths 12,12,A,,Wednesday,07:30
+IRLANDA TUÑON,Maths 12,12,A,,Thursday,07:30
+IRLANDA TUÑON,Maths 12,12,A,,Friday,07:30
+IRLANDA TUÑON,Maths 12,12,A,,Monday,08:30
+IRLANDA TUÑON,Math 9,9,A,,Friday,08:30
+IRLANDA TUÑON,Math 11,11,A,,Monday,09:45
+IRLANDA TUÑON,Math 11,11,B,,Tuesday,09:45
+IRLANDA TUÑON,Math 11,11,A,,Wednesday,09:45
+IRLANDA TUÑON,Math 11,11,A,,Thursday,09:45
+IRLANDA TUÑON,Math 9,9,B,,Friday,09:45
+IRLANDA TUÑON,Math 11,11,B,,Monday,10:45
+IRLANDA TUÑON,Math 11,11,A,,Tuesday,10:45
+IRLANDA TUÑON,Math 11,11,B,,Wednesday,10:45
+IRLANDA TUÑON,Math 11,11,B,,Thursday,10:45
+IRLANDA TUÑON,Math 11,11,B,,Friday,10:45
+IRLANDA TUÑON,Math 9,9,A,,Monday,11:45
+IRLANDA TUÑON,Math 9,9,B,,Tuesday,11:45
+IRLANDA TUÑON,Math 9,9,A,,Wednesday,11:45
+IRLANDA TUÑON,Math 9,9,B,,Thursday,11:45
+IRLANDA TUÑON,Math 9,9,B,,Friday,11:45
+IRLANDA TUÑON,Math 9,9,A,,Tuesday,13:15
+IRLANDA TUÑON,Math 9,9,B,,Wednesday,13:15
+IRLANDA TUÑON,Math 11,11,A,,Thursday,13:15
+IRLANDA TUÑON,Math 9,9,B,,Monday,14:15
+IRLANDA TUÑON,Math 9,9,A,,Thursday,14:15
+ANDREA CONCEPCION,Biology,10,A,,Tuesday,07:30
+ANDREA CONCEPCION,Biology,10,A,,Wednesday,07:30
+ANDREA CONCEPCION,Biology,10,A,,Thursday,07:30
+ANDREA CONCEPCION,Biology,11,A,,Friday,07:30
+ANDREA CONCEPCION,Biology,10,A,,Monday,08:30
+ANDREA CONCEPCION,Biology,11,A,,Tuesday,08:30
+ANDREA CONCEPCION,Biology,11,A,,Wednesday,08:30
+ANDREA CONCEPCION,Biology,10,B,,Friday,08:30
+ANDREA CONCEPCION,Biology,12,A,,Monday,09:45
+ANDREA CONCEPCION,Biology,12,A,,Tuesday,09:45
+ANDREA CONCEPCION,Biology,9,B,,Wednesday,09:45
+ANDREA CONCEPCION,Biology,12,A,,Friday,09:45
+ANDREA CONCEPCION,Biology,9,B,,Monday,10:45
+ANDREA CONCEPCION,Biology,12,A,,Thursday,10:45
+ANDREA CONCEPCION,Biology,11,A,,Monday,11:45
+ANDREA CONCEPCION,Biology,11,B,,Tuesday,11:45
+ANDREA CONCEPCION,Biology,10,B,,Wednesday,11:45
+ANDREA CONCEPCION,Biology,11,B,,Thursday,11:45
+ANDREA CONCEPCION,Biology,11,B,,Friday,11:45
+ANDREA CONCEPCION,Biology,11,B,,Monday,13:15
+ANDREA CONCEPCION,Biology,10,B,,Tuesday,13:15
+ANDREA CONCEPCION,Biology,10,B,,Thursday,13:15
+ANDREA CONCEPCION,Biology,9,B,,Tuesday,14:15
+ANDREA CONCEPCION,Biology,12,A,,Wednesday,14:15
+ANDREA CONCEPCION,Biology,9,B,,Thursday,14:15
+RICARDO FERRAN,Chemistry,11,B,,Tuesday,07:30
+RICARDO FERRAN,Chemistry,11,B,,Wednesday,07:30
+RICARDO FERRAN,Chemistry,11,B,,Friday,07:30
+RICARDO FERRAN,Chemistry,11,B,,Monday,08:30
+RICARDO FERRAN,Chemistry,12,A,,Tuesday,08:30
+RICARDO FERRAN,Chemistry,12,A,,Wednesday,08:30
+RICARDO FERRAN,Chemistry,12,A,,Thursday,08:30
+RICARDO FERRAN,Chemistry,12,A,,Friday,08:30
+RICARDO FERRAN,Chemistry,9,B,,Monday,09:45
+RICARDO FERRAN,Chemistry,9,B,,Tuesday,09:45
+RICARDO FERRAN,Chemistry,9,A,,Wednesday,09:45
+RICARDO FERRAN,Chemistry,11,A,,Thursday,09:45
+RICARDO FERRAN,Chemistry,11,A,,Friday,09:45
+RICARDO FERRAN,Chemistry,10,B,,Tuesday,10:45
+RICARDO FERRAN,Chemistry,9,B,,Thursday,10:45
+RICARDO FERRAN,Chemistry,9,A,,Friday,10:45
+RICARDO FERRAN,Chemistry,10,A,,Monday,11:45
+RICARDO FERRAN,Chemistry,10,A,,Tuesday,11:45
+RICARDO FERRAN,Chemistry,10,A,,Wednesday,11:45
+RICARDO FERRAN,Chemistry,10,B,,Thursday,11:45
+RICARDO FERRAN,Chemistry,10,B,,Friday,11:45
+RICARDO FERRAN,Chemistry,9,A,,Monday,13:15
+RICARDO FERRAN,Chemistry,11,A,,Tuesday,13:15
+RICARDO FERRAN,Chemistry,10,B,,Monday,14:15
+RICARDO FERRAN,Chemistry,11,A,,Wednesday,14:15
+RICARDO FERRAN,Chemistry,10,A,,Thursday,14:15
+EDUARDO BELL,Math 9,8,A,,Wednesday,07:30
+EDUARDO BELL,Math 11,10,B,,Thursday,07:30
+EDUARDO BELL,Math 11,10,A,,Friday,07:30
+EDUARDO BELL,Math 11,10,A,,Tuesday,08:30
+EDUARDO BELL,Math 9,8,A,,Thursday,08:30
+EDUARDO BELL,Math 9,8,B,,Friday,08:30
+EDUARDO BELL,Math 9,8,B,,Monday,09:45
+EDUARDO BELL,Math 11,10,B,,Tuesday,09:45
+EDUARDO BELL,Math 11,10,A,,Wednesday,09:45
+EDUARDO BELL,Math 9,8,B,,Thursday,09:45
+EDUARDO BELL,Math 11,10,B,,Friday,09:45
+EDUARDO BELL,Math 11,10,B,,Monday,10:45
+EDUARDO BELL,Math 11,10,B,,Wednesday,10:45
+EDUARDO BELL,Math 11,10,A,,Thursday,10:45
+EDUARDO BELL,Math 9,8,A,,Friday,10:45
+EDUARDO BELL,Math 9,8,A,,Monday,11:45
+EDUARDO BELL,Math 11,10,A,,Monday,13:15
+EDUARDO BELL,Math 9,8,A,,Tuesday,13:15
+EDUARDO BELL,Math 9,8,B,,Wednesday,13:15
+EDUARDO BELL,Math 9,8,B,,Tuesday,14:15
+ARISTIDES GUERRA,Physics,10,B,,Tuesday,07:30
+ARISTIDES GUERRA,Physics,10,B,,Wednesday,07:30
+ARISTIDES GUERRA,Physics,9,B,,Thursday,07:30
+ARISTIDES GUERRA,Physics,10,B,,Monday,08:30
+ARISTIDES GUERRA,Physics,11,B,,Tuesday,08:30
+ARISTIDES GUERRA,Physics,10,A,,Wednesday,08:30
+ARISTIDES GUERRA,Physics,9,A,,Thursday,08:30
+ARISTIDES GUERRA,Physics,11,A,,Friday,08:30
+ARISTIDES GUERRA,Physics,11,A,,Tuesday,09:45
+ARISTIDES GUERRA,Physics,11,B,,Wednesday,09:45
+ARISTIDES GUERRA,Physics,12,A,,Thursday,09:45
+ARISTIDES GUERRA,Physics,12,A,,Monday,10:45
+ARISTIDES GUERRA,Physics,12,A,,Tuesday,10:45
+ARISTIDES GUERRA,Physics,11,A,,Wednesday,10:45
+ARISTIDES GUERRA,Physics,11,B,,Thursday,10:45
+ARISTIDES GUERRA,Physics,12,A,,Friday,10:45
+ARISTIDES GUERRA,Physics,9,B,,Monday,11:45
+ARISTIDES GUERRA,Physics,10,A,,Friday,11:45
+ARISTIDES GUERRA,Physics,11,A,,Monday,13:15
+ARISTIDES GUERRA,Physics,10,A,,Tuesday,13:15
+ARISTIDES GUERRA,Physics,9,A,,Wednesday,13:15
+ARISTIDES GUERRA,Physics,10,A,,Thursday,13:15
+ARISTIDES GUERRA,Physics,11,B,,Monday,14:15
+ARISTIDES GUERRA,Physics,9,A,,Tuesday,14:15
+ARISTIDES GUERRA,Physics,9,B,,Wednesday,14:15
+ARISTIDES GUERRA,Physics,10,B,,Thursday,14:15
+EMILIO NUÑEZ,Computing,6,B,,Wednesday,09:45
+EMILIO NUÑEZ,Computing,10,B,,Friday,10:45
+JUDITH GIL,Literature,9,A,,Tuesday,07:30
+JUDITH GIL,Literature,10,A,,Thursday,07:30
+JUDITH GIL,Literature,9,A,,Monday,08:30
+JUDITH GIL,Literature,10,B,,Tuesday,08:30
+JUDITH GIL,Literature,11,B,,Wednesday,08:30
+JUDITH GIL,Literature,11,B,,Friday,08:30
+JUDITH GIL,Literature,10,A,,Monday,09:45
+JUDITH GIL,Literature,8,A,,Wednesday,09:45
+JUDITH GIL,Literature,9,A,,Thursday,09:45
+JUDITH GIL,Literature,8,A,,Tuesday,10:45
+JUDITH GIL,Literature,9,B,,Wednesday,10:45
+JUDITH GIL,Literature,10,B,,Monday,11:45
+JUDITH GIL,Literature,12,A,,Tuesday,11:45
+JUDITH GIL,Literature,12,A,,Thursday,11:45
+JUDITH GIL,Literature,8,A,,Friday,11:45
+JUDITH GIL,Literature,9,B,,Monday,13:15
+JUDITH GIL,Literature,11,B,,Tuesday,13:15
+JUDITH GIL,Literature,11,A,,Wednesday,13:15
+JUDITH GIL,Literature,9,B,,Thursday,13:15
+JUDITH GIL,Literature,11,A,,Monday,14:15
+JUDITH GIL,Literature,10,A,,Tuesday,14:15
+JUDITH GIL,Literature,10,B,,Wednesday,14:15
+JUDITH GIL,Literature,11,A,,Thursday,14:15
+CONRADO DE LEÓN,Science,8,A,,Thursday,07:30
+CONRADO DE LEÓN,Science,8,B,,Friday,07:30
+CONRADO DE LEÓN,Science,8,B,,Monday,08:30
+CONRADO DE LEÓN,Science,8,A,,Tuesday,08:30
+CONRADO DE LEÓN,Science,8,A,,Wednesday,08:30
+CONRADO DE LEÓN,Science,8,B,,Thursday,08:30
+CONRADO DE LEÓN,Science,8,A,,Friday,08:30
+CONRADO DE LEÓN,Science,7,B,,Tuesday,09:45
+CONRADO DE LEÓN,Science,7,B,,Wednesday,09:45
+CONRADO DE LEÓN,Science,7,B,,Thursday,09:45
+CONRADO DE LEÓN,Science,7,B,,Friday,09:45
+CONRADO DE LEÓN,Science,8,A,,Monday,10:45
+CONRADO DE LEÓN,Science,9,A,,Tuesday,10:45
+CONRADO DE LEÓN,Science,9,A,,Wednesday,10:45
+CONRADO DE LEÓN,Science,9,A,,Thursday,10:45
+CONRADO DE LEÓN,Science,7,B,,Monday,11:45
+CONRADO DE LEÓN,Science,8,B,,Tuesday,11:45
+CONRADO DE LEÓN,Science,9,A,,Monday,14:15
+ELIDA BARRIA,Spanish,11,A,,Tuesday,07:30
+ELIDA BARRIA,Spanish,11,A,,Wednesday,07:30
+ELIDA BARRIA,Spanish,11,A,,Thursday,07:30
+ELIDA BARRIA,Spanish,11,A,,Monday,08:30
+ELIDA BARRIA,Spanish,8,B,,Tuesday,08:30
+ELIDA BARRIA,Spanish,9,B,,Wednesday,08:30
+ELIDA BARRIA,Spanish,9,B,,Tuesday,09:45
+ELIDA BARRIA,Spanish,11,B,,Wednesday,09:45
+ELIDA BARRIA,Spanish,9,B,,Thursday,09:45
+ELIDA BARRIA,Spanish,9,A,,Friday,09:45
+ELIDA BARRIA,Spanish,9,A,,Monday,10:45
+ELIDA BARRIA,Spanish,9,B,,Friday,10:45
+ELIDA BARRIA,Spanish,11,B,,Monday,11:45
+ELIDA BARRIA,Spanish,9,A,,Tuesday,11:45
+ELIDA BARRIA,Spanish,8,B,,Wednesday,11:45
+ELIDA BARRIA,Spanish,8,B,,Thursday,11:45
+ELIDA BARRIA,Spanish,8,B,,Friday,11:45
+ELIDA BARRIA,Spanish,12,A,,Monday,13:15
+ELIDA BARRIA,Spanish,12,A,,Tuesday,13:15
+ELIDA BARRIA,Spanish,12,A,,Wednesday,13:15
+ELIDA BARRIA,Spanish,12,A,,Thursday,13:15
+ELIDA BARRIA,Spanish,8,B,,Monday,14:15
+ELIDA BARRIA,Spanish,11,B,,Tuesday,14:15
+ELIDA BARRIA,Spanish,9,A,,Wednesday,14:15
+ELIDA BARRIA,Spanish,11,B,,Thursday,14:15
+VIELKA VEGA,English,7,A,,Tuesday,07:30
+VIELKA VEGA,English,7,A,,Thursday,07:30
+VIELKA VEGA,English,7,B,,Friday,07:30
+VIELKA VEGA,English,7,A,,Monday,08:30
+VIELKA VEGA,English,6,B,,Wednesday,08:30
+VIELKA VEGA,English,6,B,,Thursday,08:30
+VIELKA VEGA,English,6,B,,Friday,08:30
+VIELKA VEGA,English,6,A,,Monday,09:45
+VIELKA VEGA,English,6,A,,Thursday,10:45
+VIELKA VEGA,English,7,A,,Friday,10:45
+VIELKA VEGA,English,6,A,,Tuesday,11:45
+VIELKA VEGA,English,6,A,,Wednesday,11:45
+VIELKA VEGA,English,6,A,,Friday,11:45
+VIELKA VEGA,English,6,B,,Monday,13:15
+VIELKA VEGA,English,6,B,,Tuesday,13:15
+VIELKA VEGA,English,7,B,,Wednesday,13:15
+VIELKA VEGA,English,7,B,,Thursday,13:15
+VIELKA VEGA,English,7,B,,Monday,14:15
+VIELKA VEGA,English,7,B,,Tuesday,14:15
+VIELKA VEGA,English,7,A,,Wednesday,14:15
+MARIA PITTI,Spanish,8,A,,Friday,07:30
+MARIA PITTI,Spanish,8,A,,Monday,08:30
+MARIA PITTI,Spanish,7,A,,Wednesday,08:30
+MARIA PITTI,Spanish,7,B,,Thursday,08:30
+MARIA PITTI,Spanish,7,B,,Friday,08:30
+MARIA PITTI,Spanish,10,B,,Monday,09:45
+MARIA PITTI,Spanish,8,A,,Tuesday,09:45
+MARIA PITTI,Spanish,10,A,,Thursday,09:45
+MARIA PITTI,Spanish,7,A,,Friday,09:45
+MARIA PITTI,Spanish,10,A,,Tuesday,10:45
+MARIA PITTI,Spanish,8,A,,Wednesday,10:45
+MARIA PITTI,Spanish,10,B,,Thursday,10:45
+MARIA PITTI,Spanish,10,A,,Friday,10:45
+MARIA PITTI,Spanish,7,A,,Monday,11:45
+MARIA PITTI,Spanish,7,A,,Tuesday,11:45
+MARIA PITTI,Spanish,7,B,,Wednesday,11:45
+MARIA PITTI,Spanish,8,A,,Thursday,11:45
+MARIA PITTI,Spanish,7,B,,Monday,13:15
+MARIA PITTI,Spanish,7,B,,Tuesday,13:15
+MARIA PITTI,Spanish,10,B,,Wednesday,13:15
+MARIA PITTI,Spanish,7,A,,Thursday,13:15
+MARIA PITTI,Spanish,10,B,,Tuesday,14:15
+MARIA PITTI,Spanish,10,A,,Wednesday,14:15
+OMELY RUJANO,Spanish,4,B,,Tuesday,07:30
+OMELY RUJANO,Spanish,6,B,,Wednesday,07:30
+OMELY RUJANO,Spanish,5,B,,Thursday,07:30
+OMELY RUJANO,Spanish,6,A,,Wednesday,08:30
+OMELY RUJANO,Spanish,5,A,,Monday,09:15
+OMELY RUJANO,Spanish,5,A,,Thursday,09:15
+OMELY RUJANO,Spanish,6,B,,Monday,10:45
+OMELY RUJANO,Spanish,6,B,,Thursday,10:45
+OMELY RUJANO,Spanish,6,A,,Friday,10:45
+OMELY RUJANO,Spanish,5,B,,Monday,12:30
+OMELY RUJANO,Spanish,5,B,,Tuesday,12:30
+OMELY RUJANO,Spanish,5,A,,Wednesday,12:30
+OMELY RUJANO,Spanish,4,B,,Thursday,12:30
+OMELY RUJANO,Spanish,6,A,,Tuesday,13:15
+OMELY RUJANO,Spanish,6,A,,Monday,14:15
+OMELY RUJANO,Spanish,6,A,,Thursday,14:15
+ANDREA GUERRA,English,10,B,,Friday,07:30
+ANDREA GUERRA,English,11,B,,Monday,09:45
+ANDREA GUERRA,English,10,A,,Tuesday,09:45
+ANDREA GUERRA,English,10,B,,Wednesday,09:45
+ANDREA GUERRA,English,10,B,,Thursday,09:45
+ANDREA GUERRA,English,10,A,,Friday,09:45
+ANDREA GUERRA,English,11,B,,Tuesday,10:45
+ANDREA GUERRA,English,10,A,,Wednesday,10:45
+ANDREA GUERRA,English,12,A,,Monday,11:45
+ANDREA GUERRA,English,11,A,,Tuesday,11:45
+ANDREA GUERRA,English,11,A,,Wednesday,11:45
+ANDREA GUERRA,English,11,A,,Thursday,11:45
+ANDREA GUERRA,English,11,A,,Friday,11:45
+ANDREA GUERRA,English,10,B,,Monday,13:15
+ANDREA GUERRA,English,11,B,,Wednesday,13:15
+ANDREA GUERRA,English,11,B,,Thursday,13:15
+ANDREA GUERRA,English,10,A,,Monday,14:15
+ANDREA GUERRA,English,12,A,,Tuesday,14:15
+ANDREA GUERRA,English,12,A,,Wednesday,14:15
+ANDREA GUERRA,English,12,A,,Thursday,14:15
+VANESSA MUÑOZ,Social Science,8,A,,Tuesday,07:30
+VANESSA MUÑOZ,Social Science,8,B,,Wednesday,07:30
+VANESSA MUÑOZ,Social Science,7,B,,Thursday,07:30
+VANESSA MUÑOZ,Social Science,9,B,,Friday,07:30
+VANESSA MUÑOZ,Social Science,7,B,,Monday,08:30
+VANESSA MUÑOZ,Social Science,10,B,,Wednesday,08:30
+VANESSA MUÑOZ,Social Science,11,A,,Thursday,08:30
+VANESSA MUÑOZ,Social Science,10,A,,Friday,08:30
+VANESSA MUÑOZ,Social Science,8,A,,Monday,09:45
+VANESSA MUÑOZ,Social Science,9,A,,Tuesday,09:45
+VANESSA MUÑOZ,Social Science,12,A,,Wednesday,09:45
+VANESSA MUÑOZ,Social Science,8,A,,Thursday,09:45
+VANESSA MUÑOZ,Social Science,11,B,,Friday,09:45
+VANESSA MUÑOZ,Social Science,10,A,,Monday,10:45
+VANESSA MUÑOZ,Social Science,8,B,,Tuesday,10:45
+VANESSA MUÑOZ,Social Science,7,B,,Wednesday,10:45
+VANESSA MUÑOZ,Social Science,7,A,,Thursday,10:45
+VANESSA MUÑOZ,Social Science,11,A,,Friday,10:45
+VANESSA MUÑOZ,Social Science,10,B,,Tuesday,11:45
+VANESSA MUÑOZ,Social Science,11,B,,Wednesday,11:45
+VANESSA MUÑOZ,Social Science,11,A,,Thursday,11:45
+VANESSA MUÑOZ,Social Science,12,A,,Friday,11:45
+VANESSA MUÑOZ,Social Science,7,A,,Monday,13:15
+VANESSA MUÑOZ,Social Science,9,B,,Tuesday,13:15
+VANESSA MUÑOZ,Social Science,7,A,,Wednesday,13:15
+VANESSA MUÑOZ,Social Science,8,B,,Thursday,13:15
+LEONEL VEGA,English,9,B,,Tuesday,07:30
+LEONEL VEGA,English,9,B,,Wednesday,07:30
+LEONEL VEGA,English,9,A,,Thursday,07:30
+LEONEL VEGA,English,9,A,,Friday,07:30
+LEONEL VEGA,English,9,B,,Monday,08:30
+LEONEL VEGA,English,9,A,,Tuesday,08:30
+LEONEL VEGA,English,9,A,,Wednesday,08:30
+LEONEL VEGA,English,9,B,,Thursday,08:30
+LEONEL VEGA,English,9,B,,Friday,08:30
+LEONEL VEGA,English,9,A,,Monday,09:45
+ADOLFO DIAZ,Music,2,A,,Tuesday,07:30
+ADOLFO DIAZ,Music,4,B,,Wednesday,07:30
+ADOLFO DIAZ,Music,1,C,,Thursday,07:30
+ADOLFO DIAZ,Music,1,A,,Friday,07:30
+ADOLFO DIAZ,Music,2,B,,Monday,09:15
+ADOLFO DIAZ,Music,K,A,,Tuesday,09:15
+ADOLFO DIAZ,Music,K,B,,Thursday,09:15
+ADOLFO DIAZ,Music,2,C,,Friday,09:15
+ADOLFO DIAZ,Music,4,A,,Tuesday,10:15
+ADOLFO DIAZ,Music,1,B,,Wednesday,10:15
+ADOLFO DIAZ,Music,3,B,,Thursday,10:15
+ADOLFO DIAZ,Music,5,A,,Friday,10:15
+ADOLFO DIAZ,Music,8,B,,Monday,10:45
+ADOLFO DIAZ,Music,6,A,,Monday,11:45
+ADOLFO DIAZ,Music,7,B,,Tuesday,11:45
+ADOLFO DIAZ,Music,7,A,,Wednesday,11:45
+ADOLFO DIAZ,Music,6,B,,Thursday,11:45
+ADOLFO DIAZ,Music,8,A,,Monday,13:15
+FRANCISCO MENDOZA,Math 9,7,B,,Tuesday,07:30
+FRANCISCO MENDOZA,Math 9,7,B,,Wednesday,07:30
+FRANCISCO MENDOZA,Math 9,6,A,,Thursday,07:30
+FRANCISCO MENDOZA,Math 9,6,B,,Friday,07:30
+FRANCISCO MENDOZA,Math 9,6,A,,Monday,08:30
+FRANCISCO MENDOZA,Math 9,7,A,,Tuesday,08:30
+FRANCISCO MENDOZA,Math 9,7,A,,Friday,08:30
+FRANCISCO MENDOZA,Math 9,7,B,,Monday,09:45
+FRANCISCO MENDOZA,Math 9,6,A,,Tuesday,09:45
+FRANCISCO MENDOZA,Math 9,6,A,,Wednesday,09:45
+FRANCISCO MENDOZA,Math 9,6,A,,Friday,09:45
+FRANCISCO MENDOZA,Math 9,7,A,,Monday,10:45
+FRANCISCO MENDOZA,Math 9,6,B,,Tuesday,10:45
+FRANCISCO MENDOZA,Math 9,7,A,,Wednesday,10:45
+FRANCISCO MENDOZA,Math 9,7,B,,Thursday,10:45
+FRANCISCO MENDOZA,Math 9,7,B,,Friday,10:45
+FRANCISCO MENDOZA,Math 9,6,B,,Wednesday,11:45
+FRANCISCO MENDOZA,Math 9,7,A,,Thursday,11:45
+FRANCISCO MENDOZA,Math 9,6,B,,Thursday,13:15
+FRANCISCO MENDOZA,Math 9,6,B,,Monday,14:15
+DEYANIRA DOMINGUEZ,Spanish,1,A,,Tuesday,08:30
+DEYANIRA DOMINGUEZ,Spanish,1,A,,Wednesday,08:30
+DEYANIRA DOMINGUEZ,Spanish,K,A,,Thursday,08:30
+DEYANIRA DOMINGUEZ,Spanish,1,C,,Friday,08:30
+DEYANIRA DOMINGUEZ,Spanish,1,C,,Monday,08:00
+DEYANIRA DOMINGUEZ,Spanish,K,C,,Monday,09:15
+DEYANIRA DOMINGUEZ,Spanish,K,C,,Tuesday,09:15
+DEYANIRA DOMINGUEZ,Spanish,1,B,,Wednesday,09:15
+DEYANIRA DOMINGUEZ,Spanish,1,B,,Thursday,09:15
+DEYANIRA DOMINGUEZ,Spanish,1,B,,Friday,09:15
+DEYANIRA DOMINGUEZ,Spanish,1,A,,Monday,10:15
+DEYANIRA DOMINGUEZ,Spanish,1,B,,Tuesday,10:15
+DEYANIRA DOMINGUEZ,Spanish,1,C,,Wednesday,10:15
+DEYANIRA DOMINGUEZ,Spanish,K,C,,Thursday,10:15
+DEYANIRA DOMINGUEZ,Spanish,K,C,,Friday,10:15
+DEYANIRA DOMINGUEZ,Spanish,K,A,,Monday,11:15
+DEYANIRA DOMINGUEZ,Spanish,K,A,,Tuesday,11:15
+DEYANIRA DOMINGUEZ,Spanish,K,A,,Wednesday,11:15
+DEYANIRA DOMINGUEZ,Spanish,1,C,,Thursday,11:15
+DEYANIRA DOMINGUEZ,Spanish,1,A,,Friday,11:15
+DEYANIRA DOMINGUEZ,Spanish,K,B,,Monday,12:30
+DEYANIRA DOMINGUEZ,Spanish,K,B,,Tuesday,12:30
+DEYANIRA DOMINGUEZ,Spanish,K,B,,Wednesday,12:30
+DEYANIRA DOMINGUEZ,Spanish,K,B,,Thursday,12:30
+AVIDEL GONZALEZ,Spanish,2,B,,Tuesday,07:30
+AVIDEL GONZALEZ,Spanish,2,B,,Wednesday,07:30
+AVIDEL GONZALEZ,Spanish,2,A,,Thursday,07:30
+AVIDEL GONZALEZ,Spanish,2,C,,Monday,09:15
+AVIDEL GONZALEZ,Spanish,2,C,,Tuesday,09:15
+AVIDEL GONZALEZ,Spanish,3,B,,Thursday,09:15
+AVIDEL GONZALEZ,Spanish,2,B,,Monday,10:15
+AVIDEL GONZALEZ,Spanish,3,A,,Tuesday,10:15
+AVIDEL GONZALEZ,Spanish,2,A,,Wednesday,10:15
+AVIDEL GONZALEZ,Spanish,2,C,,Thursday,10:15
+AVIDEL GONZALEZ,Spanish,2,C,,Friday,10:15
+AVIDEL GONZALEZ,Spanish,2,A,,Monday,11:15
+AVIDEL GONZALEZ,Spanish,3,B,,Tuesday,11:15
+AVIDEL GONZALEZ,Spanish,3,A,,Wednesday,11:15
+AVIDEL GONZALEZ,Spanish,3,A,,Thursday,11:15
+AVIDEL GONZALEZ,Spanish,3,B,,Friday,11:15
+AVIDEL GONZALEZ,Spanish,3,A,,Monday,12:30
+AVIDEL GONZALEZ,Spanish,3,B,,Wednesday,12:30
+AVIDEL GONZALEZ,Spanish,2,B,,Thursday,12:30
+ARACELLYS DOMINGUEZ,Spanish,4,A,,Tuesday,11:15
+ARACELLYS DOMINGUEZ,Spanish,4,A,,Monday,12:30
+MANUEL ABREGO,P.E.,3,A,,Wednesday,07:30
+MANUEL ABREGO,P.E.,2,C,,Thursday,07:30
+MANUEL ABREGO,P.E.,3,B,,Wednesday,08:15
+MANUEL ABREGO,P.E.,4,A,,Thursday,08:15
+MANUEL ABREGO,P.E.,K,A,,Tuesday,10:15
+MANUEL ABREGO,P.E.,5,A,,Wednesday,10:15
+MANUEL ABREGO,P.E.,1,A,,Thursday,10:15
+MANUEL ABREGO,P.E.,5,B,,Friday,10:15
+MANUEL ABREGO,P.E.,2,B,,Tuesday,11:15
+MANUEL ABREGO,P.E.,2,A,,Thursday,11:15
+MANUEL ABREGO,P.E.,4,B,,Monday,12:30
+MANUEL ABREGO,P.E.,6,B,,Monday,14:15
+MANUEL ABREGO,P.E.,7,A,,Tuesday,14:15
+MANUEL ABREGO,P.E.,7,B,,Thursday,14:15
+ELSI DIAZ,French,5,B,,Wednesday,07:30
+ELSI DIAZ,French,5,A,,Thursday,07:30
+ELSI DIAZ,French,8,B,,Wednesday,08:30
+ELSI DIAZ,French,6,A,,Thursday,08:30
+ELSI DIAZ,French,7,A,,Wednesday,09:45
+ELSI DIAZ,French,7,A,,Thursday,09:45
+ELSI DIAZ,French,6,B,,Wednesday,10:45
+ELSI DIAZ,French,8,B,,Thursday,10:45
+ELSI DIAZ,French,8,A,,Wednesday,11:45
+ELSI DIAZ,French,7,B,,Thursday,11:45
+ELSI DIAZ,French,6,A,,Wednesday,13:15
+ELSI DIAZ,French,8,A,,Thursday,13:15
+ELSI DIAZ,French,7,B,,Wednesday,14:15
+ELSI DIAZ,French,6,B,,Thursday,14:15
+MADELAINE ARROYO,Social Science,4,A,,Wednesday,07:30
+MADELAINE ARROYO,Social Science,4,B,,Thursday,07:30
+MADELAINE ARROYO,Social Science,4,A,,Friday,07:30
+MADELAINE ARROYO,Social Science,2,A,,Monday,09:15
+MADELAINE ARROYO,Social Science,1,B,,Tuesday,09:15
+MADELAINE ARROYO,Social Science,2,B,,Wednesday,09:15
+MADELAINE ARROYO,Social Science,2,B,,Thursday,09:15
+MADELAINE ARROYO,Social Science,3,B,,Monday,10:15
+MADELAINE ARROYO,Social Science,1,A,,Tuesday,10:15
+MADELAINE ARROYO,Social Science,3,B,,Wednesday,10:15
+MADELAINE ARROYO,Social Science,1,B,,Thursday,10:15
+MADELAINE ARROYO,Social Science,4,B,,Friday,10:15
+MADELAINE ARROYO,Social Science,3,A,,Monday,11:15
+MADELAINE ARROYO,Social Science,3,A,,Tuesday,11:15
+MADELAINE ARROYO,Social Science,2,C,,Wednesday,11:15
+MADELAINE ARROYO,Social Science,1,C,,Friday,11:15
+MADELAINE ARROYO,Social Science,1,A,,Monday,12:30
+MADELAINE ARROYO,Social Science,2,A,,Wednesday,12:30
+ARLYN VEGA,Computing,3,A,,Tuesday,07:30
+ARLYN VEGA,Computing,1,C,,Wednesday,07:30
+ARLYN VEGA,Computing,3,B,,Friday,07:30
+ARLYN VEGA,Computing,4,B,,Monday,08:00
+ARLYN VEGA,Computing,4,A,,Tuesday,09:15
+ARLYN VEGA,Computing,2,A,,Wednesday,09:15
+ARLYN VEGA,Computing,2,C,,Monday,10:15
+ARLYN VEGA,Computing,2,B,,Tuesday,10:15
+ARLYN VEGA,Computing,1,A,,Wednesday,10:15
+ARLYN VEGA,Computing,K,B,,Tuesday,11:15
+ARLYN VEGA,Computing,K,C,,Wednesday,11:15
+ARLYN VEGA,Computing,K,A,,Monday,12:30
+ARLYN VEGA,Computing,5,A,,Tuesday,12:30
+ARLYN VEGA,Computing,1,B,,Wednesday,15:15

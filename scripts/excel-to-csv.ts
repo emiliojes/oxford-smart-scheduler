@@ -12,7 +12,7 @@ const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 const c = (row: any[], col: number): string => String((row ?? [])[col] ?? "").trim();
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const SKIP_WORDS = ["registration", "break", "lunch", "homeroom", "dismissal", "supervision", "www", "time", "07.15", "student"];
+const SKIP_WORDS = ["registration", "break", "lunch", "homeroom", "dismissal", "supervision", "www", "time", "07.15", "student", "resource room", "arrival duty"];
 const ROMAN: Record<string, string> = {
   "XII": "12", "XI": "11", "X": "10", "IX": "9",
   "VIII": "8", "VII": "7", "VI": "6", "V": "5",
@@ -39,9 +39,13 @@ function parseGradeCell(raw: string): { grade: string; section: string } | null 
 }
 
 function parseStartTime(t: string): string | null {
-  const m = t.match(/(\d{1,2}:\d{2})/);
+  const m = t.match(/(\d{1,2}):(\d{2})/);
   if (!m) return null;
-  return m[1].padStart(5, "0");
+  let hour = parseInt(m[1]);
+  const min = m[2];
+  // School hours: 7-12 = AM, 1-5 = PM (add 12)
+  if (hour >= 1 && hour <= 5) hour += 12;
+  return `${String(hour).padStart(2, "0")}:${min}`;
 }
 
 function mapSubject(raw: string, grade: string): string {
@@ -73,10 +77,19 @@ function mapSubject(raw: string, grade: string): string {
 // "ANDREA CONCEPCION       BIOLOGY 9-12    25 HRS SALON 20"
 // Known subject keywords to split name from subject
 const SUBJECT_KEYWORDS = ["MATH", "BIOLOGY", "CHEMISTRY", "PHYSICS", "ENGLISH", "SPANISH",
-  "LITERATURE", "SOCIAL", "SCIENCE", "COMPUTING", "FRENCH", "P.E", "MUSIC", "ART", "SCIENCES"];
+  "LITERATURE", "SOCIAL SCIENCES", "SOCIAL SCIENCE", "SOCIAL", "SCIENCE", "COMPUTING", "FRENCH", "P.E", "MUSIC", "ART", "SCIENCES"];
+
+// Manual overrides for cells where auto-parsing fails
+const TEACHER_OVERRIDES: Record<string, { name: string; subject: string }> = {
+  "VANESSA": { name: "VANESSA MUÑOZ", subject: "SOCIAL SCIENCES" },
+};
 
 function extractTeacherInfo(cell: string): { name: string; subject: string } | null {
   if (!cell || !cell.toUpperCase().includes("HRS")) return null;
+  // Check overrides first
+  for (const [key, val] of Object.entries(TEACHER_OVERRIDES)) {
+    if (cell.toUpperCase().includes(key)) return val;
+  }
   // Try standard pattern: NAME  SUBJECT  XX HRS
   const m = cell.match(/^([A-ZÁÉÍÓÚÑÜÀÈÌÒÙa-záéíóúñüàèìòù\s\.]+?)\s{2,}(.+?)\s+\d+\s*HRS/i);
   if (m) {
@@ -84,8 +97,9 @@ function extractTeacherInfo(cell: string): { name: string; subject: string } | n
     const subjectRaw = m[2].trim().replace(/\s+\d+[-–]\d+.*$/i, "").replace(/,.*$/, "").replace(/;.*$/, "").trim();
     return { name, subject: subjectRaw };
   }
-  // Fallback: split at first subject keyword
-  for (const kw of SUBJECT_KEYWORDS) {
+  // Fallback: split at first subject keyword (try longer keywords first to avoid partial matches)
+  const sortedKW = [...SUBJECT_KEYWORDS].sort((a, b) => b.length - a.length);
+  for (const kw of sortedKW) {
     const idx = cell.toUpperCase().indexOf(kw);
     if (idx > 2) {
       const name = cell.slice(0, idx).trim().replace(/\s+/g, " ");
@@ -95,6 +109,9 @@ function extractTeacherInfo(cell: string): { name: string; subject: string } | n
   }
   return null;
 }
+
+// Known invalid/non-teacher block names to skip
+const SKIP_BLOCKS = ["ARTS", "GRADE ARTS", "GRADE SCIENCE", "LAB ASSISTANT"];
 
 // Structure: each teacher block uses cols 0-5 (left) or cols 7-12 (right)
 // TIME col = 0 or 7, MON-FRI = 1-5 or 8-12
@@ -109,7 +126,7 @@ for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
   // Check left side (teacher info in col 1)
   const leftInfo = extractTeacherInfo(c(row, 1));
-  if (leftInfo) {
+  if (leftInfo && !SKIP_BLOCKS.some(s => leftInfo.name.toUpperCase().startsWith(s))) {
     // Find TIME header row within next 5 rows
     for (let tr = r + 1; tr <= r + 5 && tr < rows.length; tr++) {
       if (c(rows[tr], 0).toUpperCase() === "TIME") {
@@ -158,7 +175,7 @@ for (const block of blocks) {
   }
 }
 
-const outputFile = path.join(process.cwd(), "schedules-import.csv");
+const outputFile = path.join(process.cwd(), "schedules-import-v2.csv");
 fs.writeFileSync(outputFile, csvRows.join("\n"), "utf-8");
 console.log(`\n✅ Generated ${total} assignment rows -> schedules-import.csv`);
 console.log("\nFirst 15 rows:");
