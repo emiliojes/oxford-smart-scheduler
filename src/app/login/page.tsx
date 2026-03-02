@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function AuthPage() {
   const { t } = useLanguage();
@@ -67,7 +68,10 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
+    <div className="relative flex items-center justify-center min-h-[80vh]">
+      <div className="absolute top-0 right-0 bg-slate-900 rounded-bl-lg px-1">
+        <LanguageSwitcher />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{isLogin ? t.auth.login : t.auth.register}</CardTitle>
