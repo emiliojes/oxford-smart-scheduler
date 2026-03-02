@@ -38,7 +38,7 @@ export default function AuthPage() {
           toast.error(result.error || "Login failed");
           setIsLoading(false);
         } else {
-          router.push("/");
+          router.push(result.status === "PENDING" ? "/pending" : "/schedule");
           router.refresh();
         }
       } else {
