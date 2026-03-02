@@ -8,18 +8,22 @@ const wb = XLSX.readFile(FILE);
 const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
-// Show exact col[8] for row 108
-console.log("=== Row 108 col[8] raw ===");
-const r108 = rows[108] ?? [];
-console.log(JSON.stringify(r108[8]));
-console.log("col[7]:", JSON.stringify(r108[7]));
-// Also check if any row near 108 has ENIS with HRS
-for (let r = 105; r <= 115; r++) {
+// Show blocks for teachers with low CSV row counts
+const suspects = ["ARACELLYS", "LEONEL", "ARLYN", "ELSI", "MANUEL", "OMELY"];
+for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
-  for (let ci = 0; ci < row.length; ci++) {
-    const val = String(row[ci] ?? "").trim();
-    if (val.toUpperCase().includes("ENIS")) {
-      console.log(`Row ${r} col[${ci}]: ${JSON.stringify(val)}`);
+  for (let ci of [1, 8]) {
+    const cell = String(row[ci] ?? "").trim();
+    if (suspects.some(s => cell.toUpperCase().includes(s))) {
+      const norm = cell.replace(/[\r\n]+/g, " ").replace(/\s{2,}/g, " ").substring(0, 120);
+      console.log(`\nRow ${r} col[${ci}]: ${norm}`);
+      // show data rows
+      for (let r2 = r+3; r2 <= r+14; r2++) {
+        const row2 = rows[r2] ?? [];
+        const dataStart = ci === 1 ? 1 : 8;
+        const vals = [0,1,2,3,4,5].map(d => `[${dataStart+d-(ci===1?0:7)}]="${String(row2[dataStart+d-(ci===1?0:7)] ?? "").trim()}"`).filter(s => !s.includes('""')).join("  ");
+        if (vals) console.log(`  Row ${r2}: ${vals}`);
+      }
     }
   }
 }
