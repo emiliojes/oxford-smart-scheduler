@@ -8,8 +8,8 @@ const wb = XLSX.readFile(FILE);
 const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
-// Show full Omely block
-const suspects = ["OMELY"];
+// Show full Aracellys block
+const suspects = ["ARACELLYS"];
 for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
   for (let ci of [1, 8]) {
@@ -17,11 +17,10 @@ for (let r = 0; r < rows.length; r++) {
     if (suspects.some(s => cell.toUpperCase().includes(s))) {
       const norm = cell.replace(/[\r\n]+/g, " ").replace(/\s{2,}/g, " ").substring(0, 120);
       console.log(`\nRow ${r} col[${ci}]: ${norm}`);
-      // show data rows
+      // show data rows (right-side cols 7-12)
       for (let r2 = r+3; r2 <= r+14; r2++) {
         const row2 = rows[r2] ?? [];
-        const dataStart = ci === 1 ? 1 : 8;
-        const vals = [0,1,2,3,4,5].map(d => `[${dataStart+d-(ci===1?0:7)}]="${String(row2[dataStart+d-(ci===1?0:7)] ?? "").trim()}"`).filter(s => !s.includes('""')).join("  ");
+        const vals = [7,8,9,10,11,12].map(i => `[${i}]="${String(row2[i] ?? "").trim()}"`).filter(s => !s.includes('""')).join("  ");
         if (vals) console.log(`  Row ${r2}: ${vals}`);
       }
     }

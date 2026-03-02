@@ -39,11 +39,28 @@ const ROMAN: Record<string, string> = {
   "IV": "4", "III": "3", "II": "2", "I": "1",
 };
 
-function parseGradeCell(raw: string): { grade: string; section: string; isLab: boolean; overrideStartTime?: string } | null {
+// Map cell subject suffixes to DB subject names
+const SUFFIX_TO_SUBJECT: Record<string, string> = {
+  "SOC": "Social Studies", "SOC.": "Social Studies",
+  "LIT": "Literature", "ENG": "English", "ENG.": "English",
+  "SPAN": "Spanish", "SCI": "Science", "BIO": "Biology",
+  "CHEM": "Chemistry", "PHYS": "Physics", "COMP": "Computing",
+  "MUS": "Music", "ART": "Arts", "PE": "P.E.", "P.E.": "P.E.",
+};
+
+function parseGradeCell(raw: string): { grade: string; section: string; isLab: boolean; overrideStartTime?: string; overrideSubject?: string } | null {
   if (!raw) return null;
   const lower = raw.toLowerCase();
   if (SKIP_WORDS.some(s => lower.includes(s))) return null;
   const isLab = /\bLAB\b/i.test(raw);
+  // Extract subject suffix override (e.g. "6B SOC." -> overrideSubject = "Social Studies")
+  let overrideSubject: string | undefined;
+  const suffixMatch = raw.match(/\s+(LIT|ENG\.?|SPAN|SOC\.?|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i);
+  if (suffixMatch) {
+    const key1 = suffixMatch[1].toUpperCase().replace(/\.$/, "");
+    const key2 = suffixMatch[1].toUpperCase();
+    overrideSubject = SUFFIX_TO_SUBJECT[key1] ?? SUFFIX_TO_SUBJECT[key2];
+  }
   // Extract embedded start time before cleaning (e.g. "6B (9:45-10:45)" -> overrideStartTime = "09:45")
   let overrideStartTime: string | undefined;
   const timeMatch = raw.match(/\(?(\d{1,2}:\d{2})\s*[-–]\s*\d{1,2}:\d{2}\)?/);
@@ -57,17 +74,17 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
     .replace(/LAB\s*ASSI?SS?TANT/gi, "")
     .replace(/Q$/i, "")
     .replace(/\(?\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2}\)?/g, "")
-    .replace(/\s+(LIT|ENG\.?|SPAN|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i, "")
+    .replace(/\s+(LIT|ENG\.?|SPAN|SOC\.?|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i, "")
     .replace(/\/[A-C]$/i, "")
     .trim();
-  if (/^PK\s*\d?$/i.test(clean)) return { grade: "PK", section: "", isLab, overrideStartTime };
+  if (/^PK\s*\d?$/i.test(clean)) return { grade: "PK", section: "", isLab, overrideStartTime, overrideSubject };
   const m = clean.match(/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I|K|\d+)\s*([A-C]?)\s*$/i);
   if (!m) return null;
   const gradeRaw = m[1].toUpperCase();
   let section = m[2].toUpperCase();
   const grade = ROMAN[gradeRaw] ?? gradeRaw;
   if (grade === "12" && !section) section = "A";
-  return { grade, section, isLab, overrideStartTime };
+  return { grade, section, isLab, overrideStartTime, overrideSubject };
 }
 
 // Map subject to lab room name
@@ -104,7 +121,8 @@ function mapSubject(raw: string, grade: string): string {
   if (s.includes("ENGLISH")) return "English";
   if (s.includes("SPANISH") || s.includes("SPAN")) return "Spanish";
   if (s.includes("LITERATURE") || s.includes("LITER")) return "Literature";
-  if (s.includes("SOCIAL")) return "Social Science";
+  if (s.includes("SOC.STUDIES") || s.includes("SOC. STUDIES") || s.includes("SOCIAL STUDIES")) return "Social Studies";
+  if (s.includes("SOCIAL") || s.includes("SOC.SCIENCE")) return "Social Science";
   if ((s === "SCIENCE" || s === "SCIENCES" || s.startsWith("SCIENCE")) && !s.includes("SOCIAL")) return "Science";
   if (s.includes("COMPUTING") || s.includes("COMP")) return "Computing";
   if (s.includes("FRENCH")) return "French";
@@ -119,7 +137,7 @@ function mapSubject(raw: string, grade: string): string {
 // "ANDREA CONCEPCION       BIOLOGY 9-12    25 HRS SALON 20"
 // Known subject keywords to split name from subject
 const SUBJECT_KEYWORDS = ["MATH", "BIOLOGY", "CHEMISTRY", "PHYSICS", "ENGLISH", "SPANISH",
-  "LITERATURE", "SOCIAL SCIENCES", "SOCIAL SCIENCE", "SOCIAL", "SCIENCE", "COMPUTING", "FRENCH", "P.E", "MUSIC", "ART", "SCIENCES"];
+  "LITERATURE", "SOC.STUDIES", "SOCIAL SCIENCES", "SOCIAL SCIENCE", "SOCIAL", "SCIENCE", "COMPUTING", "FRENCH", "P.E", "MUSIC", "ART", "SCIENCES"];
 
 // Manual overrides for cells where auto-parsing fails
 const TEACHER_OVERRIDES: Record<string, { name: string; subject: string }> = {
@@ -260,8 +278,8 @@ for (const block of blocks) {
       }
       const parsed = parseGradeCell(gradeRaw);
       if (!parsed) continue;
-      const { grade, section, isLab } = parsed;
-      const subjectMapped = mapSubject(block.subject, grade);
+      const { grade, section, isLab, overrideSubject } = parsed;
+      const subjectMapped = overrideSubject ?? mapSubject(block.subject, grade);
       const room = isLab ? getLabRoom(block.subject) : "";
       const effectiveStart = mapToPrimaryTime(startTime, grade);
       csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart}`);
