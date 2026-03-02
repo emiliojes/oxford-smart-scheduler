@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
-import { Loader2, Calendar, Sparkles, AlertCircle } from "lucide-react";
+import { Loader2, Calendar, Sparkles, AlertCircle, Upload } from "lucide-react";
+import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -56,6 +57,17 @@ export default function GeneratePage() {
         </p>
       </div>
 
+      <div className="flex gap-3 mb-2">
+        <Button asChild variant="outline" className="gap-2">
+          <Link href="/schedule/import">
+            <Upload className="w-4 h-4" />
+            Importar desde CSV
+          </Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm" className="gap-2 text-slate-500">
+          <Link href="/schedule">← Ver horario</Link>
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="border-blue-200 bg-blue-50/30">
           <CardHeader>
