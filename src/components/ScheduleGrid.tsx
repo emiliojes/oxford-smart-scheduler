@@ -49,6 +49,7 @@ interface ScheduleGridProps {
   assignments: Assignment[];
   timeBlocks: TimeBlock[];
   viewType: "teacher" | "grade" | "room";
+  onRefresh?: () => void;
 }
 
 const DAYS = [
@@ -59,7 +60,7 @@ const DAYS = [
   { value: 5, label: "FRIDAY" },
 ];
 
-export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGridProps) {
+export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
   // Organizar bloques por hora de inicio única para las filas
   const uniqueStartTimes = Array.from(
@@ -129,7 +130,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType }: ScheduleGrid
                               <AssignmentForm
                                 key={a.id}
                                 initialData={a}
-                                onSuccess={() => window.location.reload()}
+                                onSuccess={() => onRefresh ? onRefresh() : window.location.reload()}
                                 trigger={
                                   <Card
                                     className={`p-2 print:p-0.5 text-xs print:text-[8px] border shadow-none relative group cursor-pointer hover:border-blue-400 transition-colors ${

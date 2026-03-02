@@ -247,7 +247,8 @@ export default function ScheduleViewPage() {
           <ScheduleGrid 
             assignments={assignments} 
             timeBlocks={timeBlocks} 
-            viewType={viewType} 
+            viewType={viewType}
+            onRefresh={() => fetchAssignments()}
           />
           
           <div className="hidden print:flex justify-between mt-12 px-8">
