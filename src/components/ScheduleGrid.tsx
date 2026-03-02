@@ -119,11 +119,20 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                     return (
                       <TableCell
                         key={`${dayValue}-${startTime}`}
-                        className={`border-r last:border-r-0 p-1 print:p-0.5 align-top ${isSpecialBlock ? "bg-slate-50/50" : ""}`}
+                        className={`border-r last:border-r-0 p-1 print:p-0.5 align-top ${
+                          blockInfo?.blockType === "BREAK" ? "bg-slate-100" :
+                          blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
+                          blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50" :
+                          ""
+                        }`}
                       >
                         {isSpecialBlock && slotAssignments.length === 0 ? (
                           <div className="flex items-center justify-center py-1 print:py-0">
-                            <span className="text-xs font-bold text-slate-400 tracking-widest uppercase print:text-[8px]">
+                            <span className={`text-xs font-bold tracking-widest uppercase print:text-[8px] ${
+                              blockInfo?.blockType === "BREAK" ? "text-slate-500" :
+                              blockInfo?.blockType === "LUNCH" ? "text-amber-600" :
+                              "text-slate-400"
+                            }`}>
                               {t.timeBlocks.types[blockInfo?.blockType as keyof typeof t.timeBlocks.types] || blockInfo?.blockType}
                             </span>
                           </div>
