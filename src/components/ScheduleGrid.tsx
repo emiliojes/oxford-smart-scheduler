@@ -103,13 +103,8 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
               return (
                 <TableRow key={startTime} className={`h-auto ${isSpecialBlock ? "print:h-6" : "print:h-auto"}`}>
                   <TableCell className="font-medium border-r bg-slate-50 align-middle py-1 print:py-0.5 print:w-20">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold print:text-[9px]">{startTime}</span>
-                      {blockInfo?.endTime && (
-                        <span className="text-xs text-slate-500 print:text-[8px]">
-                          {blockInfo.endTime}
-                        </span>
-                      )}
+                    <div className="text-xs font-bold print:text-[9px] whitespace-nowrap">
+                      {blockInfo?.endTime ? `${startTime} - ${blockInfo.endTime}` : startTime}
                     </div>
                   </TableCell>
                   
