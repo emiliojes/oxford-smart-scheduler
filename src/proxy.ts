@@ -8,27 +8,31 @@ export async function middleware(request: NextRequest) {
 
   const isAuthPage = pathname.startsWith("/login");
   const isPendingPage = pathname.startsWith("/pending");
+  const isHomePage = pathname === "/";
+  const isPublicPage = isAuthPage || isHomePage;
 
-  if (!sessionId && !isAuthPage) {
+  // Unauthenticated: allow home and login, redirect everything else to login
+  if (!sessionId && !isPublicPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
+  // Authenticated user on login page → redirect away
   if (sessionId && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = userStatus === "PENDING" ? "/pending" : "/";
     return NextResponse.redirect(url);
   }
 
-  // Redirect PENDING users away from normal pages
+  // PENDING users: only allow /pending and /login
   if (sessionId && !isPendingPage && !isAuthPage && userStatus === "PENDING") {
     const url = request.nextUrl.clone();
     url.pathname = "/pending";
     return NextResponse.redirect(url);
   }
 
-  // Redirect ACTIVE users away from /pending
+  // ACTIVE users: redirect away from /pending
   if (sessionId && isPendingPage && userStatus === "ACTIVE") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
@@ -40,13 +44,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
