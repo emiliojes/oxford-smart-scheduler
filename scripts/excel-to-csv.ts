@@ -19,35 +19,35 @@ const ROMAN: Record<string, string> = {
   "IV": "4", "III": "3", "II": "2", "I": "1",
 };
 
-function parseGradeCell(raw: string): { grade: string; section: string; isLab: boolean } | null {
+function parseGradeCell(raw: string): { grade: string; section: string; isLab: boolean; overrideStartTime?: string } | null {
   if (!raw) return null;
   const lower = raw.toLowerCase();
   if (SKIP_WORDS.some(s => lower.includes(s))) return null;
   const isLab = /\bLAB\b/i.test(raw);
-  // Remove noise: (LAB), LAB, (T), T.S., T SK, LAB ASSISTANT, Q suffix, embedded times, subject suffixes
+  // Extract embedded start time before cleaning (e.g. "6B (9:45-10:45)" -> overrideStartTime = "09:45")
+  let overrideStartTime: string | undefined;
+  const timeMatch = raw.match(/\(?(\d{1,2}:\d{2})\s*[-–]\s*\d{1,2}:\d{2}\)?/);
+  if (timeMatch) {
+    overrideStartTime = parseStartTime(timeMatch[1]) ?? undefined;
+  }
+  // Remove noise
   let clean = raw
     .replace(/\(LAB\)/gi, "").replace(/\bLAB\b/gi, "")
     .replace(/\(T\)/gi, "").replace(/T\.S\.?/gi, "").replace(/T SK\s*\d*/gi, "")
     .replace(/LAB\s*ASSI?SS?TANT/gi, "")
     .replace(/Q$/i, "")
-    // Remove embedded time ranges like (9:45-10:45) or 12:30-1:30) or (7:30- 8:15)
     .replace(/\(?\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2}\)?/g, "")
-    // Remove subject abbreviation suffixes
     .replace(/\s+(LIT|ENG\.?|SPAN|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i, "")
-    // Remove A/B combined section notation
     .replace(/\/[A-C]$/i, "")
     .trim();
-  // Handle PK grades: PK1, PK2, PK3 -> map to "PK"
-  if (/^PK\s*\d?$/i.test(clean)) return { grade: "PK", section: "", isLab };
-  // Match roman numeral or digit grade + optional section
+  if (/^PK\s*\d?$/i.test(clean)) return { grade: "PK", section: "", isLab, overrideStartTime };
   const m = clean.match(/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I|K|\d+)\s*([A-C]?)\s*$/i);
   if (!m) return null;
   const gradeRaw = m[1].toUpperCase();
   let section = m[2].toUpperCase();
   const grade = ROMAN[gradeRaw] ?? gradeRaw;
-  // Grade 12 only has section A in DB — default empty section to A
   if (grade === "12" && !section) section = "A";
-  return { grade, section, isLab };
+  return { grade, section, isLab, overrideStartTime };
 }
 
 // Map subject to lab room name

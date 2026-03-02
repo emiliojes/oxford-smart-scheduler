@@ -8,8 +8,8 @@ const wb = XLSX.readFile(FILE);
 const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
-// Show blocks for teachers with low CSV row counts
-const suspects = ["ARACELLYS", "LEONEL", "ARLYN", "ELSI", "MANUEL", "OMELY"];
+// Show full Omely block
+const suspects = ["OMELY"];
 for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
   for (let ci of [1, 8]) {
