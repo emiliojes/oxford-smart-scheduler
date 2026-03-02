@@ -8,12 +8,10 @@ const wb = XLSX.readFile(FILE);
 const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
-// Find all block header rows (contain "GRADE" in col 0 or 7)
-console.log("=== Block headers with GRADE label ===");
+// Show rows with LUNCH or DISMISSAL content
+console.log("=== Lunch / Dismissal rows ===");
 for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
-  const col0 = String(row[0] ?? "").trim();
-  const col7 = String(row[7] ?? "").trim();
-  if (/GRADE/i.test(col0)) console.log(`Row ${r} col0: "${col0}"  col1: "${String(row[1] ?? "").trim().slice(0, 60)}"`);
-  if (/GRADE/i.test(col7)) console.log(`Row ${r} col7: "${col7}"  col8: "${String(row[8] ?? "").trim().slice(0, 60)}"`);
+  const line = row.map((c: any, i: number) => `[${i}]="${String(c).trim()}"`).filter((s: string) => !s.includes('""')).join("  ");
+  if (/lunch|dismissal|salida/i.test(line)) console.log(`Row ${r}: ${line}`);
 }

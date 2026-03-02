@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const timeBlockByDayStart = (day: number, start: string) =>
       timeBlocks.find(
-        (tb) => tb.dayOfWeek === day && tb.startTime.trim() === start.trim() && tb.blockType === "CLASS"
+        (tb) => tb.dayOfWeek === day && tb.startTime.trim() === start.trim()
       );
 
     const dayMap: Record<string, number> = {

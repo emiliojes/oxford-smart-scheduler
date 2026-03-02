@@ -176,10 +176,26 @@ for (const block of blocks) {
 
     for (let d = 0; d < 5; d++) {
       const gradeRaw = c(row, block.dataColStart + d);
-      // Check for HOMEROOM cell
-      if (gradeRaw.toUpperCase() === "HOMEROOM" && block.homeroomGrade) {
-        const teacherSafe = block.name.includes(",") ? `"${block.name}"` : block.name;
-        csvRows.push(`${teacherSafe},Homeroom,${block.homeroomGrade},${block.homeroomSection ?? "A"},,${DAY_NAMES[d]},${startTime}`);
+      const gradeUpper = gradeRaw.toUpperCase();
+      const teacherSafe = block.name.includes(",") ? `"${block.name}"` : block.name;
+      const hrGrade = block.homeroomGrade ?? "12";
+      const hrSection = block.homeroomSection ?? "A";
+
+      // HOMEROOM
+      if (gradeUpper === "HOMEROOM" && block.homeroomGrade) {
+        csvRows.push(`${teacherSafe},Homeroom,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+        total++;
+        continue;
+      }
+      // LUNCH duty (includes "LUNCH" variants with supervision notes)
+      if (gradeUpper.startsWith("LUNCH") && block.homeroomGrade) {
+        csvRows.push(`${teacherSafe},Lunch Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+        total++;
+        continue;
+      }
+      // STUDENT DISMISSAL DUTY (always Friday col d=4, or special rows)
+      if (gradeUpper.includes("DISMISSAL") && block.homeroomGrade) {
+        csvRows.push(`${teacherSafe},Dismissal Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
         total++;
         continue;
       }
@@ -187,8 +203,6 @@ for (const block of blocks) {
       if (!parsed) continue;
       const { grade, section } = parsed;
       const subjectMapped = mapSubject(block.subject, grade);
-      // Escape commas in teacher name
-      const teacherSafe = block.name.includes(",") ? `"${block.name}"` : block.name;
       csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},,${DAY_NAMES[d]},${startTime}`);
       total++;
     }
