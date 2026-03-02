@@ -1,0 +1,165 @@
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const XLSX = require("xlsx");
+import * as fs from "fs";
+import * as path from "path";
+
+const FILE = path.join(process.cwd(), "2026 TEACHER SCHEDULES.xlsx");
+const wb = XLSX.readFile(FILE);
+const ws = wb.Sheets["Hoja 1"];
+const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+
+const c = (row: any[], col: number): string => String((row ?? [])[col] ?? "").trim();
+
+const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const SKIP_WORDS = ["registration", "break", "lunch", "homeroom", "dismissal", "supervision", "www", "time", "07.15", "student"];
+const ROMAN: Record<string, string> = {
+  "XII": "12", "XI": "11", "X": "10", "IX": "9",
+  "VIII": "8", "VII": "7", "VI": "6", "V": "5",
+  "IV": "4", "III": "3", "II": "2", "I": "1",
+};
+
+function parseGradeCell(raw: string): { grade: string; section: string } | null {
+  if (!raw) return null;
+  const lower = raw.toLowerCase();
+  if (SKIP_WORDS.some(s => lower.includes(s))) return null;
+  // Remove noise
+  let clean = raw
+    .replace(/\(LAB\)/gi, "").replace(/T\.S\.?/gi, "").replace(/T SK\s*\d*/gi, "")
+    .replace(/LAB\s*ASSI?SS?TANT/gi, "").trim();
+  // Match roman numeral or digit grade + optional section
+  const m = clean.match(/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I|K|\d+)\s*([A-C]?)\s*$/i);
+  if (!m) return null;
+  const gradeRaw = m[1].toUpperCase();
+  let section = m[2].toUpperCase();
+  const grade = ROMAN[gradeRaw] ?? gradeRaw;
+  // Grade 12 only has section A in DB — default empty section to A
+  if (grade === "12" && !section) section = "A";
+  return { grade, section };
+}
+
+function parseStartTime(t: string): string | null {
+  const m = t.match(/(\d{1,2}:\d{2})/);
+  if (!m) return null;
+  return m[1].padStart(5, "0");
+}
+
+function mapSubject(raw: string, grade: string): string {
+  const s = raw.toUpperCase();
+  const g = parseInt(grade);
+  if (s.includes("MATH") || s.includes("MATHS")) {
+    if (g <= 9) return "Math 9";
+    if (g <= 11) return "Math 11";
+    return "Maths 12";
+  }
+  if (s.includes("BIOLOGY") || s === "BIO") return "Biology";
+  if (s.includes("CHEM")) return "Chemistry";
+  if (s.includes("PHYSICS") || s.includes("PHYS")) return "Physics";
+  if (s.includes("ENGLISH")) return "English";
+  if (s.includes("SPANISH") || s.includes("SPAN")) return "Spanish";
+  if (s.includes("LITERATURE") || s.includes("LITER")) return "Literature";
+  if (s.includes("SOCIAL")) return "Social Science";
+  if ((s === "SCIENCE" || s === "SCIENCES" || s.startsWith("SCIENCE")) && !s.includes("SOCIAL")) return "Science";
+  if (s.includes("COMPUTING") || s.includes("COMP")) return "Computing";
+  if (s.includes("FRENCH")) return "French";
+  if (s.includes("P.E") || s.includes("GYM")) return "P.E.";
+  if (s.includes("MUSIC")) return "Music";
+  if (s.includes("ART")) return "Arts";
+  return raw;
+}
+
+// Extract teacher name from a cell like:
+// "IRLANDA TUÑON      MATHS 9-12, T SK 11                          26 HRS  SALON 22"
+// "ANDREA CONCEPCION       BIOLOGY 9-12    25 HRS SALON 20"
+// Known subject keywords to split name from subject
+const SUBJECT_KEYWORDS = ["MATH", "BIOLOGY", "CHEMISTRY", "PHYSICS", "ENGLISH", "SPANISH",
+  "LITERATURE", "SOCIAL", "SCIENCE", "COMPUTING", "FRENCH", "P.E", "MUSIC", "ART", "SCIENCES"];
+
+function extractTeacherInfo(cell: string): { name: string; subject: string } | null {
+  if (!cell || !cell.toUpperCase().includes("HRS")) return null;
+  // Try standard pattern: NAME  SUBJECT  XX HRS
+  const m = cell.match(/^([A-ZÁÉÍÓÚÑÜÀÈÌÒÙa-záéíóúñüàèìòù\s\.]+?)\s{2,}(.+?)\s+\d+\s*HRS/i);
+  if (m) {
+    const name = m[1].trim().replace(/\s+/g, " ");
+    const subjectRaw = m[2].trim().replace(/\s+\d+[-–]\d+.*$/i, "").replace(/,.*$/, "").replace(/;.*$/, "").trim();
+    return { name, subject: subjectRaw };
+  }
+  // Fallback: split at first subject keyword
+  for (const kw of SUBJECT_KEYWORDS) {
+    const idx = cell.toUpperCase().indexOf(kw);
+    if (idx > 2) {
+      const name = cell.slice(0, idx).trim().replace(/\s+/g, " ");
+      const subjectRaw = cell.slice(idx).replace(/\s+\d+[-–]\d+.*$/i, "").replace(/,.*$/, "").replace(/;.*$/, "").trim();
+      if (name.length > 3 && name.length < 50) return { name, subject: subjectRaw };
+    }
+  }
+  return null;
+}
+
+// Structure: each teacher block uses cols 0-5 (left) or cols 7-12 (right)
+// TIME col = 0 or 7, MON-FRI = 1-5 or 8-12
+// Teacher header in col 1 (left) or col 8 (right) on a row that has "HRS"
+// TIME header follows 3 rows later
+// Data rows follow TIME header row, end at "www.oxford"
+
+interface Block { name: string; subject: string; timeCol: number; dataColStart: number; timeHeaderRow: number; }
+const blocks: Block[] = [];
+
+for (let r = 0; r < rows.length; r++) {
+  const row = rows[r] ?? [];
+  // Check left side (teacher info in col 1)
+  const leftInfo = extractTeacherInfo(c(row, 1));
+  if (leftInfo) {
+    // Find TIME header row within next 5 rows
+    for (let tr = r + 1; tr <= r + 5 && tr < rows.length; tr++) {
+      if (c(rows[tr], 0).toUpperCase() === "TIME") {
+        blocks.push({ ...leftInfo, timeCol: 0, dataColStart: 1, timeHeaderRow: tr });
+        break;
+      }
+    }
+  }
+  // Check right side (teacher info in col 8)
+  const rightInfo = extractTeacherInfo(c(row, 8));
+  if (rightInfo) {
+    for (let tr = r + 1; tr <= r + 5 && tr < rows.length; tr++) {
+      if (c(rows[tr], 7).toUpperCase() === "TIME") {
+        blocks.push({ ...rightInfo, timeCol: 7, dataColStart: 8, timeHeaderRow: tr });
+        break;
+      }
+    }
+  }
+}
+
+console.log(`\nFound ${blocks.length} teacher blocks:`);
+blocks.forEach(b => console.log(`  timeHeaderRow=${b.timeHeaderRow} col=${b.timeCol}: "${b.name}" -> "${b.subject}"`));
+
+const csvRows: string[] = ["teacher,subject,grade,section,room,day,start_time"];
+let total = 0;
+
+for (const block of blocks) {
+  for (let r = block.timeHeaderRow + 1; r < block.timeHeaderRow + 20 && r < rows.length; r++) {
+    const row = rows[r] ?? [];
+    const timeStr = c(row, block.timeCol);
+    if (timeStr.toLowerCase().includes("www")) break;
+    const startTime = parseStartTime(timeStr);
+    if (!startTime) continue;
+
+    for (let d = 0; d < 5; d++) {
+      const gradeRaw = c(row, block.dataColStart + d);
+      const parsed = parseGradeCell(gradeRaw);
+      if (!parsed) continue;
+      const { grade, section } = parsed;
+      const subjectMapped = mapSubject(block.subject, grade);
+      // Escape commas in teacher name
+      const teacherSafe = block.name.includes(",") ? `"${block.name}"` : block.name;
+      csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},,${DAY_NAMES[d]},${startTime}`);
+      total++;
+    }
+  }
+}
+
+const outputFile = path.join(process.cwd(), "schedules-import.csv");
+fs.writeFileSync(outputFile, csvRows.join("\n"), "utf-8");
+console.log(`\n✅ Generated ${total} assignment rows -> schedules-import.csv`);
+console.log("\nFirst 15 rows:");
+csvRows.slice(0, 16).forEach(r => console.log(" ", r));
