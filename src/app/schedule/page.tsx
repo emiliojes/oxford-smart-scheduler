@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScheduleGrid } from "@/components/ScheduleGrid";
 import {
   Select,
@@ -29,10 +29,24 @@ export default function ScheduleViewPage() {
   const [selectedId, setSelectedId] = useState<string>("");
   const [options, setOptions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [comboOpen, setComboOpen] = useState(false);
+  const comboboxRef = useRef<HTMLDivElement>(null);
+
   const [assignments, setAssignments] = useState([]);
   const [timeBlocks, setTimeBlocks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [teacherName, setTeacherName] = useState<string>("");
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (comboboxRef.current && !comboboxRef.current.contains(e.target as Node)) {
+        setComboOpen(false);
+        setSearchQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   useEffect(() => {
     fetchTimeBlocks();
@@ -205,37 +219,40 @@ export default function ScheduleViewPage() {
                   </TabsList>
                 </Tabs>
               </div>
-              <div className="w-full md:w-2/3 space-y-2">
+              <div className="w-full md:w-2/3 space-y-2 relative" ref={comboboxRef}>
                 <label className="text-sm font-medium text-slate-700">
                   {t.schedule.select.replace('{type}', t.schedule.types[viewType])}
                 </label>
-                <Select value={selectedId} onValueChange={(v) => { setSelectedId(v); setSearchQuery(""); }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <div className="px-2 pb-1 pt-1">
-                      <input
-                        autoFocus
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        onKeyDown={e => e.stopPropagation()}
-                        placeholder="Buscar..."
-                        className="w-full text-sm border rounded px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400"
-                      />
+                <div className="relative">
+                  <input
+                    value={searchQuery || (options.find(o => o.id === selectedId) ? (viewType === "grade" ? `${options.find(o => o.id === selectedId)?.name}${options.find(o => o.id === selectedId)?.section || ""}` : options.find(o => o.id === selectedId)?.name) : "")}
+                    onChange={e => { setSearchQuery(e.target.value); setComboOpen(true); }}
+                    onFocus={() => { setSearchQuery(""); setComboOpen(true); }}
+                    placeholder="Buscar..."
+                    className="w-full text-sm border rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                  />
+                  {comboOpen && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {options
+                        .filter(opt => {
+                          const label = viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name;
+                          return label.toLowerCase().includes(searchQuery.toLowerCase());
+                        })
+                        .map(opt => {
+                          const label = viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name;
+                          return (
+                            <div
+                              key={opt.id}
+                              className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 ${opt.id === selectedId ? "bg-blue-100 font-medium" : ""}`}
+                              onMouseDown={() => { setSelectedId(opt.id); setSearchQuery(""); setComboOpen(false); }}
+                            >
+                              {label}
+                            </div>
+                          );
+                        })}
                     </div>
-                    {options
-                      .filter(opt => {
-                        const label = viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name;
-                        return label.toLowerCase().includes(searchQuery.toLowerCase());
-                      })
-                      .map((opt) => (
-                        <SelectItem key={opt.id} value={opt.id}>
-                          {viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>
