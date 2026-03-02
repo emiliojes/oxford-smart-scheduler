@@ -292,10 +292,11 @@ for (const block of blocks) {
       const { grade, section, isLab, overrideSubject, overrideStartTime } = parsed;
       const subjectMapped = overrideSubject ?? mapSubject(block.subject, grade);
       const room = isLab ? getLabRoom(block.subject) : "";
-      // If cell has embedded time (e.g. "6B (9:45-10:45)"), use that as the real start time.
-      // Also apply primary time mapping to ensure it lands on a valid DB time block.
-      // Otherwise map the row time to the correct level's time block.
-      const rawStart = overrideStartTime ?? startTime;
+      // For PRIMARY grades (K-6): always use the row's startTime mapped to a valid PRIMARY time block.
+      // Embedded times like "6B (9:45-10:45)" indicate sub-slot timing, not a different DB slot.
+      // For SECONDARY grades (7+): use overrideStartTime when present (different SECONDARY slot).
+      const isPrimary = PRIMARY_LEVEL_GRADES.has(grade);
+      const rawStart = (!isPrimary && overrideStartTime) ? overrideStartTime : startTime;
       const effectiveStart = mapToPrimaryTime(rawStart, grade);
       csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart}`);
       total++;
