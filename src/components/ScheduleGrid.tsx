@@ -146,13 +146,13 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                       <TableCell
                         key={`${dayValue}-${startTime}`}
                         className={`border-r last:border-r-0 p-1 print:p-0.5 align-top ${
-                          rowSpecial && blockInfo?.blockType === "BREAK" ? "bg-slate-100" :
-                          rowSpecial && blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
-                          rowSpecial && blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50" :
+                          blockInfo?.blockType === "BREAK" ? "bg-slate-100" :
+                          blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
+                          blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50" :
                           ""
                         }`}
                       >
-                        {rowSpecial && slotAssignments.length === 0 ? (
+                        {slotAssignments.length === 0 && (blockInfo?.blockType === "LUNCH" || blockInfo?.blockType === "BREAK" || blockInfo?.blockType === "REGISTRATION") ? (
                           <div className="flex items-center justify-center py-1 print:py-0">
                             <span className={`text-xs font-bold tracking-widest uppercase print:text-[8px] ${
                               blockInfo?.blockType === "BREAK" ? "text-slate-500" :
