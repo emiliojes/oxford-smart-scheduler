@@ -77,6 +77,14 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     return timeBlocks.find((b) => b.startTime === startTime);
   };
 
+  const getEndTime = (startTime: string, duration: string): string => {
+    const [h, m] = startTime.split(":").map(Number);
+    const totalMins = h * 60 + m + parseInt(duration || "0");
+    const endH = Math.floor(totalMins / 60);
+    const endM = totalMins % 60;
+    return `${String(endH).padStart(2, "0")}:${String(endM).padStart(2, "0")}`;
+  };
+
   return (
     <TooltipProvider>
       <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
@@ -100,12 +108,14 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
 
               return (
                 <TableRow key={startTime} className={`h-auto ${isSpecialBlock ? "print:h-6" : "print:h-auto"}`}>
-                  <TableCell className="font-medium border-r bg-slate-50 align-middle py-1 print:py-0.5 print:w-14">
+                  <TableCell className="font-medium border-r bg-slate-50 align-middle py-1 print:py-0.5 print:w-20">
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold print:text-[9px]">{startTime}</span>
-                      <span className="text-xs text-slate-500 print:hidden">
-                        {t.subjects.durations[blockInfo?.duration as keyof typeof t.subjects.durations]}
-                      </span>
+                      <span className="text-xs font-bold print:text-[9px]">{startTime}</span>
+                      {blockInfo?.duration && (
+                        <span className="text-xs text-slate-500 print:text-[8px]">
+                          {getEndTime(startTime, blockInfo.duration)}
+                        </span>
+                      )}
                     </div>
                   </TableCell>
                   
