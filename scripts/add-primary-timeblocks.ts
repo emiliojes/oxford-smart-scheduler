@@ -11,6 +11,9 @@ const missingSlots = [
   { startTime: "09:45", endTime: "10:45", duration: "60", blockType: "CLASS" },
   { startTime: "10:45", endTime: "11:45", duration: "60", blockType: "CLASS" },
   { startTime: "11:45", endTime: "12:45", duration: "60", blockType: "CLASS" },
+  { startTime: "12:45", endTime: "13:15", duration: "30", blockType: "LUNCH" },
+  { startTime: "13:15", endTime: "14:15", duration: "60", blockType: "CLASS" },
+  { startTime: "14:15", endTime: "15:15", duration: "60", blockType: "CLASS" },
 ];
 
 async function main() {

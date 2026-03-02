@@ -251,15 +251,15 @@ VIELKA VEGA,English,6,A,,Monday,09:45,
 VIELKA VEGA,Resource Room Support,,,,Monday,10:45
 VIELKA VEGA,Resource Room Support,,,,Tuesday,10:45
 VIELKA VEGA,Resource Room Support,,,,Wednesday,10:45
-VIELKA VEGA,English,6,A,,Thursday,10:15,
+VIELKA VEGA,English,6,A,,Thursday,10:45,
 VIELKA VEGA,English,7,A,,Friday,10:45,
-VIELKA VEGA,English,6,A,,Tuesday,11:15,
-VIELKA VEGA,English,6,A,,Wednesday,11:15,
-VIELKA VEGA,English,6,A,,Friday,11:15,
+VIELKA VEGA,English,6,A,,Tuesday,11:45,
+VIELKA VEGA,English,6,A,,Wednesday,11:45,
+VIELKA VEGA,English,6,A,,Friday,11:45,
 VIELKA VEGA,Lunch Duty - Cafeteria,7,A,,Monday,12:45
 VIELKA VEGA,Dismissal Duty,7,A,,Friday,12:45
-VIELKA VEGA,English,6,B,,Monday,12:30,
-VIELKA VEGA,English,6,B,,Tuesday,12:30,
+VIELKA VEGA,English,6,B,,Monday,13:15,
+VIELKA VEGA,English,6,B,,Tuesday,13:15,
 VIELKA VEGA,English,7,B,,Wednesday,13:15,
 VIELKA VEGA,English,7,B,,Thursday,13:15,
 VIELKA VEGA,English,7,B,,Monday,14:15,
@@ -301,22 +301,22 @@ OMELY RUJANO,Spanish,5,A,,Monday,09:15,
 OMELY RUJANO,Spanish,6,B,,Tuesday,09:15,9:45-10:45
 OMELY RUJANO,Spanish,5,A,,Thursday,09:15,
 OMELY RUJANO,Spanish,6,B,,Friday,09:15,9:45-10:45
-OMELY RUJANO,Spanish,6,B,,Monday,10:15,
+OMELY RUJANO,Spanish,6,B,,Monday,10:45,
 OMELY RUJANO,Spanish,5,A,,Tuesday,10:15,11:15-12:00
 OMELY RUJANO,Spanish,4,B,,Wednesday,10:15,10:15-11:15
-OMELY RUJANO,Spanish,6,B,,Thursday,10:15,
-OMELY RUJANO,Spanish,6,A,,Friday,10:15,
-OMELY RUJANO,Resource Room Support,,,,Monday,11:15
-OMELY RUJANO,Resource Room Support,,,,Tuesday,11:15
+OMELY RUJANO,Spanish,6,B,,Thursday,10:45,
+OMELY RUJANO,Spanish,6,A,,Friday,10:45,
+OMELY RUJANO,Resource Room Support,,,,Monday,11:45
+OMELY RUJANO,Resource Room Support,,,,Tuesday,11:45
 OMELY RUJANO,Spanish,5,B,,Wednesday,11:15,11:15-12:00
 OMELY RUJANO,Dismissal Duty,6,A,,Friday,12:00
 OMELY RUJANO,Spanish,5,B,,Monday,12:30,
 OMELY RUJANO,Spanish,5,B,,Tuesday,12:30,
 OMELY RUJANO,Spanish,5,A,,Wednesday,12:30,
 OMELY RUJANO,Spanish,4,B,,Thursday,12:30,
-OMELY RUJANO,Spanish,6,A,,Tuesday,12:30,
-OMELY RUJANO,Spanish,6,A,,Monday,13:15,
-OMELY RUJANO,Spanish,6,A,,Thursday,13:15,
+OMELY RUJANO,Spanish,6,A,,Tuesday,13:15,
+OMELY RUJANO,Spanish,6,A,,Monday,14:15,
+OMELY RUJANO,Spanish,6,A,,Thursday,14:15,
 ENIS RODRIGUEZ,Homeroom,6,B,,Monday,07:30
 ENIS RODRIGUEZ,Literature,8,B,,Tuesday,07:30,
 ENIS RODRIGUEZ,Literature,6,A,,Wednesday,07:30,
@@ -329,21 +329,21 @@ ENIS RODRIGUEZ,English,8,B,,Tuesday,09:45,
 ENIS RODRIGUEZ,English,8,B,,Wednesday,09:45,
 ENIS RODRIGUEZ,English,8,A,,Friday,09:45,
 ENIS RODRIGUEZ,Literature,7,B,,Monday,10:45,
-ENIS RODRIGUEZ,Literature,6,A,,Tuesday,10:15,
+ENIS RODRIGUEZ,Literature,6,A,,Tuesday,10:45,
 ENIS RODRIGUEZ,English,8,A,,Thursday,10:45,
 ENIS RODRIGUEZ,English,8,B,,Friday,10:45,
 ENIS RODRIGUEZ,English,8,B,,Monday,11:45,
-ENIS RODRIGUEZ,Literature,6,B,,Tuesday,11:15,
+ENIS RODRIGUEZ,Literature,6,B,,Tuesday,11:45,
 ENIS RODRIGUEZ,Literature,7,A,,Wednesday,11:45,
-ENIS RODRIGUEZ,Literature,6,A,,Thursday,11:15,
-ENIS RODRIGUEZ,Literature,6,B,,Friday,11:15,
+ENIS RODRIGUEZ,Literature,6,A,,Thursday,11:45,
+ENIS RODRIGUEZ,Literature,6,B,,Friday,11:45,
 ENIS RODRIGUEZ,Lunch Duty - Cafeteria,6,B,,Wednesday,12:45
 ENIS RODRIGUEZ,Dismissal Duty,6,B,,Friday,12:45
 ENIS RODRIGUEZ,Literature,8,B,,Monday,13:15,
 ENIS RODRIGUEZ,English,8,A,,Wednesday,13:15,
 ENIS RODRIGUEZ,English,8,A,,Monday,14:15,
 ENIS RODRIGUEZ,English,8,A,,Tuesday,14:15,
-ENIS RODRIGUEZ,Literature,6,B,,Wednesday,13:15,
+ENIS RODRIGUEZ,Literature,6,B,,Wednesday,14:15,
 ENIS RODRIGUEZ,English,8,B,,Thursday,14:15,
 ANDREA GUERRA,English,10,B,,Friday,07:30,
 ANDREA GUERRA,Resource Room Support,,,,Tuesday,08:30
@@ -422,10 +422,10 @@ ADOLFO DIAZ,Music,1,B,,Wednesday,10:15,
 ADOLFO DIAZ,Music,3,B,,Thursday,10:15,
 ADOLFO DIAZ,Music,5,A,,Friday,10:15,
 ADOLFO DIAZ,Music,8,B,,Monday,10:45,
-ADOLFO DIAZ,Music,6,A,,Monday,11:15,
+ADOLFO DIAZ,Music,6,A,,Monday,11:45,
 ADOLFO DIAZ,Music,7,B,,Tuesday,11:45,
 ADOLFO DIAZ,Music,7,A,,Wednesday,11:45,
-ADOLFO DIAZ,Music,6,B,,Thursday,11:15,
+ADOLFO DIAZ,Music,6,B,,Thursday,11:45,
 ADOLFO DIAZ,Music,K,C,,Tuesday,12:30,1:00-1:50
 ADOLFO DIAZ,Music,5,B,,Wednesday,12:30,12:45-1:50
 ADOLFO DIAZ,Music,8,A,,Monday,13:15,
@@ -441,17 +441,17 @@ FRANCISCO MENDOZA,Math 8,6,A,,Tuesday,09:45,
 FRANCISCO MENDOZA,Math 8,6,A,,Wednesday,09:45,
 FRANCISCO MENDOZA,Math 8,6,A,,Friday,09:45,
 FRANCISCO MENDOZA,Math 8,7,A,,Monday,10:45,
-FRANCISCO MENDOZA,Math 8,6,B,,Tuesday,10:15,
+FRANCISCO MENDOZA,Math 8,6,B,,Tuesday,10:45,
 FRANCISCO MENDOZA,Math 8,7,A,,Wednesday,10:45,
 FRANCISCO MENDOZA,Math 8,7,B,,Thursday,10:45,
 FRANCISCO MENDOZA,Math 8,7,B,,Friday,10:45,
-FRANCISCO MENDOZA,Math 8,6,B,,Wednesday,11:15,
+FRANCISCO MENDOZA,Math 8,6,B,,Wednesday,11:45,
 FRANCISCO MENDOZA,Math 8,7,A,,Thursday,11:45,
 FRANCISCO MENDOZA,Resource Room Support,,,,Monday,13:15
 FRANCISCO MENDOZA,Resource Room Support,,,,Tuesday,13:15
 FRANCISCO MENDOZA,Resource Room Support,,,,Wednesday,13:15
-FRANCISCO MENDOZA,Math 8,6,B,,Thursday,12:30,
-FRANCISCO MENDOZA,Math 8,6,B,,Monday,13:15,
+FRANCISCO MENDOZA,Math 8,6,B,,Thursday,13:15,
+FRANCISCO MENDOZA,Math 8,6,B,,Monday,14:15,
 DEYANIRA DOMINGUEZ,Spanish,1,A,,Tuesday,08:30,
 DEYANIRA DOMINGUEZ,Spanish,1,A,,Wednesday,08:30,
 DEYANIRA DOMINGUEZ,Spanish,K,A,,Thursday,08:30,
@@ -510,15 +510,15 @@ ARACELLYS DOMINGUEZ,Resource Room Support,,,,Thursday,08:30
 ARACELLYS DOMINGUEZ,Resource Room Support,,,,Friday,08:30
 ARACELLYS DOMINGUEZ,Social Studies,5,A,,Tuesday,10:15,
 ARACELLYS DOMINGUEZ,Social Studies,5,B,,Thursday,10:15,
-ARACELLYS DOMINGUEZ,Social Studies,6,A,,Monday,10:15,
-ARACELLYS DOMINGUEZ,Social Studies,6,A,,Wednesday,10:15,
+ARACELLYS DOMINGUEZ,Social Studies,6,A,,Monday,10:45,
+ARACELLYS DOMINGUEZ,Social Studies,6,A,,Wednesday,10:45,
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Tuesday,11:15,
 ARACELLYS DOMINGUEZ,Social Studies,5,B,,Friday,11:15,
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Monday,12:30,
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Wednesday,12:30,12:30-1:30
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Thursday,12:30,12:30-1:30
 ARACELLYS DOMINGUEZ,Resource Room Support,,,,Monday,14:15
-ARACELLYS DOMINGUEZ,Social Studies,6,A,,Tuesday,13:15,
+ARACELLYS DOMINGUEZ,Social Studies,6,A,,Tuesday,14:15,
 ARACELLYS DOMINGUEZ,Resource Room Support,,,,Wednesday,14:15
 ARACELLYS DOMINGUEZ,Resource Room Support,,,,Thursday,14:15
 MANUEL ABREGO,P.E.,3,A,,Wednesday,07:30,
@@ -538,7 +538,7 @@ MANUEL ABREGO,P.E.,2,B,,Tuesday,11:15,
 MANUEL ABREGO,P.E.,2,A,,Thursday,11:15,
 MANUEL ABREGO,P.E.,1,B,,Monday,11:15,11:00-12:00
 MANUEL ABREGO,P.E.,4,B,,Monday,12:30,
-MANUEL ABREGO,P.E.,6,B,,Monday,13:15,
+MANUEL ABREGO,P.E.,6,B,,Monday,14:15,
 MANUEL ABREGO,P.E.,7,A,,Tuesday,14:15,
 MANUEL ABREGO,P.E.,8,A,,Wednesday,14:15,
 MANUEL ABREGO,P.E.,7,B,,Thursday,14:15,
@@ -548,14 +548,14 @@ ELSI DIAZ,French,8,B,,Wednesday,08:30,
 ELSI DIAZ,French,6,A,,Thursday,08:30,
 ELSI DIAZ,French,7,A,,Wednesday,09:45,
 ELSI DIAZ,French,7,A,,Thursday,09:45,
-ELSI DIAZ,French,6,B,,Wednesday,10:15,
+ELSI DIAZ,French,6,B,,Wednesday,10:45,
 ELSI DIAZ,French,8,B,,Thursday,10:45,
 ELSI DIAZ,French,8,A,,Wednesday,11:45,
 ELSI DIAZ,French,7,B,,Thursday,11:45,
-ELSI DIAZ,French,6,A,,Wednesday,12:30,
+ELSI DIAZ,French,6,A,,Wednesday,13:15,
 ELSI DIAZ,French,8,A,,Thursday,13:15,
 ELSI DIAZ,French,7,B,,Wednesday,14:15,
-ELSI DIAZ,French,6,B,,Thursday,13:15,
+ELSI DIAZ,French,6,B,,Thursday,14:15,
 MADELAINE ARROYO,Social Science,4,A,,Wednesday,07:30,
 MADELAINE ARROYO,Social Science,4,B,,Thursday,07:30,
 MADELAINE ARROYO,Social Science,4,A,,Friday,07:30,

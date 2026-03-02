@@ -16,7 +16,7 @@ const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision"
 
 // PRIMARY teachers share rows with SECONDARY in the Excel.
 // Map SECONDARY row start times to the correct PRIMARY time block start times.
-const PRIMARY_LEVEL_GRADES = new Set(["K", "PK", "1", "2", "3", "4", "5", "6"]);
+const PRIMARY_LEVEL_GRADES = new Set(["K", "PK", "1", "2", "3", "4", "5"]);
 const SECONDARY_TO_PRIMARY_TIME: Record<string, string> = {
   "07:30": "07:30",
   "08:00": "07:30", // PK/K early start -> closest PRIMARY slot
