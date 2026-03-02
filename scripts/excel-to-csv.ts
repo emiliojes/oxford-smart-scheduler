@@ -65,12 +65,18 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
   if (SKIP_WORDS.some(s => lower.includes(s))) return null;
   const isLab = /\bLAB\b/i.test(raw);
   // Extract subject suffix override (e.g. "6B SOC." -> overrideSubject = "Social Studies")
+  // Also detect subject PREFIX (e.g. "CHEM 11 B", "BIO 11A", "BIOL 12 A")
   let overrideSubject: string | undefined;
   const suffixMatch = raw.match(/\s+(LIT|ENG\.?|SPAN|SOC\.?|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i);
   if (suffixMatch) {
     const key1 = suffixMatch[1].toUpperCase().replace(/\.$/, "");
     const key2 = suffixMatch[1].toUpperCase();
     overrideSubject = SUFFIX_TO_SUBJECT[key1] ?? SUFFIX_TO_SUBJECT[key2];
+  }
+  const prefixMatch = raw.match(/^(BIOL|BIO|CHEM|PHYS|SCI)\s+/i);
+  if (!overrideSubject && prefixMatch) {
+    const key = prefixMatch[1].toUpperCase();
+    overrideSubject = SUFFIX_TO_SUBJECT[key] ?? SUFFIX_TO_SUBJECT[key.replace(/L$/, "")];
   }
   // Extract embedded start time before cleaning (e.g. "6B (9:45-10:45)" -> overrideStartTime = "09:45")
   let overrideStartTime: string | undefined;
@@ -80,6 +86,7 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
   }
   // Remove noise
   let clean = raw
+    .replace(/^(BIOL|BIO|CHEM|PHYS|SCI)\s+/i, "")   // strip subject prefix (e.g. "CHEM 11 B" -> "11 B")
     .replace(/\(LAB\)/gi, "").replace(/\bLAB\b/gi, "")
     .replace(/\(T\)/gi, "").replace(/T\.S\.?/gi, "").replace(/T SK\s*\d*/gi, "")
     .replace(/LAB\s*ASSI?SS?TANT/gi, "")
@@ -156,6 +163,7 @@ const SUBJECT_KEYWORDS = ["MATH", "BIOLOGY", "CHEMISTRY", "PHYSICS", "ENGLISH", 
 const TEACHER_OVERRIDES: Record<string, { name: string; subject: string }> = {
   "VANESSA": { name: "VANESSA MUÑOZ", subject: "SOCIAL SCIENCES" },
   "ARTS": { name: "TBD - Arts", subject: "Arts" },
+  "SCIENCE 6": { name: "TBD - Science/Lab", subject: "Science" },
 };
 
 function extractTeacherInfo(cell: string): { name: string; subject: string } | null {
