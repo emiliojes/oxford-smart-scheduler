@@ -174,7 +174,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                     className={`p-2 print:p-0.5 text-xs print:text-[8px] border shadow-none relative group cursor-pointer transition-colors ${
                                       a.status === "CONFLICT"
                                         ? "border-red-200 bg-red-50 hover:border-red-400"
-                                        : a.subject.name === "Lunch Duty"
+                                        : a.subject.name.startsWith("Lunch Duty")
                                         ? "border-amber-200 bg-amber-50 hover:border-amber-400"
                                         : a.subject.name === "Dismissal Duty"
                                         ? "border-orange-200 bg-orange-50 hover:border-orange-400"
