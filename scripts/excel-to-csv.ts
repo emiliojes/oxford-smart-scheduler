@@ -12,7 +12,7 @@ const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 const c = (row: any[], col: number): string => String((row ?? [])[col] ?? "").trim();
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const SKIP_WORDS = ["registration", "break", "lunch", "homeroom", "dismissal", "supervision", "www", "time", "07.15", "student", "resource room", "arrival duty"];
+const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision", "www", "time", "07.15", "student", "resource room", "arrival duty"];
 const ROMAN: Record<string, string> = {
   "XII": "12", "XI": "11", "X": "10", "IX": "9",
   "VIII": "8", "VII": "7", "VI": "6", "V": "5",
@@ -119,28 +119,41 @@ const SKIP_BLOCKS = ["ARTS", "GRADE ARTS", "GRADE SCIENCE", "LAB ASSISTANT"];
 // TIME header follows 3 rows later
 // Data rows follow TIME header row, end at "www.oxford"
 
-interface Block { name: string; subject: string; timeCol: number; dataColStart: number; timeHeaderRow: number; }
+interface Block { name: string; subject: string; timeCol: number; dataColStart: number; timeHeaderRow: number; homeroomGrade?: string; homeroomSection?: string; }
 const blocks: Block[] = [];
+
+// Parse homeroom grade from header cell like "12 GRADE" or "11A GRADE"
+function parseHomeroomGrade(cell: string): { grade: string; section: string } | null {
+  const m = cell.match(/^(\d+|[IVXK]+)\s*([A-C]?)\s*GRADE/i);
+  if (!m) return null;
+  const grade = ROMAN[m[1].toUpperCase()] ?? m[1];
+  const section = m[2].toUpperCase() || "A";
+  return { grade, section };
+}
 
 for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
   // Check left side (teacher info in col 1)
   const leftInfo = extractTeacherInfo(c(row, 1));
   if (leftInfo && !SKIP_BLOCKS.some(s => leftInfo.name.toUpperCase().startsWith(s))) {
+    const hrGrade = parseHomeroomGrade(c(row, 0));
     // Find TIME header row within next 5 rows
     for (let tr = r + 1; tr <= r + 5 && tr < rows.length; tr++) {
       if (c(rows[tr], 0).toUpperCase() === "TIME") {
-        blocks.push({ ...leftInfo, timeCol: 0, dataColStart: 1, timeHeaderRow: tr });
+        blocks.push({ ...leftInfo, timeCol: 0, dataColStart: 1, timeHeaderRow: tr,
+          homeroomGrade: hrGrade?.grade, homeroomSection: hrGrade?.section });
         break;
       }
     }
   }
   // Check right side (teacher info in col 8)
   const rightInfo = extractTeacherInfo(c(row, 8));
-  if (rightInfo) {
+  if (rightInfo && !SKIP_BLOCKS.some(s => rightInfo.name.toUpperCase().startsWith(s))) {
+    const hrGrade = parseHomeroomGrade(c(row, 7));
     for (let tr = r + 1; tr <= r + 5 && tr < rows.length; tr++) {
       if (c(rows[tr], 7).toUpperCase() === "TIME") {
-        blocks.push({ ...rightInfo, timeCol: 7, dataColStart: 8, timeHeaderRow: tr });
+        blocks.push({ ...rightInfo, timeCol: 7, dataColStart: 8, timeHeaderRow: tr,
+          homeroomGrade: hrGrade?.grade, homeroomSection: hrGrade?.section });
         break;
       }
     }
@@ -163,6 +176,13 @@ for (const block of blocks) {
 
     for (let d = 0; d < 5; d++) {
       const gradeRaw = c(row, block.dataColStart + d);
+      // Check for HOMEROOM cell
+      if (gradeRaw.toUpperCase() === "HOMEROOM" && block.homeroomGrade) {
+        const teacherSafe = block.name.includes(",") ? `"${block.name}"` : block.name;
+        csvRows.push(`${teacherSafe},Homeroom,${block.homeroomGrade},${block.homeroomSection ?? "A"},,${DAY_NAMES[d]},${startTime}`);
+        total++;
+        continue;
+      }
       const parsed = parseGradeCell(gradeRaw);
       if (!parsed) continue;
       const { grade, section } = parsed;

@@ -28,6 +28,7 @@ export default function ScheduleViewPage() {
   const [viewType, setViewType] = useState<"teacher" | "grade" | "room">("teacher");
   const [selectedId, setSelectedId] = useState<string>("");
   const [options, setOptions] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [assignments, setAssignments] = useState([]);
   const [timeBlocks, setTimeBlocks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -208,16 +209,31 @@ export default function ScheduleViewPage() {
                 <label className="text-sm font-medium text-slate-700">
                   {t.schedule.select.replace('{type}', t.schedule.types[viewType])}
                 </label>
-                <Select value={selectedId} onValueChange={setSelectedId}>
+                <Select value={selectedId} onValueChange={(v) => { setSelectedId(v); setSearchQuery(""); }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {options.map((opt) => (
-                      <SelectItem key={opt.id} value={opt.id}>
-                        {viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name}
-                      </SelectItem>
-                    ))}
+                    <div className="px-2 pb-1 pt-1">
+                      <input
+                        autoFocus
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        onKeyDown={e => e.stopPropagation()}
+                        placeholder="Buscar..."
+                        className="w-full text-sm border rounded px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400"
+                      />
+                    </div>
+                    {options
+                      .filter(opt => {
+                        const label = viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name;
+                        return label.toLowerCase().includes(searchQuery.toLowerCase());
+                      })
+                      .map((opt) => (
+                        <SelectItem key={opt.id} value={opt.id}>
+                          {viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
