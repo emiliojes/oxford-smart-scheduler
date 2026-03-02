@@ -219,12 +219,10 @@ for (const block of blocks) {
         total++;
         continue;
       }
-      // RESOURCE ROOM SUPPORT
+      // RESOURCE ROOM SUPPORT — no specific grade
       if (gradeUpper.includes("RESOURCE ROOM")) {
-        if (block.homeroomGrade) {
-          csvRows.push(`${teacherSafe},Resource Room Support,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
-          total++;
-        }
+        csvRows.push(`${teacherSafe},Resource Room Support,,,,${DAY_NAMES[d]},${startTime}`);
+        total++;
         continue;
       }
       const parsed = parseGradeCell(gradeRaw);

@@ -102,9 +102,9 @@ EDUARDO BELL,Math 10,10,B,,Wednesday,10:45
 EDUARDO BELL,Math 10,10,A,,Thursday,10:45
 EDUARDO BELL,Math 8,8,A,,Friday,10:45
 EDUARDO BELL,Math 8,8,A,,Monday,11:45
-EDUARDO BELL,Resource Room Support,10,A,,Wednesday,11:45
-EDUARDO BELL,Resource Room Support,10,A,,Thursday,11:45
-EDUARDO BELL,Resource Room Support,10,A,,Friday,11:45
+EDUARDO BELL,Resource Room Support,,,,Wednesday,11:45
+EDUARDO BELL,Resource Room Support,,,,Thursday,11:45
+EDUARDO BELL,Resource Room Support,,,,Friday,11:45
 EDUARDO BELL,Lunch Duty - Synthetic Field,10,A,,Wednesday,12:45
 EDUARDO BELL,Dismissal Duty,10,A,,Friday,12:45
 EDUARDO BELL,Math 10,10,A,,Monday,13:15
@@ -191,9 +191,9 @@ CONRADO DE LEÓN,Science,7,B,,Monday,11:45
 CONRADO DE LEÓN,Science,8,B,,Tuesday,11:45
 CONRADO DE LEÓN,Lunch Duty - Synthetic Field,8,A,,Tuesday,12:45
 CONRADO DE LEÓN,Dismissal Duty,8,A,,Friday,12:45
-CONRADO DE LEÓN,Resource Room Support,8,A,,Tuesday,13:15
-CONRADO DE LEÓN,Resource Room Support,8,A,,Wednesday,13:15
-CONRADO DE LEÓN,Resource Room Support,8,A,,Thursday,13:15
+CONRADO DE LEÓN,Resource Room Support,,,,Tuesday,13:15
+CONRADO DE LEÓN,Resource Room Support,,,,Wednesday,13:15
+CONRADO DE LEÓN,Resource Room Support,,,,Thursday,13:15
 CONRADO DE LEÓN,Science,9,A,,Monday,14:15
 ELIDA BARRIA,Homeroom,8,B,,Monday,07:30
 ELIDA BARRIA,Spanish,11,A,,Tuesday,07:30
@@ -232,9 +232,9 @@ VIELKA VEGA,English,6,B,,Wednesday,08:30
 VIELKA VEGA,English,6,B,,Thursday,08:30
 VIELKA VEGA,English,6,B,,Friday,08:30
 VIELKA VEGA,English,6,A,,Monday,09:45
-VIELKA VEGA,Resource Room Support,7,A,,Monday,10:45
-VIELKA VEGA,Resource Room Support,7,A,,Tuesday,10:45
-VIELKA VEGA,Resource Room Support,7,A,,Wednesday,10:45
+VIELKA VEGA,Resource Room Support,,,,Monday,10:45
+VIELKA VEGA,Resource Room Support,,,,Tuesday,10:45
+VIELKA VEGA,Resource Room Support,,,,Wednesday,10:45
 VIELKA VEGA,English,6,A,,Thursday,10:45
 VIELKA VEGA,English,7,A,,Friday,10:45
 VIELKA VEGA,English,6,A,,Tuesday,11:45
@@ -285,8 +285,8 @@ OMELY RUJANO,Spanish,5,A,,Thursday,09:15
 OMELY RUJANO,Spanish,6,B,,Monday,10:45
 OMELY RUJANO,Spanish,6,B,,Thursday,10:45
 OMELY RUJANO,Spanish,6,A,,Friday,10:45
-OMELY RUJANO,Resource Room Support,6,A,,Monday,11:45
-OMELY RUJANO,Resource Room Support,6,A,,Tuesday,11:45
+OMELY RUJANO,Resource Room Support,,,,Monday,11:45
+OMELY RUJANO,Resource Room Support,,,,Tuesday,11:45
 OMELY RUJANO,Dismissal Duty,6,A,,Friday,12:00
 OMELY RUJANO,Spanish,5,B,,Monday,12:30
 OMELY RUJANO,Spanish,5,B,,Tuesday,12:30
@@ -299,6 +299,8 @@ ENIS RODRIGUEZ,Homeroom,6,B,,Monday,07:30
 ENIS RODRIGUEZ,Lunch Duty - Cafeteria,6,B,,Wednesday,12:45
 ENIS RODRIGUEZ,Dismissal Duty,6,B,,Friday,12:45
 ANDREA GUERRA,English,10,B,,Friday,07:30
+ANDREA GUERRA,Resource Room Support,,,,Tuesday,08:30
+ANDREA GUERRA,Resource Room Support,,,,Wednesday,08:30
 ANDREA GUERRA,English,11,B,,Monday,09:45
 ANDREA GUERRA,English,10,A,,Tuesday,09:45
 ANDREA GUERRA,English,10,B,,Wednesday,09:45
@@ -354,10 +356,16 @@ LEONEL VEGA,English,9,A,,Wednesday,08:30
 LEONEL VEGA,English,9,B,,Thursday,08:30
 LEONEL VEGA,English,9,B,,Friday,08:30
 LEONEL VEGA,English,9,A,,Monday,09:45
+LEONEL VEGA,Resource Room Support,,,,Wednesday,09:45
+LEONEL VEGA,Resource Room Support,,,,Thursday,09:45
+LEONEL VEGA,Resource Room Support,,,,Friday,09:45
 ADOLFO DIAZ,Music,2,A,,Tuesday,07:30
 ADOLFO DIAZ,Music,4,B,,Wednesday,07:30
 ADOLFO DIAZ,Music,1,C,,Thursday,07:30
 ADOLFO DIAZ,Music,1,A,,Friday,07:30
+ADOLFO DIAZ,Resource Room Support,,,,Tuesday,08:30
+ADOLFO DIAZ,Resource Room Support,,,,Wednesday,08:30
+ADOLFO DIAZ,Resource Room Support,,,,Thursday,08:30
 ADOLFO DIAZ,Music,2,B,,Monday,09:15
 ADOLFO DIAZ,Music,K,A,,Tuesday,09:15
 ADOLFO DIAZ,Music,K,B,,Thursday,09:15
@@ -390,6 +398,9 @@ FRANCISCO MENDOZA,Math 8,7,B,,Thursday,10:45
 FRANCISCO MENDOZA,Math 8,7,B,,Friday,10:45
 FRANCISCO MENDOZA,Math 8,6,B,,Wednesday,11:45
 FRANCISCO MENDOZA,Math 8,7,A,,Thursday,11:45
+FRANCISCO MENDOZA,Resource Room Support,,,,Monday,13:15
+FRANCISCO MENDOZA,Resource Room Support,,,,Tuesday,13:15
+FRANCISCO MENDOZA,Resource Room Support,,,,Wednesday,13:15
 FRANCISCO MENDOZA,Math 8,6,B,,Thursday,13:15
 FRANCISCO MENDOZA,Math 8,6,B,,Monday,14:15
 DEYANIRA DOMINGUEZ,Spanish,1,A,,Tuesday,08:30
@@ -435,8 +446,19 @@ AVIDEL GONZALEZ,Spanish,3,B,,Friday,11:15
 AVIDEL GONZALEZ,Spanish,3,A,,Monday,12:30
 AVIDEL GONZALEZ,Spanish,3,B,,Wednesday,12:30
 AVIDEL GONZALEZ,Spanish,2,B,,Thursday,12:30
+AVIDEL GONZALEZ,Resource Room Support,,,,Monday,13:15
+AVIDEL GONZALEZ,Resource Room Support,,,,Tuesday,13:15
+AVIDEL GONZALEZ,Resource Room Support,,,,Wednesday,13:15
+AVIDEL GONZALEZ,Resource Room Support,,,,Thursday,13:15
+ARACELLYS DOMINGUEZ,Resource Room Support,,,,Tuesday,08:30
+ARACELLYS DOMINGUEZ,Resource Room Support,,,,Wednesday,08:30
+ARACELLYS DOMINGUEZ,Resource Room Support,,,,Thursday,08:30
+ARACELLYS DOMINGUEZ,Resource Room Support,,,,Friday,08:30
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Tuesday,11:15
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Monday,12:30
+ARACELLYS DOMINGUEZ,Resource Room Support,,,,Monday,14:15
+ARACELLYS DOMINGUEZ,Resource Room Support,,,,Wednesday,14:15
+ARACELLYS DOMINGUEZ,Resource Room Support,,,,Thursday,14:15
 MANUEL ABREGO,P.E.,3,A,,Wednesday,07:30
 MANUEL ABREGO,P.E.,2,C,,Thursday,07:30
 MANUEL ABREGO,P.E.,3,B,,Wednesday,08:15
@@ -483,6 +505,9 @@ MADELAINE ARROYO,Social Science,2,C,,Wednesday,11:15
 MADELAINE ARROYO,Social Science,1,C,,Friday,11:15
 MADELAINE ARROYO,Social Science,1,A,,Monday,12:30
 MADELAINE ARROYO,Social Science,2,A,,Wednesday,12:30
+MADELAINE ARROYO,Resource Room Support,,,,Tuesday,14:15
+MADELAINE ARROYO,Resource Room Support,,,,Wednesday,14:15
+MADELAINE ARROYO,Resource Room Support,,,,Thursday,14:15
 ARLYN VEGA,Computing,3,A,,Tuesday,07:30
 ARLYN VEGA,Computing,1,C,,Wednesday,07:30
 ARLYN VEGA,Computing,3,B,,Friday,07:30

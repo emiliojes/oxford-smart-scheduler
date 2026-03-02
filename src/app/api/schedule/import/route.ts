@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       const rowErrors: string[] = [];
       if (!teacher)              rowErrors.push(`teacher "${teacherName}" no encontrado`);
       if (!subject)              rowErrors.push(`subject "${subjectName}" no encontrado`);
-      if (!grade)                rowErrors.push(`grade "${gradeName}" sección "${section}" no encontrado`);
+      if (gradeName && !grade)   rowErrors.push(`grade "${gradeName}" sección "${section}" no encontrado`);
       if (roomName && !room)     rowErrors.push(`room "${roomName}" no encontrado`);
       if (!dayNum)               rowErrors.push(`day "${dayStr}" inválido`);
       if (!timeBlock)            rowErrors.push(`time block day=${dayNum} start=${normalizedTime} no encontrado`);
@@ -116,17 +116,18 @@ export async function POST(request: NextRequest) {
         where: { teacherId: teacher!.id, timeBlockId: timeBlock!.id },
       });
       const roomId = room?.id ?? null;
+      const gradeId = grade?.id ?? null;
       if (existing) {
         await prisma.assignment.update({
           where: { id: existing.id },
-          data: { teacherId: teacher!.id, subjectId: subject!.id, roomId, status: "CONFIRMED" } as any,
+          data: { teacherId: teacher!.id, subjectId: subject!.id, gradeId, roomId, status: "CONFIRMED" } as any,
         });
       } else {
         await prisma.assignment.create({
           data: {
             teacherId: teacher!.id,
             subjectId: subject!.id,
-            gradeId: grade!.id,
+            gradeId,
             roomId,
             timeBlockId: timeBlock!.id,
             status: "CONFIRMED",
