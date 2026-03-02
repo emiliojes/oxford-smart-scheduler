@@ -187,10 +187,12 @@ for (const block of blocks) {
         total++;
         continue;
       }
-      // LUNCH duty (includes "LUNCH" variants with supervision notes)
-      if (gradeUpper.startsWith("LUNCH") && block.homeroomGrade) {
-        csvRows.push(`${teacherSafe},Lunch Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
-        total++;
+      // LUNCH with supervision = Lunch Duty; plain LUNCH = free time, skip
+      if (gradeUpper.startsWith("LUNCH")) {
+        if (block.homeroomGrade && (gradeUpper.includes("SUPERVISION") || gradeUpper.includes("DUTY"))) {
+          csvRows.push(`${teacherSafe},Lunch Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+          total++;
+        }
         continue;
       }
       // STUDENT DISMISSAL DUTY (always Friday col d=4, or special rows)
