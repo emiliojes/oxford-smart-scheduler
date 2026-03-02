@@ -155,6 +155,7 @@ const SUBJECT_KEYWORDS = ["MATH", "BIOLOGY", "CHEMISTRY", "PHYSICS", "ENGLISH", 
 // Manual overrides for cells where auto-parsing fails
 const TEACHER_OVERRIDES: Record<string, { name: string; subject: string }> = {
   "VANESSA": { name: "VANESSA MUÑOZ", subject: "SOCIAL SCIENCES" },
+  "ARTS": { name: "TBD - Arts", subject: "Arts" },
 };
 
 function extractTeacherInfo(cell: string): { name: string; subject: string } | null {
@@ -186,7 +187,7 @@ function extractTeacherInfo(cell: string): { name: string; subject: string } | n
 }
 
 // Known invalid/non-teacher block names to skip
-const SKIP_BLOCKS = ["ARTS", "GRADE ARTS", "GRADE SCIENCE", "LAB ASSISTANT"];
+const SKIP_BLOCKS = ["GRADE ARTS", "GRADE SCIENCE", "LAB ASSISTANT"];
 
 // Structure: each teacher block uses cols 0-5 (left) or cols 7-12 (right)
 // TIME col = 0 or 7, MON-FRI = 1-5 or 8-12
