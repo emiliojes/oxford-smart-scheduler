@@ -153,7 +153,7 @@ export default function ScheduleViewPage() {
               </Link>
             </Button>
           )}
-          {canManage && <AssignmentForm onSuccess={fetchAssignments} />}
+          {canManage && <AssignmentForm onSuccess={() => fetchAssignments()} />}
           <Button variant="outline" onClick={handlePrint} className="gap-2">
             <Printer className="w-4 h-4" />
             {t.schedule.print}
