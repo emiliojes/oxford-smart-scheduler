@@ -14,6 +14,8 @@ async function main() {
     { name: "Dismissal Duty - School Bus Area", level: "BOTH" },
     { name: "Math 6", level: "SECONDARY" },
     { name: "Math 7", level: "SECONDARY" },
+    { name: "Arrival Duty - School Bus Area", level: "BOTH" },
+    { name: "Arrival Duty - Parking Lot", level: "BOTH" },
   ];
   for (const s of toCreate) {
     const existing = await prisma.subject.findFirst({ where: { name: s.name } });

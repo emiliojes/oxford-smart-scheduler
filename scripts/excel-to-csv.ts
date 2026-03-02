@@ -291,7 +291,10 @@ for (const block of blocks) {
       }
       // STUDENT ARRIVAL DUTY — no specific grade
       if (gradeUpper.includes("ARRIVAL")) {
-        csvRows.push(`${teacherSafe},Arrival Duty,,,,${DAY_NAMES[d]},${startTime}`);
+        let arrivalSubject = "Arrival Duty";
+        if (gradeUpper.includes("PARKING")) arrivalSubject = "Arrival Duty - Parking Lot";
+        else if (gradeUpper.includes("SCHOOL BUS") || gradeUpper.includes("BUS")) arrivalSubject = "Arrival Duty - School Bus Area";
+        csvRows.push(`${teacherSafe},${arrivalSubject},,,,${DAY_NAMES[d]},${startTime}`);
         total++;
         continue;
       }
