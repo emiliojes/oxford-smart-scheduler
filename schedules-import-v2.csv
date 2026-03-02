@@ -30,11 +30,11 @@ IRLANDA TUÑON,Math 9,9,B,,Monday,14:15
 IRLANDA TUÑON,Math 9,9,A,,Thursday,14:15
 ANDREA CONCEPCION,Homeroom,11,A,,Monday,07:30
 ANDREA CONCEPCION,Biology,10,A,,Tuesday,07:30
-ANDREA CONCEPCION,Biology,10,A,,Wednesday,07:30
+ANDREA CONCEPCION,Biology,10,A,Science Lab,Wednesday,07:30
 ANDREA CONCEPCION,Biology,10,A,,Thursday,07:30
 ANDREA CONCEPCION,Biology,11,A,,Friday,07:30
 ANDREA CONCEPCION,Biology,10,A,,Monday,08:30
-ANDREA CONCEPCION,Biology,11,A,,Tuesday,08:30
+ANDREA CONCEPCION,Biology,11,A,Science Lab,Tuesday,08:30
 ANDREA CONCEPCION,Biology,11,A,,Wednesday,08:30
 ANDREA CONCEPCION,Biology,10,B,,Friday,08:30
 ANDREA CONCEPCION,Biology,12,A,,Monday,09:45
@@ -42,10 +42,10 @@ ANDREA CONCEPCION,Biology,12,A,,Tuesday,09:45
 ANDREA CONCEPCION,Biology,9,B,,Wednesday,09:45
 ANDREA CONCEPCION,Biology,12,A,,Friday,09:45
 ANDREA CONCEPCION,Biology,9,B,,Monday,10:45
-ANDREA CONCEPCION,Biology,12,A,,Thursday,10:45
+ANDREA CONCEPCION,Biology,12,A,Science Lab,Thursday,10:45
 ANDREA CONCEPCION,Biology,11,A,,Monday,11:45
-ANDREA CONCEPCION,Biology,11,B,,Tuesday,11:45
-ANDREA CONCEPCION,Biology,10,B,,Wednesday,11:45
+ANDREA CONCEPCION,Biology,11,B,Science Lab,Tuesday,11:45
+ANDREA CONCEPCION,Biology,10,B,Science Lab,Wednesday,11:45
 ANDREA CONCEPCION,Biology,11,B,,Thursday,11:45
 ANDREA CONCEPCION,Biology,11,B,,Friday,11:45
 ANDREA CONCEPCION,Lunch Duty - Cafeteria,11,A,,Thursday,12:45
@@ -60,10 +60,10 @@ RICARDO FERRAN,Homeroom,11,B,,Monday,07:30
 RICARDO FERRAN,Chemistry,11,B,,Tuesday,07:30
 RICARDO FERRAN,Chemistry,11,B,,Wednesday,07:30
 RICARDO FERRAN,Chemistry,11,B,,Friday,07:30
-RICARDO FERRAN,Chemistry,11,B,,Monday,08:30
+RICARDO FERRAN,Chemistry,11,B,Science Lab,Monday,08:30
 RICARDO FERRAN,Chemistry,12,A,,Tuesday,08:30
 RICARDO FERRAN,Chemistry,12,A,,Wednesday,08:30
-RICARDO FERRAN,Chemistry,12,A,,Thursday,08:30
+RICARDO FERRAN,Chemistry,12,A,Science Lab,Thursday,08:30
 RICARDO FERRAN,Chemistry,12,A,,Friday,08:30
 RICARDO FERRAN,Chemistry,9,B,,Monday,09:45
 RICARDO FERRAN,Chemistry,9,B,,Tuesday,09:45
@@ -76,7 +76,7 @@ RICARDO FERRAN,Chemistry,9,A,,Friday,10:45
 RICARDO FERRAN,Chemistry,10,A,,Monday,11:45
 RICARDO FERRAN,Chemistry,10,A,,Tuesday,11:45
 RICARDO FERRAN,Chemistry,10,A,,Wednesday,11:45
-RICARDO FERRAN,Chemistry,10,B,,Thursday,11:45
+RICARDO FERRAN,Chemistry,10,B,Science Lab,Thursday,11:45
 RICARDO FERRAN,Chemistry,10,B,,Friday,11:45
 RICARDO FERRAN,Lunch Duty - Synthetic Field,11,B,,Monday,12:45
 RICARDO FERRAN,Dismissal Duty,11,B,,Friday,12:45
@@ -84,7 +84,7 @@ RICARDO FERRAN,Chemistry,9,A,,Monday,13:15
 RICARDO FERRAN,Chemistry,11,A,,Tuesday,13:15
 RICARDO FERRAN,Chemistry,10,B,,Monday,14:15
 RICARDO FERRAN,Chemistry,11,A,,Wednesday,14:15
-RICARDO FERRAN,Chemistry,10,A,,Thursday,14:15
+RICARDO FERRAN,Chemistry,10,A,Science Lab,Thursday,14:15
 EDUARDO BELL,Homeroom,10,A,,Monday,07:30
 EDUARDO BELL,Math 9,8,A,,Wednesday,07:30
 EDUARDO BELL,Math 11,10,B,,Thursday,07:30

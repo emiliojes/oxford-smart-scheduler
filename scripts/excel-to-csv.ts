@@ -19,10 +19,11 @@ const ROMAN: Record<string, string> = {
   "IV": "4", "III": "3", "II": "2", "I": "1",
 };
 
-function parseGradeCell(raw: string): { grade: string; section: string } | null {
+function parseGradeCell(raw: string): { grade: string; section: string; isLab: boolean } | null {
   if (!raw) return null;
   const lower = raw.toLowerCase();
   if (SKIP_WORDS.some(s => lower.includes(s))) return null;
+  const isLab = /\(LAB\)/i.test(raw);
   // Remove noise
   let clean = raw
     .replace(/\(LAB\)/gi, "").replace(/T\.S\.?/gi, "").replace(/T SK\s*\d*/gi, "")
@@ -35,7 +36,15 @@ function parseGradeCell(raw: string): { grade: string; section: string } | null 
   const grade = ROMAN[gradeRaw] ?? gradeRaw;
   // Grade 12 only has section A in DB — default empty section to A
   if (grade === "12" && !section) section = "A";
-  return { grade, section };
+  return { grade, section, isLab };
+}
+
+// Map subject to lab room name
+function getLabRoom(subject: string): string {
+  const s = subject.toUpperCase();
+  if (s.includes("BIOLOGY") || s.includes("CHEMISTRY") || s.includes("PHYSICS") || s.includes("SCIENCE")) return "Science Lab";
+  if (s.includes("COMPUTING") || s.includes("COMPUTER")) return "Computer Lab";
+  return "Science Lab"; // default
 }
 
 function parseStartTime(t: string): string | null {
@@ -210,9 +219,10 @@ for (const block of blocks) {
       }
       const parsed = parseGradeCell(gradeRaw);
       if (!parsed) continue;
-      const { grade, section } = parsed;
+      const { grade, section, isLab } = parsed;
       const subjectMapped = mapSubject(block.subject, grade);
-      csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},,${DAY_NAMES[d]},${startTime}`);
+      const room = isLab ? getLabRoom(block.subject) : "";
+      csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${startTime}`);
       total++;
     }
   }
