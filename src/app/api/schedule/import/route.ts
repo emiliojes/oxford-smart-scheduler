@@ -111,9 +111,9 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      // Upsert: skip if assignment already exists for same grade+timeBlock
+      // Upsert: match on teacher+timeBlock to avoid overwriting different teachers at same grade/time
       const existing = await prisma.assignment.findFirst({
-        where: { gradeId: grade!.id, timeBlockId: timeBlock!.id },
+        where: { teacherId: teacher!.id, timeBlockId: timeBlock!.id },
       });
       const roomId = room?.id ?? null;
       if (existing) {
