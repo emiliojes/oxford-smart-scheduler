@@ -272,20 +272,20 @@ for (const block of blocks) {
           else if (gradeUpper.includes("SYNTHETIC")) lunchSubject = "Lunch Duty - Synthetic Field";
           else if (gradeUpper.includes("SCHOOL BUS") || gradeUpper.includes("BUS")) lunchSubject = "Lunch Duty - School Bus Area";
           else if (gradeUpper.includes("PARKING")) lunchSubject = "Lunch Duty - Parking Lot";
-          csvRows.push(`${teacherSafe},${lunchSubject},${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+          csvRows.push(`${teacherSafe},${lunchSubject},,,,${DAY_NAMES[d]},${startTime}`);
           total++;
         }
         continue;
       }
-      // STUDENT ARRIVAL DUTY
-      if (gradeUpper.includes("ARRIVAL") || gradeUpper.includes("ARRIVAL DUTY")) {
-        csvRows.push(`${teacherSafe},Arrival Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+      // STUDENT ARRIVAL DUTY — no specific grade
+      if (gradeUpper.includes("ARRIVAL")) {
+        csvRows.push(`${teacherSafe},Arrival Duty,,,,${DAY_NAMES[d]},${startTime}`);
         total++;
         continue;
       }
-      // STUDENT DISMISSAL DUTY (always Friday col d=4, or special rows)
+      // STUDENT DISMISSAL DUTY — no specific grade
       if (gradeUpper.includes("DISMISSAL")) {
-        csvRows.push(`${teacherSafe},Dismissal Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+        csvRows.push(`${teacherSafe},Dismissal Duty,,,,${DAY_NAMES[d]},${startTime}`);
         total++;
         continue;
       }
