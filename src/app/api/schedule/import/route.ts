@@ -85,20 +85,25 @@ export async function POST(request: NextRequest) {
 
       if (!teacherName && !subjectName) { skipped++; continue; } // blank row
 
+      // Normalize start_time: "7:30" -> "07:30"
+      const normalizedTime = startTime.includes(":") && startTime.indexOf(":") < 3
+        ? startTime.padStart(5, "0")
+        : startTime;
+
       const teacher   = byName(teachers, teacherName);
       const subject   = byName(subjects, subjectName);
       const grade     = gradeByNameSection(gradeName, section);
-      const room      = byName(rooms, roomName);
+      const room      = roomName ? byName(rooms, roomName) : null; // empty room = null (optional)
       const dayNum    = dayMap[dayStr];
-      const timeBlock = dayNum ? timeBlockByDayStart(dayNum, startTime) : undefined;
+      const timeBlock = dayNum ? timeBlockByDayStart(dayNum, normalizedTime) : undefined;
 
       const rowErrors: string[] = [];
-      if (!teacher)   rowErrors.push(`teacher "${teacherName}" no encontrado`);
-      if (!subject)   rowErrors.push(`subject "${subjectName}" no encontrado`);
-      if (!grade)     rowErrors.push(`grade "${gradeName}" sección "${section}" no encontrado`);
-      if (!room)      rowErrors.push(`room "${roomName}" no encontrado`);
-      if (!dayNum)    rowErrors.push(`day "${dayStr}" inválido`);
-      if (!timeBlock) rowErrors.push(`time block day=${dayNum} start=${startTime} no encontrado`);
+      if (!teacher)              rowErrors.push(`teacher "${teacherName}" no encontrado`);
+      if (!subject)              rowErrors.push(`subject "${subjectName}" no encontrado`);
+      if (!grade)                rowErrors.push(`grade "${gradeName}" sección "${section}" no encontrado`);
+      if (roomName && !room)     rowErrors.push(`room "${roomName}" no encontrado`);
+      if (!dayNum)               rowErrors.push(`day "${dayStr}" inválido`);
+      if (!timeBlock)            rowErrors.push(`time block day=${dayNum} start=${normalizedTime} no encontrado`);
 
       if (rowErrors.length > 0) {
         errors.push(`Fila ${lineNum}: ${rowErrors.join("; ")}`);
