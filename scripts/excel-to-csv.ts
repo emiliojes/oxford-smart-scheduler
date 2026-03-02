@@ -23,11 +23,14 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
   if (!raw) return null;
   const lower = raw.toLowerCase();
   if (SKIP_WORDS.some(s => lower.includes(s))) return null;
-  const isLab = /\(LAB\)/i.test(raw);
-  // Remove noise
+  const isLab = /\bLAB\b/i.test(raw);
+  // Remove noise: (LAB), LAB, (T), T.S., T SK, LAB ASSISTANT, Q suffix, etc.
   let clean = raw
-    .replace(/\(LAB\)/gi, "").replace(/T\.S\.?/gi, "").replace(/T SK\s*\d*/gi, "")
-    .replace(/LAB\s*ASSI?SS?TANT/gi, "").trim();
+    .replace(/\(LAB\)/gi, "").replace(/\bLAB\b/gi, "")
+    .replace(/\(T\)/gi, "").replace(/T\.S\.?/gi, "").replace(/T SK\s*\d*/gi, "")
+    .replace(/LAB\s*ASSI?SS?TANT/gi, "")
+    .replace(/Q$/i, "")  // e.g. "12AQ" -> "12A"
+    .trim();
   // Match roman numeral or digit grade + optional section
   const m = clean.match(/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I|K|\d+)\s*([A-C]?)\s*$/i);
   if (!m) return null;
