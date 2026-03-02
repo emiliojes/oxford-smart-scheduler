@@ -8,12 +8,21 @@ const wb = XLSX.readFile(FILE);
 const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
-// Show Andrea Concepcion full block
-console.log("=== Andrea Concepcion block ===");
-for (let r = 22; r <= 38; r++) {
+// Find Eduardo Bell block header
+console.log("=== Eduardo Bell block ===");
+for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
-  const cols = row.map((c: any, i: number) => `[${i}]="${String(c).trim()}"`).filter((s: string) => !s.includes('""')).join("  ");
-  if (cols) console.log(`Row ${r}: ${cols}`);
+  const line = row.map((c: any) => String(c ?? "").trim()).join(" | ");
+  if (line.toUpperCase().includes("EDUARDO")) {
+    console.log(`Row ${r}: ${line}`);
+    // show next 15 rows
+    for (let r2 = r+1; r2 <= r+15; r2++) {
+      const row2 = rows[r2] ?? [];
+      const cols = row2.map((c: any, i: number) => `[${i}]="${String(c).trim()}"`).filter((s: string) => !s.includes('""')).join("  ");
+      if (cols) console.log(`  Row ${r2}: ${cols}`);
+    }
+    break;
+  }
 }
 
 // For each teacher block, show the lunch row with teacher name
