@@ -165,7 +165,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                         <span className="truncate">{t.schedule.types.grade}: {a.grade.name}{a.grade.section}</span>
                                       )}
                                       {viewType !== "teacher" && (
-                                        <span className="truncate">{t.schedule.types.teacher}: {a.teacher.name}</span>
+                                        <span className="truncate font-medium text-slate-700">{a.teacher.name}</span>
                                       )}
                                       {viewType !== "room" && a.room && (
                                         <span className="truncate">{t.schedule.types.room}: {a.room.name}</span>
