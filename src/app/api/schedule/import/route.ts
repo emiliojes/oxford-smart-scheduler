@@ -115,10 +115,11 @@ export async function POST(request: NextRequest) {
       const existing = await prisma.assignment.findFirst({
         where: { gradeId: grade!.id, timeBlockId: timeBlock!.id },
       });
+      const roomId = room?.id ?? null;
       if (existing) {
         await prisma.assignment.update({
           where: { id: existing.id },
-          data: { teacherId: teacher!.id, subjectId: subject!.id, roomId: room!.id, status: "CONFIRMED" },
+          data: { teacherId: teacher!.id, subjectId: subject!.id, roomId, status: "CONFIRMED" } as any,
         });
       } else {
         await prisma.assignment.create({
@@ -126,10 +127,10 @@ export async function POST(request: NextRequest) {
             teacherId: teacher!.id,
             subjectId: subject!.id,
             gradeId: grade!.id,
-            roomId: room!.id,
+            roomId,
             timeBlockId: timeBlock!.id,
             status: "CONFIRMED",
-          },
+          } as any,
         });
       }
       imported++;
