@@ -21,7 +21,7 @@ export async function PUT(
       teacherId,
       subjectId,
       gradeId,
-      roomId,
+      roomId: roomId || null,
       timeBlockId,
       ignoreAssignmentId: id,
     });
@@ -36,7 +36,7 @@ export async function PUT(
         teacherId,
         subjectId,
         gradeId,
-        roomId,
+        roomId: roomId || null,
         timeBlockId,
         status,
         conflicts: {

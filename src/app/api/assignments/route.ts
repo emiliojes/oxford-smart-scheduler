@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       teacherId,
       subjectId,
       gradeId,
-      roomId,
+      roomId: roomId || null,
       timeBlockId,
     });
 
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         teacherId,
         subjectId,
         gradeId,
-        roomId,
+        roomId: roomId || null,
         timeBlockId,
         status,
         conflicts: {

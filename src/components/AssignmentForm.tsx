@@ -58,7 +58,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
     teacherId: initialData?.teacherId || "",
     subjectId: initialData?.subjectId || "",
     gradeId: initialData?.gradeId || "",
-    roomId: initialData?.roomId || "",
+    roomId: initialData?.roomId || "",   // optional
     timeBlockId: initialData?.timeBlockId || "",
   });
 
@@ -131,8 +131,8 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.teacherId || !formData.subjectId || !formData.gradeId || !formData.roomId || !formData.timeBlockId) {
-      toast.error("Completa todos los campos");
+    if (!formData.teacherId || !formData.subjectId || !formData.gradeId || !formData.timeBlockId) {
+      toast.error("Completa todos los campos obligatorios");
       return;
     }
     setIsLoading(true);
@@ -262,10 +262,16 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>{t.nav.rooms}</Label>
-              <Select value={formData.roomId} onValueChange={(v) => set("roomId", v)}>
-                <SelectTrigger className={conflicts.room ? "border-red-400" : ""}><SelectValue placeholder="Seleccionar aula" /></SelectTrigger>
+              <Label className="flex items-center gap-1">
+                {t.nav.rooms}
+                <span className="text-xs text-slate-400 font-normal">(opcional)</span>
+              </Label>
+              <Select value={formData.roomId} onValueChange={(v) => set("roomId", v === "__none__" ? "" : v)}>
+                <SelectTrigger className={conflicts.room ? "border-red-400" : ""}>
+                  <SelectValue placeholder="Sin aula asignada" />
+                </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__none__">— Sin aula —</SelectItem>
                   {rooms.sort((a,b) => a.name.localeCompare(b.name)).map(r => (
                     <SelectItem key={r.id} value={r.id}>{r.name}{r.isSpecialized ? " ★" : ""}</SelectItem>
                   ))}

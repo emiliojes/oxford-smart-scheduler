@@ -21,7 +21,7 @@ export async function validateAssignment(data: {
   teacherId: string;
   subjectId: string;
   gradeId: string;
-  roomId: string;
+  roomId?: string | null;
   timeBlockId: string;
   ignoreAssignmentId?: string; // Para validaciones durante ediciones
 }): Promise<ConflictResult[]> {
@@ -32,11 +32,11 @@ export async function validateAssignment(data: {
     prisma.teacher.findUnique({ where: { id: data.teacherId } }),
     prisma.subject.findUnique({ where: { id: data.subjectId } }),
     prisma.grade.findUnique({ where: { id: data.gradeId } }),
-    prisma.room.findUnique({ where: { id: data.roomId } }),
+    data.roomId ? prisma.room.findUnique({ where: { id: data.roomId } }) : Promise.resolve(null),
     prisma.timeBlock.findUnique({ where: { id: data.timeBlockId } }),
   ]);
 
-  if (!teacher || !subject || !grade || !room || !timeBlock) {
+  if (!teacher || !subject || !grade || !timeBlock) {
     throw new Error("Missing required data for validation");
   }
 
@@ -57,8 +57,8 @@ export async function validateAssignment(data: {
     });
   }
 
-  // Choque de Aula
-  if (existingAssignments.some((a) => a.roomId === data.roomId)) {
+  // Choque de Aula (solo si se asignó aula)
+  if (data.roomId && existingAssignments.some((a) => a.roomId === data.roomId)) {
     conflicts.push({
       type: "ROOM_DOUBLE_BOOKING",
       severity: "ERROR",
@@ -75,22 +75,22 @@ export async function validateAssignment(data: {
     });
   }
 
-  // 3. Validaciones de Capacidad
-  if (grade.studentCount > room.capacity) {
-    conflicts.push({
-      type: "ROOM_CAPACITY_EXCEEDED",
-      severity: "ERROR",
-      description: "validations.roomCapacityExceeded",
-    });
-  }
-
-  // Límite especial de Computing (según encuesta)
-  if (room.specializedFor === "Computing" && grade.studentCount > 30) {
-    conflicts.push({
-      type: "ROOM_CAPACITY_EXCEEDED",
-      severity: "ERROR",
-      description: "validations.computingLimit",
-    });
+  // 3. Validaciones de Capacidad (solo si se asignó aula)
+  if (room) {
+    if (grade.studentCount > room.capacity) {
+      conflicts.push({
+        type: "ROOM_CAPACITY_EXCEEDED",
+        severity: "ERROR",
+        description: "validations.roomCapacityExceeded",
+      });
+    }
+    if (room.specializedFor === "Computing" && grade.studentCount > 30) {
+      conflicts.push({
+        type: "ROOM_CAPACITY_EXCEEDED",
+        severity: "ERROR",
+        description: "validations.computingLimit",
+      });
+    }
   }
 
   // 4. Validación de Horas Máximas del Profesor

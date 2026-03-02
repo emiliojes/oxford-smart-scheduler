@@ -124,13 +124,13 @@ model Assignment {
   teacherId   String
   subjectId   String
   gradeId     String
-  roomId      String
+  roomId      String?
   timeBlockId String
   status      String     @default("TENTATIVE")
   teacher     Teacher    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   subject     Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   grade       Grade      @relation(fields: [gradeId], references: [id], onDelete: Cascade)
-  room        Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room        Room?      @relation(fields: [roomId], references: [id], onDelete: Cascade)
   timeBlock   TimeBlock  @relation(fields: [timeBlockId], references: [id], onDelete: Cascade)
   conflicts   Conflict[]
   createdAt   DateTime   @default(now())
