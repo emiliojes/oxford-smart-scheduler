@@ -21,14 +21,17 @@ export async function POST(request: NextRequest) {
       prisma.timeBlock.findMany(),
     ]);
 
+    const normalize = (s: string) =>
+      s.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
     const byName = <T extends { name: string }>(arr: T[], name: string): T | undefined =>
-      arr.find((x) => x.name.trim().toLowerCase() === name.trim().toLowerCase());
+      arr.find((x) => normalize(x.name) === normalize(name));
 
     const gradeByNameSection = (name: string, section: string) =>
       grades.find(
         (g) =>
-          g.name.trim().toLowerCase() === name.trim().toLowerCase() &&
-          (g.section ?? "").trim().toLowerCase() === section.trim().toLowerCase()
+          normalize(g.name) === normalize(name) &&
+          normalize(g.section ?? "") === normalize(section)
       );
 
     const timeBlockByDayStart = (day: number, start: string) =>
