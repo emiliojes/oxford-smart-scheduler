@@ -278,10 +278,12 @@ for (const block of blocks) {
       }
       const parsed = parseGradeCell(gradeRaw);
       if (!parsed) continue;
-      const { grade, section, isLab, overrideSubject } = parsed;
+      const { grade, section, isLab, overrideSubject, overrideStartTime } = parsed;
       const subjectMapped = overrideSubject ?? mapSubject(block.subject, grade);
       const room = isLab ? getLabRoom(block.subject) : "";
-      const effectiveStart = mapToPrimaryTime(startTime, grade);
+      // If cell has embedded time (e.g. "6B (9:45-10:45)"), use that as the real start time.
+      // Otherwise map the row time to the correct level's time block.
+      const effectiveStart = overrideStartTime ?? mapToPrimaryTime(startTime, grade);
       csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart}`);
       total++;
     }
