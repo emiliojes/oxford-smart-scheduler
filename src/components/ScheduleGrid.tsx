@@ -41,6 +41,7 @@ interface TimeBlock {
   id: string;
   dayOfWeek: number;
   startTime: string;
+  endTime: string;
   duration: string;
   blockType: string;
 }
@@ -77,13 +78,6 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     return timeBlocks.find((b) => b.startTime === startTime);
   };
 
-  const getEndTime = (startTime: string, duration: string): string => {
-    const [h, m] = startTime.split(":").map(Number);
-    const totalMins = h * 60 + m + parseInt(duration || "0");
-    const endH = Math.floor(totalMins / 60);
-    const endM = totalMins % 60;
-    return `${String(endH).padStart(2, "0")}:${String(endM).padStart(2, "0")}`;
-  };
 
   return (
     <TooltipProvider>
@@ -111,9 +105,9 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                   <TableCell className="font-medium border-r bg-slate-50 align-middle py-1 print:py-0.5 print:w-20">
                     <div className="flex flex-col">
                       <span className="text-xs font-bold print:text-[9px]">{startTime}</span>
-                      {blockInfo?.duration && (
+                      {blockInfo?.endTime && (
                         <span className="text-xs text-slate-500 print:text-[8px]">
-                          {getEndTime(startTime, blockInfo.duration)}
+                          {blockInfo.endTime}
                         </span>
                       )}
                     </div>
