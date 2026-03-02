@@ -25,7 +25,7 @@ interface Assignment {
   id: string;
   teacher: { name: string };
   subject: { name: string };
-  grade: { name: string; section: string | null };
+  grade: { name: string; section: string | null } | null;
   room: { name: string } | null;
   timeBlock: {
     dayOfWeek: number;
@@ -203,7 +203,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                     <div className="font-bold text-blue-900 truncate">{a.subject.name}</div>
                                     <div className="flex flex-col text-slate-600 print:text-slate-700">
                                       {viewType !== "grade" && (
-                                        <span className="truncate">{t.schedule.types.grade}: {a.grade.name}{a.grade.section}</span>
+                                        <span className="truncate">{a.grade ? `${t.schedule.types.grade}: ${a.grade.name}${a.grade.section ?? ""}` : ""}</span>
                                       )}
                                       {viewType !== "teacher" && (
                                         <span className="truncate font-medium text-slate-700">{a.teacher.name}</span>
