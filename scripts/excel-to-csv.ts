@@ -129,7 +129,10 @@ function mapSubject(raw: string, grade: string): string {
   const s = raw.toUpperCase();
   const g = parseInt(grade);
   if (s.includes("MATH") || s.includes("MATHS")) {
-    if (g <= 8) return "Math 8";
+    if (g <= 5) return "Math";
+    if (g === 6) return "Math 6";
+    if (g === 7) return "Math 7";
+    if (g === 8) return "Math 8";
     if (g === 9) return "Math 9";
     if (g === 10) return "Math 10";
     if (g === 11) return "Math 11";
