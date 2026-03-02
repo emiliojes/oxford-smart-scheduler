@@ -68,8 +68,10 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   const uniqueStartTimes = Array.from(
     new Set(timeBlocks.map((b) => b.startTime))
   ).sort().filter(st => {
-    const block = timeBlocks.find(b => b.startTime === st);
-    return block?.blockType !== "CLASS" || assignmentStartTimes.has(st);
+    const blocksAtTime = timeBlocks.filter(b => b.startTime === st);
+    const hasClassBlock = blocksAtTime.some(b => b.blockType === "CLASS");
+    // Show row if: it's a non-CLASS block (BREAK/LUNCH/etc) OR has assignments
+    return !hasClassBlock || assignmentStartTimes.has(st);
   });
 
   const getAssignmentsForSlot = (dayOfWeek: number, startTime: string) => {
