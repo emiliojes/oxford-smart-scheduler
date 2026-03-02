@@ -44,6 +44,7 @@ interface TimeBlock {
   endTime: string;
   duration: string;
   blockType: string;
+  level: string;
 }
 
 interface ScheduleGridProps {
@@ -63,14 +64,28 @@ const DAYS = [
 
 export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
+
+  // Determine dominant level from assignments to filter time blocks accordingly
+  const levelCounts: Record<string, number> = {};
+  for (const a of assignments) {
+    const lvl = (a as any).grade?.level ?? "";
+    levelCounts[lvl] = (levelCounts[lvl] ?? 0) + 1;
+  }
+  const dominantLevel = Object.entries(levelCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
+  // Map LOW_SECONDARY -> SECONDARY for time block level matching
+  const tbLevel = dominantLevel === "LOW_SECONDARY" ? "SECONDARY" : dominantLevel;
+  // Filter time blocks to only the relevant level (or BOTH), falling back to all if unclear
+  const relevantTimeBlocks = tbLevel
+    ? timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
+    : timeBlocks;
+
   // Only show rows that have assignments OR are non-CLASS blocks (BREAK, REGISTRATION, LUNCH)
   const assignmentStartTimes = new Set(assignments.map(a => a.timeBlock.startTime));
   const uniqueStartTimes = Array.from(
-    new Set(timeBlocks.map((b) => b.startTime))
+    new Set(relevantTimeBlocks.map((b) => b.startTime))
   ).sort().filter(st => {
-    const blocksAtTime = timeBlocks.filter(b => b.startTime === st);
+    const blocksAtTime = relevantTimeBlocks.filter(b => b.startTime === st);
     const hasClassBlock = blocksAtTime.some(b => b.blockType === "CLASS");
-    // Show row if: it's a non-CLASS block (BREAK/LUNCH/etc) OR has assignments
     return !hasClassBlock || assignmentStartTimes.has(st);
   });
 
