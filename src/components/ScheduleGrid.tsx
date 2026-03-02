@@ -88,14 +88,21 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     ? timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
     : timeBlocks;
 
-  // Only show rows that have assignments OR are non-CLASS blocks (BREAK, REGISTRATION, LUNCH)
+  // Only show rows that have assignments OR are non-CLASS blocks within the teacher's active range
   const assignmentStartTimes = new Set(assignments.map(a => a.timeBlock.startTime));
+  const sortedAssignmentTimes = [...assignmentStartTimes].sort();
+  const firstTime = sortedAssignmentTimes[0] ?? "";
+  const lastTime  = sortedAssignmentTimes[sortedAssignmentTimes.length - 1] ?? "";
   const uniqueStartTimes = Array.from(
     new Set(relevantTimeBlocks.map((b) => b.startTime))
   ).sort().filter(st => {
     const blocksAtTime = relevantTimeBlocks.filter(b => b.startTime === st);
     const hasClassBlock = blocksAtTime.some(b => b.blockType === "CLASS");
-    return !hasClassBlock || assignmentStartTimes.has(st);
+    if (hasClassBlock) return assignmentStartTimes.has(st);
+    // For BREAK/LUNCH/REGISTRATION: only show if within teacher's active time range
+    if (assignments.length === 0) return true;
+    // Must be strictly between first and last assignment (not after last)
+    return st > firstTime && st < lastTime;
   });
 
   const getAssignmentsForSlot = (dayOfWeek: number, startTime: string) => {
