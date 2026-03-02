@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { Users, BookOpen, GraduationCap, School, Calendar, AlertTriangle, Bell } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface Stats {
   teachers: number;
@@ -39,23 +40,26 @@ export default function Home() {
   // --- Landing page for unauthenticated users ---
   if (!isLoggedIn) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-8 px-4">
+      <div className="relative flex flex-col items-center justify-center min-h-[70vh] text-center space-y-8 px-4">
+        <div className="absolute top-0 right-0 bg-slate-900 rounded-bl-lg px-1">
+          <LanguageSwitcher />
+        </div>
         <div className="space-y-3">
           <div className="flex items-center justify-center w-20 h-20 mx-auto bg-blue-600 rounded-2xl shadow-lg">
             <Calendar className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">Oxford School</h1>
           <p className="text-lg text-slate-500 max-w-md mx-auto">
-            Sistema de gestión de horarios escolares
+            {t.home.landingSubtitle}
           </p>
         </div>
         <Link
           href="/login"
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow transition-colors text-lg"
         >
-          Iniciar sesión
+          {t.auth.signIn}
         </Link>
-        <p className="text-sm text-slate-400">Acceso exclusivo para personal autorizado de Oxford School</p>
+        <p className="text-sm text-slate-400">{t.home.landingAccess}</p>
       </div>
     );
   }
