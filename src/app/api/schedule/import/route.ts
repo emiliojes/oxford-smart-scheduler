@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
       const roomName    = col(row, "room");
       const dayStr      = col(row, "day").toLowerCase();
       const startTime   = col(row, "start_time");
+      const note        = col(row, "note") || null;
 
       if (!teacherName && !subjectName) { skipped++; continue; } // blank row
 
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
       if (existing) {
         await prisma.assignment.update({
           where: { id: existing.id },
-          data: { teacherId: teacher!.id, subjectId: subject!.id, gradeId, roomId, status: "CONFIRMED" } as any,
+          data: { teacherId: teacher!.id, subjectId: subject!.id, gradeId, roomId, note, status: "CONFIRMED" } as any,
         });
       } else {
         await prisma.assignment.create({
@@ -143,6 +144,7 @@ export async function POST(request: NextRequest) {
             subjectId: subject!.id,
             gradeId,
             roomId,
+            note,
             timeBlockId: timeBlock!.id,
             status: "CONFIRMED",
           } as any,

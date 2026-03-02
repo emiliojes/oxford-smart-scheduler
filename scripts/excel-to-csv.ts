@@ -236,7 +236,7 @@ for (let r = 0; r < rows.length; r++) {
 console.log(`\nFound ${blocks.length} teacher blocks:`);
 blocks.forEach(b => console.log(`  timeHeaderRow=${b.timeHeaderRow} col=${b.timeCol}: "${b.name}" -> "${b.subject}"`));
 
-const csvRows: string[] = ["teacher,subject,grade,section,room,day,start_time"];
+const csvRows: string[] = ["teacher,subject,grade,section,room,day,start_time,note"];
 let total = 0;
 
 for (const block of blocks) {
@@ -293,12 +293,14 @@ for (const block of blocks) {
       const { grade, section, isLab, overrideSubject, overrideStartTime } = parsed;
       const subjectMapped = overrideSubject ?? mapSubject(block.subject, grade);
       const room = isLab ? getLabRoom(block.subject) : "";
-      // Use overrideStartTime when present (embedded cell time like "6B (9:45-10:45)").
-      // PRIMARY time blocks 09:45, 10:45, 11:45 now exist in DB so this is safe for all grades.
-      // Then apply level mapping to snap to the nearest valid DB time block.
-      const rawStart = overrideStartTime ?? startTime;
-      const effectiveStart = mapToPrimaryTime(rawStart, grade);
-      csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart}`);
+      // Always use the row's startTime (mapped to correct level) as the DB time block.
+      // If cell had embedded time (e.g. "6B (9:45-10:45)"), save that as a note to display in the grid.
+      const effectiveStart = mapToPrimaryTime(startTime, grade);
+      // If cell had embedded time (e.g. "6B (9:45-10:45)"), save as note "9:45-10:45" for display
+      const noteStr = overrideStartTime
+        ? (() => { const m = gradeRaw.match(/\((\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2})\)/); return m ? m[1].replace(/\s/g, "") : ""; })()
+        : "";
+      csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart},${noteStr}`);
       total++;
     }
   }

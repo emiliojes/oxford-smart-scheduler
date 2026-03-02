@@ -126,6 +126,7 @@ model Assignment {
   gradeId     String?
   roomId      String?
   timeBlockId String
+  note        String?
   status      String     @default("TENTATIVE")
   teacher     Teacher    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   subject     Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
