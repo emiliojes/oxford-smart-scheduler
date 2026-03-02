@@ -30,6 +30,8 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
     .replace(/\(T\)/gi, "").replace(/T\.S\.?/gi, "").replace(/T SK\s*\d*/gi, "")
     .replace(/LAB\s*ASSI?SS?TANT/gi, "")
     .replace(/Q$/i, "")  // e.g. "12AQ" -> "12A"
+    // Remove subject abbreviation suffixes: LIT, ENG, SPAN, SCI, BIO, CHEM, PHYS, COMP, etc.
+    .replace(/\s+(LIT|ENG\.?|SPAN|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i, "")
     .trim();
   // Match roman numeral or digit grade + optional section
   const m = clean.match(/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I|K|\d+)\s*([A-C]?)\s*$/i);
@@ -100,6 +102,8 @@ const TEACHER_OVERRIDES: Record<string, { name: string; subject: string }> = {
 
 function extractTeacherInfo(cell: string): { name: string; subject: string } | null {
   if (!cell || !cell.toUpperCase().includes("HRS")) return null;
+  // Normalize newlines and multiple spaces to single space
+  cell = cell.replace(/[\r\n]+/g, " ").replace(/\s{2,}/g, "  ").trim();
   // Check overrides first
   for (const [key, val] of Object.entries(TEACHER_OVERRIDES)) {
     if (cell.toUpperCase().includes(key)) return val;

@@ -8,19 +8,19 @@ const wb = XLSX.readFile(FILE);
 const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
-// Find Emilio block header
-console.log("=== Emilio Nuñez block ===");
-for (let r = 0; r < rows.length; r++) {
+// Show exact col[8] for row 108
+console.log("=== Row 108 col[8] raw ===");
+const r108 = rows[108] ?? [];
+console.log(JSON.stringify(r108[8]));
+console.log("col[7]:", JSON.stringify(r108[7]));
+// Also check if any row near 108 has ENIS with HRS
+for (let r = 105; r <= 115; r++) {
   const row = rows[r] ?? [];
-  const line = row.map((c: any) => String(c ?? "").trim()).join(" | ");
-  if (line.toUpperCase().includes("EMILIO")) {
-    console.log(`Row ${r}: ${line}`);
-    for (let r2 = r+1; r2 <= r+15; r2++) {
-      const row2 = rows[r2] ?? [];
-      const cols = row2.map((c: any, i: number) => `[${i}]="${String(c).trim()}"`).filter((s: string) => !s.includes('""')).join("  ");
-      if (cols) console.log(`  Row ${r2}: ${cols}`);
+  for (let ci = 0; ci < row.length; ci++) {
+    const val = String(row[ci] ?? "").trim();
+    if (val.toUpperCase().includes("ENIS")) {
+      console.log(`Row ${r} col[${ci}]: ${JSON.stringify(val)}`);
     }
-    break;
   }
 }
 
