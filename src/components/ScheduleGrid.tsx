@@ -63,10 +63,14 @@ const DAYS = [
 
 export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
-  // Organizar bloques por hora de inicio única para las filas
+  // Only show rows that have assignments OR are non-CLASS blocks (BREAK, REGISTRATION, LUNCH)
+  const assignmentStartTimes = new Set(assignments.map(a => a.timeBlock.startTime));
   const uniqueStartTimes = Array.from(
     new Set(timeBlocks.map((b) => b.startTime))
-  ).sort();
+  ).sort().filter(st => {
+    const block = timeBlocks.find(b => b.startTime === st);
+    return block?.blockType !== "CLASS" || assignmentStartTimes.has(st);
+  });
 
   const getAssignmentsForSlot = (dayOfWeek: number, startTime: string) => {
     return assignments.filter(
