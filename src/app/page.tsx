@@ -23,22 +23,44 @@ export default function Home() {
   const [stats, setStats] = useState<Stats | null>(null);
 
   const isTeacher = user?.role === "TEACHER";
+  const isLoggedIn = !!user;
 
   useEffect(() => {
-    // Teachers go directly to their schedule
-    if (isTeacher) {
-      router.replace("/schedule");
-      return;
-    }
+    if (isTeacher) { router.replace("/schedule"); return; }
+    if (!isLoggedIn) return;
     fetch("/api/stats")
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error("Error fetching stats:", err));
-  }, [isTeacher]);
+  }, [isTeacher, isLoggedIn]);
 
-  // Show nothing while redirecting
   if (isTeacher) return null;
 
+  // --- Landing page for unauthenticated users ---
+  if (!isLoggedIn) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-8 px-4">
+        <div className="space-y-3">
+          <div className="flex items-center justify-center w-20 h-20 mx-auto bg-blue-600 rounded-2xl shadow-lg">
+            <Calendar className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">Oxford School</h1>
+          <p className="text-lg text-slate-500 max-w-md mx-auto">
+            Sistema de gestión de horarios escolares
+          </p>
+        </div>
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow transition-colors text-lg"
+        >
+          Iniciar sesión
+        </Link>
+        <p className="text-sm text-slate-400">Acceso exclusivo para personal autorizado de Oxford School</p>
+      </div>
+    );
+  }
+
+  // --- Dashboard for admin/coordinator ---
   return (
     <div className="space-y-8">
       <section className="text-center space-y-4">

@@ -25,6 +25,7 @@ export function Header({ user }: HeaderProps) {
   const canSeeAdmin = isAdmin(user);
   const isTeacher = user?.role === "TEACHER";
   const isCoordinatorOnly = user?.role === "COORDINATOR";
+  const isGuest = !user;
 
   const linkClass = (href: string, extra = "") =>
     `block px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
@@ -64,34 +65,52 @@ export function Header({ user }: HeaderProps) {
             Oxford Schedule
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1 overflow-x-auto">
-            {navLinks}
-          </nav>
+          {/* Desktop nav - hidden for guests */}
+          {!isGuest && (
+            <nav className="hidden md:flex items-center gap-1 overflow-x-auto">
+              {navLinks}
+            </nav>
+          )}
 
           {/* Desktop right side */}
           <div className="hidden md:flex items-center gap-3">
-            <UserNav user={user} />
-            <LanguageSwitcher />
+            {isGuest ? (
+              <Link href="/login" className="bg-white text-slate-900 font-semibold px-4 py-1.5 rounded-lg text-sm hover:bg-slate-100 transition-colors">
+                Login
+              </Link>
+            ) : (
+              <>
+                <UserNav user={user} />
+                <LanguageSwitcher />
+              </>
+            )}
           </div>
 
           {/* Mobile: right side + hamburger */}
           <div className="flex md:hidden items-center gap-2">
-            <LanguageSwitcher />
-            <UserNav user={user} />
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-md hover:bg-slate-700 transition-colors"
-              aria-label="Toggle menu"
-            >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            {isGuest ? (
+              <Link href="/login" className="bg-white text-slate-900 font-semibold px-3 py-1.5 rounded-lg text-sm hover:bg-slate-100 transition-colors">
+                Login
+              </Link>
+            ) : (
+              <>
+                <LanguageSwitcher />
+                <UserNav user={user} />
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="p-2 rounded-md hover:bg-slate-700 transition-colors"
+                  aria-label="Toggle menu"
+                >
+                  {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Mobile dropdown menu */}
-      {menuOpen && (
+      {/* Mobile dropdown menu - hidden for guests */}
+      {!isGuest && menuOpen && (
         <div className="md:hidden border-t border-slate-700 bg-slate-900 px-4 py-3 flex flex-col gap-1">
           {navLinks}
         </div>
