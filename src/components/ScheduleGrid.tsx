@@ -136,10 +136,16 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                 onSuccess={() => onRefresh ? onRefresh() : window.location.reload()}
                                 trigger={
                                   <Card
-                                    className={`p-2 print:p-0.5 text-xs print:text-[8px] border shadow-none relative group cursor-pointer hover:border-blue-400 transition-colors ${
+                                    className={`p-2 print:p-0.5 text-xs print:text-[8px] border shadow-none relative group cursor-pointer transition-colors ${
                                       a.status === "CONFLICT"
-                                        ? "border-red-200 bg-red-50"
-                                        : "border-blue-100 bg-blue-50/50"
+                                        ? "border-red-200 bg-red-50 hover:border-red-400"
+                                        : a.subject.name === "Lunch Duty"
+                                        ? "border-amber-200 bg-amber-50 hover:border-amber-400"
+                                        : a.subject.name === "Dismissal Duty"
+                                        ? "border-orange-200 bg-orange-50 hover:border-orange-400"
+                                        : a.subject.name === "Homeroom"
+                                        ? "border-purple-200 bg-purple-50 hover:border-purple-400"
+                                        : "border-blue-100 bg-blue-50/50 hover:border-blue-400"
                                     }`}
                                   >
                                     {a.status === "CONFLICT" && (
