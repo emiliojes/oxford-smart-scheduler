@@ -285,7 +285,11 @@ for (const block of blocks) {
       }
       // STUDENT DISMISSAL DUTY — no specific grade
       if (gradeUpper.includes("DISMISSAL")) {
-        csvRows.push(`${teacherSafe},Dismissal Duty,,,,${DAY_NAMES[d]},${startTime}`);
+        let dismissalSubject = "Dismissal Duty";
+        if (gradeUpper.includes("PARKING")) dismissalSubject = "Dismissal Duty - Parking Lot";
+        else if (gradeUpper.includes("COLEGIAL")) dismissalSubject = "Dismissal Duty - Colegial";
+        else if (gradeUpper.includes("BUS")) dismissalSubject = "Dismissal Duty - School Bus Area";
+        csvRows.push(`${teacherSafe},${dismissalSubject},,,,${DAY_NAMES[d]},${startTime}`);
         total++;
         continue;
       }

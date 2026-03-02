@@ -370,10 +370,10 @@ ANDREA GUERRA,English,10,A,,Monday,14:15,
 ANDREA GUERRA,English,12,A,,Tuesday,14:15,
 ANDREA GUERRA,English,12,A,,Wednesday,14:15,
 ANDREA GUERRA,English,12,A,,Thursday,14:15,
-ANDREA GUERRA,Dismissal Duty,,,,Monday,15:15
-ANDREA GUERRA,Dismissal Duty,,,,Tuesday,15:15
-ANDREA GUERRA,Dismissal Duty,,,,Wednesday,15:15
-ANDREA GUERRA,Dismissal Duty,,,,Thursday,15:15
+ANDREA GUERRA,Dismissal Duty - Colegial,,,,Monday,15:15
+ANDREA GUERRA,Dismissal Duty - Colegial,,,,Tuesday,15:15
+ANDREA GUERRA,Dismissal Duty - Colegial,,,,Wednesday,15:15
+ANDREA GUERRA,Dismissal Duty - Colegial,,,,Thursday,15:15
 VANESSA MUÑOZ,Arrival Duty,,,,Monday,07:15
 VANESSA MUÑOZ,Arrival Duty,,,,Tuesday,07:15
 VANESSA MUÑOZ,Arrival Duty,,,,Wednesday,07:15
@@ -450,10 +450,10 @@ ADOLFO DIAZ,Dismissal Duty,,,,Friday,12:45
 ADOLFO DIAZ,Music,K,C,,Tuesday,12:30,1:00-1:50
 ADOLFO DIAZ,Music,5,B,,Wednesday,12:30,12:45-1:50
 ADOLFO DIAZ,Music,8,A,,Monday,13:15,
-ADOLFO DIAZ,Dismissal Duty,,,,Monday,15:15
-ADOLFO DIAZ,Dismissal Duty,,,,Tuesday,15:15
-ADOLFO DIAZ,Dismissal Duty,,,,Wednesday,15:15
-ADOLFO DIAZ,Dismissal Duty,,,,Thursday,15:15
+ADOLFO DIAZ,Dismissal Duty - Parking Lot,,,,Monday,15:15
+ADOLFO DIAZ,Dismissal Duty - Parking Lot,,,,Tuesday,15:15
+ADOLFO DIAZ,Dismissal Duty - Parking Lot,,,,Wednesday,15:15
+ADOLFO DIAZ,Dismissal Duty - Parking Lot,,,,Thursday,15:15
 FRANCISCO MENDOZA,Math 8,7,B,,Tuesday,07:30,
 FRANCISCO MENDOZA,Math 8,7,B,,Wednesday,07:30,
 FRANCISCO MENDOZA,Math 8,6,A,,Thursday,07:30,
@@ -473,16 +473,16 @@ FRANCISCO MENDOZA,Math 8,7,B,,Friday,10:45,
 FRANCISCO MENDOZA,Math 8,6,B,,Wednesday,11:45,
 FRANCISCO MENDOZA,Math 8,7,A,,Thursday,11:45,
 FRANCISCO MENDOZA,Lunch Duty - Synthetic Field,,,,Thursday,12:45
-FRANCISCO MENDOZA,Dismissal Duty,,,,Friday,12:45
+FRANCISCO MENDOZA,Dismissal Duty - School Bus Area,,,,Friday,12:45
 FRANCISCO MENDOZA,Resource Room Support,,,,Monday,13:15
 FRANCISCO MENDOZA,Resource Room Support,,,,Tuesday,13:15
 FRANCISCO MENDOZA,Resource Room Support,,,,Wednesday,13:15
 FRANCISCO MENDOZA,Math 8,6,B,,Thursday,13:15,
 FRANCISCO MENDOZA,Math 8,6,B,,Monday,14:15,
-FRANCISCO MENDOZA,Dismissal Duty,,,,Monday,15:15
-FRANCISCO MENDOZA,Dismissal Duty,,,,Tuesday,15:15
-FRANCISCO MENDOZA,Dismissal Duty,,,,Wednesday,15:15
-FRANCISCO MENDOZA,Dismissal Duty,,,,Thursday,15:15
+FRANCISCO MENDOZA,Dismissal Duty - Parking Lot,,,,Monday,15:15
+FRANCISCO MENDOZA,Dismissal Duty - Parking Lot,,,,Tuesday,15:15
+FRANCISCO MENDOZA,Dismissal Duty - Parking Lot,,,,Wednesday,15:15
+FRANCISCO MENDOZA,Dismissal Duty - Parking Lot,,,,Thursday,15:15
 DEYANIRA DOMINGUEZ,Arrival Duty,,,,Monday,07:15
 DEYANIRA DOMINGUEZ,Arrival Duty,,,,Tuesday,07:15
 DEYANIRA DOMINGUEZ,Arrival Duty,,,,Wednesday,07:15
@@ -534,7 +534,7 @@ AVIDEL GONZALEZ,Spanish,3,B,,Tuesday,11:15,
 AVIDEL GONZALEZ,Spanish,3,A,,Wednesday,11:15,
 AVIDEL GONZALEZ,Spanish,3,A,,Thursday,11:15,
 AVIDEL GONZALEZ,Spanish,3,B,,Friday,11:15,
-AVIDEL GONZALEZ,Dismissal Duty,,,,Friday,12:00
+AVIDEL GONZALEZ,Dismissal Duty - School Bus Area,,,,Friday,12:00
 AVIDEL GONZALEZ,Spanish,3,A,,Monday,12:30,
 AVIDEL GONZALEZ,Spanish,2,A,,Tuesday,12:30,12:30-1:30
 AVIDEL GONZALEZ,Spanish,3,B,,Wednesday,12:30,
@@ -562,7 +562,7 @@ ARACELLYS DOMINGUEZ,Social Studies,6,A,,Monday,10:45,
 ARACELLYS DOMINGUEZ,Social Studies,6,A,,Wednesday,10:45,
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Tuesday,11:15,
 ARACELLYS DOMINGUEZ,Social Studies,5,B,,Friday,11:15,
-ARACELLYS DOMINGUEZ,Dismissal Duty,,,,Friday,12:00
+ARACELLYS DOMINGUEZ,Dismissal Duty - School Bus Area,,,,Friday,12:00
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Monday,12:30,
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Wednesday,12:30,12:30-1:30
 ARACELLYS DOMINGUEZ,Spanish,4,A,,Thursday,12:30,12:30-1:30
