@@ -13,7 +13,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Printer, Download } from "lucide-react";
+import { Loader2, Printer, Download, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { exportToPDF, exportToWord, exportToImage } from "@/lib/export-utils";
@@ -144,6 +145,14 @@ export default function ScheduleViewPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {canManage && (
+            <Button asChild variant="default" className="gap-2 bg-blue-600 hover:bg-blue-700">
+              <Link href="/schedule/generate">
+                <Sparkles className="w-4 h-4" />
+                {t.schedule.generate.title}
+              </Link>
+            </Button>
+          )}
           {canManage && <AssignmentForm onSuccess={fetchAssignments} />}
           <Button variant="outline" onClick={handlePrint} className="gap-2">
             <Printer className="w-4 h-4" />
