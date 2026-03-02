@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { Plus, UserPlus, BookOpen, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { SortableHead, useSorting, SortDir } from "@/components/SortableHead";
 
 interface Subject { id: string; name: string; }
 
@@ -50,6 +51,16 @@ export default function TeachersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+  const [sortField, setSortField] = useState<string | null>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) setSortDir(d => d === "asc" ? "desc" : d === "desc" ? null : "asc");
+    else { setSortField(field); setSortDir("asc"); }
+    if (sortField === field && sortDir === "desc") setSortField(null);
+  };
+
+  const sortedTeachers = useSorting(teachers, sortField, sortDir);
 
   const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
   const [isLinkingOpen, setIsLinkingOpen] = useState(false);
@@ -278,10 +289,10 @@ export default function TeachersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.teachers.name}</TableHead>
-              <TableHead>{t.subjects.level}</TableHead>
+              <SortableHead label={t.teachers.name} field="name" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.subjects.level} field="level" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
               <TableHead>{t.teachers.subjects}</TableHead>
-              <TableHead className="text-right">{t.teachers.maxHours}</TableHead>
+              <SortableHead label={t.teachers.maxHours} field="maxWeeklyHours" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="text-right" />
               <TableHead className="text-right">{t.actions.actions}</TableHead>
             </TableRow>
           </TableHeader>
@@ -299,7 +310,7 @@ export default function TeachersPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              teachers.map((teacher) => (
+              sortedTeachers.map((teacher) => (
                 <TableRow key={teacher.id}>
                   <TableCell className="font-medium">{teacher.name}</TableCell>
                   <TableCell>{t.teachers.levels[teacher.level as keyof typeof t.teachers.levels]}</TableCell>

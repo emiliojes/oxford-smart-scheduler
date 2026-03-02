@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { Plus, GraduationCap, BookOpen, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { SortableHead, useSorting, SortDir } from "@/components/SortableHead";
 
 interface Subject { id: string; name: string; }
 
@@ -50,6 +51,16 @@ export default function GradesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editingGrade, setEditingGrade] = useState<Grade | null>(null);
+  const [sortField, setSortField] = useState<string | null>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) setSortDir(d => d === "asc" ? "desc" : d === "desc" ? null : "asc");
+    else { setSortField(field); setSortDir("asc"); }
+    if (sortField === field && sortDir === "desc") setSortField(null);
+  };
+
+  const sortedGrades = useSorting(grades, sortField, sortDir);
 
   const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
   const [isLinkingOpen, setIsLinkingOpen] = useState(false);
@@ -271,11 +282,11 @@ export default function GradesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.grades.name}</TableHead>
-              <TableHead>{t.grades.section}</TableHead>
-              <TableHead>{t.grades.level}</TableHead>
+              <SortableHead label={t.grades.name} field="name" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.grades.section} field="section" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.grades.level} field="level" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
               <TableHead>{t.grades.assignedSubjects}</TableHead>
-              <TableHead className="text-right">{t.grades.students}</TableHead>
+              <SortableHead label={t.grades.students} field="studentCount" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="text-right" />
               <TableHead className="text-right">{t.actions.actions}</TableHead>
             </TableRow>
           </TableHeader>
@@ -293,7 +304,7 @@ export default function GradesPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              grades.map((grade) => (
+              sortedGrades.map((grade) => (
                 <TableRow key={grade.id}>
                   <TableCell className="font-medium">{grade.name}</TableCell>
                   <TableCell>{grade.section || "-"}</TableCell>

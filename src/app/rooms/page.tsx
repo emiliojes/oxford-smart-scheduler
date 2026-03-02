@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { Plus, School, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { SortableHead, useSorting, SortDir } from "@/components/SortableHead";
 
 interface Room {
   id: string;
@@ -49,6 +50,16 @@ export default function RoomsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [isSpecialized, setIsSpecialized] = useState(false);
+  const [sortField, setSortField] = useState<string | null>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) setSortDir(d => d === "asc" ? "desc" : d === "desc" ? null : "asc");
+    else { setSortField(field); setSortDir("asc"); }
+    if (sortField === field && sortDir === "desc") setSortField(null);
+  };
+
+  const sortedRooms = useSorting(rooms, sortField, sortDir);
 
   useEffect(() => {
     fetchRooms();
@@ -221,10 +232,10 @@ export default function RoomsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.rooms.name}</TableHead>
-              <TableHead>{t.rooms.capacity}</TableHead>
-              <TableHead>{t.rooms.specialty}</TableHead>
-              <TableHead>{t.rooms.limit}</TableHead>
+              <SortableHead label={t.rooms.name} field="name" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.rooms.capacity} field="capacity" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.rooms.specialty} field="isSpecialized" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.rooms.limit} field="maxStudents" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
               <TableHead className="text-right">{t.actions.actions}</TableHead>
             </TableRow>
           </TableHeader>
@@ -242,7 +253,7 @@ export default function RoomsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              rooms.map((room) => (
+              sortedRooms.map((room) => (
                 <TableRow key={room.id}>
                   <TableCell className="font-medium">{room.name}</TableCell>
                   <TableCell>{room.capacity}</TableCell>

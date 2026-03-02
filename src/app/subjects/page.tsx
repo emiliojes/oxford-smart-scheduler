@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { BookPlus, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { SortableHead, useSorting, SortDir } from "@/components/SortableHead";
 
 interface Subject {
   id: string;
@@ -49,6 +50,16 @@ export default function SubjectsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [sortField, setSortField] = useState<string | null>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) setSortDir(d => d === "asc" ? "desc" : d === "desc" ? null : "asc");
+    else { setSortField(field); setSortDir("asc"); }
+    if (sortField === field && sortDir === "desc") setSortField(null);
+  };
+
+  const sortedSubjects = useSorting(subjects, sortField, sortDir);
   const [requiresSpecialRoom, setRequiresSpecialRoom] = useState(false);
 
   useEffect(() => {
@@ -241,10 +252,10 @@ export default function SubjectsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.subjects.title}</TableHead>
-              <TableHead>{t.subjects.level}</TableHead>
-              <TableHead>{t.subjects.frequency}</TableHead>
-              <TableHead>{t.subjects.duration}</TableHead>
+              <SortableHead label={t.subjects.title} field="name" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.subjects.level} field="level" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.subjects.frequency} field="weeklyFrequency" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+              <SortableHead label={t.subjects.duration} field="defaultDuration" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
               <TableHead>{t.rooms.specialized}</TableHead>
               <TableHead className="text-right">{t.actions.actions}</TableHead>
             </TableRow>
@@ -263,7 +274,7 @@ export default function SubjectsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              subjects.map((subject) => (
+              sortedSubjects.map((subject) => (
                 <TableRow key={subject.id}>
                   <TableCell className="font-medium">{subject.name}</TableCell>
                   <TableCell>{t.teachers.levels[subject.level as keyof typeof t.teachers.levels]}</TableCell>
