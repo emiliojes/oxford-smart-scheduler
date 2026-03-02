@@ -76,6 +76,7 @@ export default function GeneratePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="PRIMARY">{t.schedule.generate.primaryDesc}</SelectItem>
+                  <SelectItem value="LOW_SECONDARY">Pre-Media (6° - 8°)</SelectItem>
                   <SelectItem value="SECONDARY">{t.schedule.generate.secondaryDesc}</SelectItem>
                 </SelectContent>
               </Select>

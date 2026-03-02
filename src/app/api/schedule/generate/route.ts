@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { level } = body;
 
-    if (!level || (level !== "PRIMARY" && level !== "SECONDARY")) {
+    if (!level || (level !== "PRIMARY" && level !== "SECONDARY" && level !== "LOW_SECONDARY")) {
       return NextResponse.json({ error: "Nivel inválido" }, { status: 400 });
     }
 

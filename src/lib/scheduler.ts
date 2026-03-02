@@ -4,13 +4,20 @@ import prisma from "@/lib/prisma";
  * Greedy scheduler: assigns as many classes as possible without conflicts.
  * Reports unresolved slots instead of failing completely.
  */
-export async function generateAutoSchedule(level: "PRIMARY" | "SECONDARY") {
+export async function generateAutoSchedule(level: "PRIMARY" | "SECONDARY" | "LOW_SECONDARY") {
+  // LOW_SECONDARY shares time blocks with SECONDARY
+  const timeBlockLevel = level === "LOW_SECONDARY" ? "SECONDARY" : level;
+  // Teachers eligible: exact level match, BOTH, or for secondary levels cross-match
+  const teacherLevels = level === "LOW_SECONDARY"
+    ? ["LOW_SECONDARY", "SECONDARY", "BOTH"]
+    : [level, "BOTH"];
+
   // 1. Load data
   const [teachers, grades, rooms, timeBlocks, teacherSubjects] = await Promise.all([
-    prisma.teacher.findMany({ where: { level: { in: [level, "BOTH"] } }, include: { subjects: true } }),
+    prisma.teacher.findMany({ where: { level: { in: teacherLevels } }, include: { subjects: true } }),
     prisma.grade.findMany({ where: { level }, include: { subjects: { include: { subject: true } } } }),
     prisma.room.findMany(),
-    prisma.timeBlock.findMany({ where: { level: { in: [level, "BOTH"] }, blockType: "CLASS" }, orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }] }),
+    prisma.timeBlock.findMany({ where: { level: { in: [timeBlockLevel, "BOTH"] }, blockType: "CLASS" }, orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }] }),
     prisma.teacherSubject.findMany(),
   ]);
 
