@@ -281,9 +281,10 @@ for (const block of blocks) {
         total++;
         continue;
       }
-      // RESOURCE ROOM SUPPORT — no specific grade
+      // RESOURCE ROOM SUPPORT — no specific grade; map time by homeroom level
       if (gradeUpper.includes("RESOURCE ROOM")) {
-        csvRows.push(`${teacherSafe},Resource Room Support,,,,${DAY_NAMES[d]},${startTime}`);
+        const rrTime = mapToPrimaryTime(startTime, hrGrade);
+        csvRows.push(`${teacherSafe},Resource Room Support,,,,${DAY_NAMES[d]},${rrTime}`);
         total++;
         continue;
       }
