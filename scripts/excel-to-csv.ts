@@ -12,7 +12,7 @@ const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 const c = (row: any[], col: number): string => String((row ?? [])[col] ?? "").trim();
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision", "www", "time", "07.15", "student", "resource room", "arrival duty"];
+const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision", "www", "time", "07.15", "student", "arrival duty"];
 const ROMAN: Record<string, string> = {
   "XII": "12", "XI": "11", "X": "10", "IX": "9",
   "VIII": "8", "VII": "7", "VI": "6", "V": "5",
@@ -217,6 +217,14 @@ for (const block of blocks) {
       if (gradeUpper.includes("DISMISSAL") && block.homeroomGrade) {
         csvRows.push(`${teacherSafe},Dismissal Duty,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
         total++;
+        continue;
+      }
+      // RESOURCE ROOM SUPPORT
+      if (gradeUpper.includes("RESOURCE ROOM")) {
+        if (block.homeroomGrade) {
+          csvRows.push(`${teacherSafe},Resource Room Support,${hrGrade},${hrSection},,${DAY_NAMES[d]},${startTime}`);
+          total++;
+        }
         continue;
       }
       const parsed = parseGradeCell(gradeRaw);
