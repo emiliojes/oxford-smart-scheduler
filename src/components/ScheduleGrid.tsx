@@ -82,6 +82,15 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     return timeBlocks.find((b) => b.startTime === startTime);
   };
 
+  // A row is "special" (BREAK/LUNCH/etc) only if every time block at that time is non-CLASS
+  // AND no assignments exist for that row across all days
+  const isRowSpecial = (startTime: string) => {
+    const hasAnyAssignment = [1,2,3,4,5].some(d => getAssignmentsForSlot(d, startTime).length > 0);
+    if (hasAnyAssignment) return false;
+    const blocksAtTime = timeBlocks.filter(b => b.startTime === startTime);
+    return blocksAtTime.every(b => b.blockType !== "CLASS");
+  };
+
 
   return (
     <TooltipProvider>
@@ -102,10 +111,10 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
           <TableBody>
             {uniqueStartTimes.map((startTime) => {
               const blockInfo = getBlockInfo(startTime);
-              const isSpecialBlock = blockInfo?.blockType !== "CLASS";
+              const rowSpecial = isRowSpecial(startTime);
 
               return (
-                <TableRow key={startTime} className={`h-auto ${isSpecialBlock ? "print:h-6" : "print:h-auto"}`}>
+                <TableRow key={startTime} className={`h-auto ${rowSpecial ? "print:h-6" : "print:h-auto"}`}>
                   <TableCell className="font-medium border-r bg-slate-50 align-middle py-1 print:py-0.5 print:w-20">
                     <div className="text-xs font-bold print:text-[9px] whitespace-nowrap">
                       {blockInfo?.endTime ? `${startTime} - ${blockInfo.endTime}` : startTime}
@@ -120,13 +129,13 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                       <TableCell
                         key={`${dayValue}-${startTime}`}
                         className={`border-r last:border-r-0 p-1 print:p-0.5 align-top ${
-                          blockInfo?.blockType === "BREAK" ? "bg-slate-100" :
-                          blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
-                          blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50" :
+                          rowSpecial && blockInfo?.blockType === "BREAK" ? "bg-slate-100" :
+                          rowSpecial && blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
+                          rowSpecial && blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50" :
                           ""
                         }`}
                       >
-                        {isSpecialBlock && slotAssignments.length === 0 ? (
+                        {rowSpecial && slotAssignments.length === 0 ? (
                           <div className="flex items-center justify-center py-1 print:py-0">
                             <span className={`text-xs font-bold tracking-widest uppercase print:text-[8px] ${
                               blockInfo?.blockType === "BREAK" ? "text-slate-500" :
