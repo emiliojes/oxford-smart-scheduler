@@ -13,6 +13,26 @@ const c = (row: any[], col: number): string => String((row ?? [])[col] ?? "").tr
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision", "www", "time", "07.15", "student", "arrival duty"];
+
+// PRIMARY teachers share rows with SECONDARY in the Excel.
+// Map SECONDARY row start times to the correct PRIMARY time block start times.
+const PRIMARY_LEVEL_GRADES = new Set(["K", "PK", "1", "2", "3", "4", "5", "6"]);
+const SECONDARY_TO_PRIMARY_TIME: Record<string, string> = {
+  "07:30": "07:30",
+  "08:30": "08:30",
+  "09:30": "09:00", // SECONDARY break -> PRIMARY break start
+  "09:45": "09:15", // SECONDARY class -> PRIMARY 09:15 slot
+  "10:45": "10:15", // SECONDARY class -> PRIMARY 10:15 slot
+  "11:45": "11:15", // SECONDARY class -> PRIMARY 11:15 slot
+  "12:45": "12:00", // SECONDARY lunch -> PRIMARY lunch
+  "13:15": "12:30", // SECONDARY after-lunch -> PRIMARY 12:30 slot
+  "14:15": "13:15", // SECONDARY last slot -> PRIMARY 13:15 slot
+};
+
+function mapToPrimaryTime(startTime: string, grade: string): string {
+  if (!PRIMARY_LEVEL_GRADES.has(grade)) return startTime;
+  return SECONDARY_TO_PRIMARY_TIME[startTime] ?? startTime;
+}
 const ROMAN: Record<string, string> = {
   "XII": "12", "XI": "11", "X": "10", "IX": "9",
   "VIII": "8", "VII": "7", "VI": "6", "V": "5",
@@ -243,7 +263,8 @@ for (const block of blocks) {
       const { grade, section, isLab } = parsed;
       const subjectMapped = mapSubject(block.subject, grade);
       const room = isLab ? getLabRoom(block.subject) : "";
-      csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${startTime}`);
+      const effectiveStart = mapToPrimaryTime(startTime, grade);
+      csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart}`);
       total++;
     }
   }
