@@ -114,6 +114,16 @@ export default function ScheduleViewPage() {
     }
   };
 
+  // Calculate teaching hours for display in title
+  const DUTY_KEYWORDS = ["Duty", "Resource Room Support", "Homeroom"];
+  const teachingAssignments = assignments.filter((a: any) =>
+    a.timeBlock.blockType === "CLASS" && !DUTY_KEYWORDS.some(k => a.subject.name.includes(k))
+  );
+  const totalMins = teachingAssignments.reduce((sum: number, a: any) => sum + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
+  const th = Math.floor(totalMins / 60);
+  const tm = totalMins % 60;
+  const hoursLabel = totalMins > 0 ? (tm > 0 ? `${th}h ${tm}min` : `${th}h`) : "";
+
   const getExportTitle = () => {
     if (isTeacherView) return `HORARIO: ${teacherName || currentUser?.username}`;
     const selectedName = options.find(o => o.id === selectedId)?.name || "";
@@ -201,6 +211,9 @@ export default function ScheduleViewPage() {
                 {teacherName && currentUser?.username && (
                   <p className="text-xs text-blue-500">usuario: {currentUser.username}</p>
                 )}
+                {hoursLabel && (
+                  <p className="text-sm font-bold text-blue-700 mt-1">⏰ Total semanal: {hoursLabel}</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -208,6 +221,12 @@ export default function ScheduleViewPage() {
       ) : (
         <Card className="no-print">
           <CardContent className="pt-6">
+            {hoursLabel && (
+              <div className="mb-4 flex items-center gap-2 text-sm font-bold text-blue-700">
+                <span>⏰ Total semanal de clases:</span>
+                <span className="text-base">{hoursLabel}</span>
+              </div>
+            )}
             <div className="flex flex-col md:flex-row gap-6">
               <div className="w-full md:w-1/3 space-y-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.schedule.viewType}</label>
@@ -274,6 +293,9 @@ export default function ScheduleViewPage() {
                 : `${t.nav.schedule.toUpperCase()}: ${options.find(o => o.id === selectedId)?.name ?? ""}${viewType === "grade" ? " " + (options.find(o => o.id === selectedId)?.section ?? "") : ""}`
               }
             </h3>
+            {hoursLabel && (
+              <p className="text-base font-bold text-blue-700 mt-1">&#128336; Total semanal de clases: {hoursLabel}</p>
+            )}
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.schedule.export.subtitle.split('|')[1]}</p>
           </div>
           
