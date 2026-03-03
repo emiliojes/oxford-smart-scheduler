@@ -57,6 +57,29 @@ interface ScheduleGridProps {
   onRefresh?: () => void;
 }
 
+// Color palette per grade — same grade same color, different grades different colors
+const GRADE_COLORS: Record<string, string> = {
+  "PK": "border-pink-300    bg-pink-50    dark:bg-pink-900/30    dark:border-pink-500",
+  "K":  "border-fuchsia-300 bg-fuchsia-50 dark:bg-fuchsia-900/30 dark:border-fuchsia-500",
+  "1":  "border-violet-300  bg-violet-50  dark:bg-violet-900/30  dark:border-violet-500",
+  "2":  "border-indigo-300  bg-indigo-50  dark:bg-indigo-900/30  dark:border-indigo-500",
+  "3":  "border-sky-300     bg-sky-50     dark:bg-sky-900/30     dark:border-sky-500",
+  "4":  "border-teal-300    bg-teal-50    dark:bg-teal-900/30    dark:border-teal-500",
+  "5":  "border-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 dark:border-emerald-500",
+  "6":  "border-lime-300    bg-lime-50    dark:bg-lime-900/30    dark:border-lime-500",
+  "7":  "border-yellow-300  bg-yellow-50  dark:bg-yellow-900/30  dark:border-yellow-500",
+  "8":  "border-orange-300  bg-orange-50  dark:bg-orange-900/30  dark:border-orange-500",
+  "9":  "border-red-300     bg-red-50     dark:bg-red-900/30     dark:border-red-400",
+  "10": "border-rose-300    bg-rose-50    dark:bg-rose-900/30    dark:border-rose-500",
+  "11": "border-blue-300    bg-blue-50    dark:bg-blue-900/40    dark:border-blue-500",
+  "12": "border-cyan-300    bg-cyan-50    dark:bg-cyan-900/30    dark:border-cyan-500",
+};
+
+function getGradeColor(grade: string | null | undefined): string {
+  if (!grade) return "border-blue-300 bg-blue-50 dark:bg-blue-900/40 dark:border-blue-500";
+  return GRADE_COLORS[grade] ?? "border-blue-300 bg-blue-50 dark:bg-blue-900/40 dark:border-blue-500";
+}
+
 const DAYS = [
   { value: 1, label: "MONDAY" },
   { value: 2, label: "TUESDAY" },
@@ -257,12 +280,12 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                       canManage && viewType === "teacher" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                                     } ${
                                       a.status === "CONFLICT"
-                                        ? "border-red-300 bg-red-50 dark:bg-red-900/30 dark:border-red-500 hover:border-red-400"
+                                        ? "border-red-300 bg-red-50 dark:bg-red-900/30 dark:border-red-500 hover:brightness-110"
                                         : a.subject.name.startsWith("Lunch Duty") || a.subject.name.startsWith("Arrival Duty") || a.subject.name.startsWith("Dismissal Duty") || a.subject.name === "Resource Room Support"
-                                        ? "border-amber-300 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 hover:border-amber-400"
+                                        ? "border-amber-300 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 hover:brightness-110"
                                         : a.subject.name === "Homeroom"
-                                        ? "border-purple-300 bg-purple-50 dark:bg-purple-900/30 dark:border-purple-500 hover:border-purple-400"
-                                        : "border-blue-300 bg-blue-50 dark:bg-blue-900/40 dark:border-blue-500 hover:border-blue-400"
+                                        ? "border-purple-300 bg-purple-50 dark:bg-purple-900/30 dark:border-purple-500 hover:brightness-110"
+                                        : `${getGradeColor(a.grade?.name)} hover:brightness-110`
                                     }`}
                                   >
                                     {a.status === "CONFLICT" && (
