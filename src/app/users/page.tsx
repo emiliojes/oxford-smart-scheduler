@@ -30,7 +30,7 @@ import {
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { UserPlus, Pencil, Trash2, Shield, CheckCircle, Clock } from "lucide-react";
+import { UserPlus, Pencil, Trash2, Shield, CheckCircle, Clock, Eye, EyeOff } from "lucide-react";
 
 interface User {
   id: string;
@@ -59,6 +59,7 @@ export default function UsersPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [approveState, setApproveState] = useState<{ user: User; role: string; teacherId: string } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -221,7 +222,17 @@ export default function UsersPage() {
               )}
               <div className="space-y-2">
                 <Label htmlFor="password">{editingUser ? "Nueva Contraseña (dejar vacío para mantener)" : "Contraseña"}</Label>
-                <Input id="password" name="password" type="password" placeholder="Mínimo 6 caracteres" required={!editingUser} minLength={6} />
+                <div className="relative">
+                  <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Mínimo 6 caracteres" required={!editingUser} minLength={6} className="pr-10" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="role">Rol</Label>
