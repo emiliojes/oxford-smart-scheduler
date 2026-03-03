@@ -52,6 +52,9 @@ export function Header({ user }: HeaderProps) {
       {isCoordinatorOnly && (
         <Link href="/approvals" className={linkClass("/approvals", "text-amber-300 hover:text-amber-200")} onClick={() => setMenuOpen(false)}>Aprobaciones</Link>
       )}
+      {canManage && (
+        <Link href="/compare" className={`${linkClass("/compare")} !bg-violet-600 hover:!bg-violet-700 !text-white`} onClick={() => setMenuOpen(false)}>Comparar</Link>
+      )}
       <Link href="/schedule" className={`${linkClass("/schedule")} !bg-blue-600 hover:!bg-blue-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.nav.schedule}</Link>
     </>
   );
