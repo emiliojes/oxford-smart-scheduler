@@ -252,8 +252,43 @@ for (let r = 0; r < rows.length; r++) {
 console.log(`\nFound ${blocks.length} teacher blocks:`);
 blocks.forEach(b => console.log(`  timeHeaderRow=${b.timeHeaderRow} col=${b.timeCol}: "${b.name}" -> "${b.subject}"`));
 
+// Parse dedicated Resource Room Support block (col 7=time, cols 8-12=Mon-Fri)
+// Find it by looking for the header row with "RESOURCE ROOM SUPPORT" in col 8
+let rrsTimeHeaderRow = -1;
+for (let r = 0; r < rows.length; r++) {
+  if (c(rows[r], 8).toUpperCase().includes("RESOURCE ROOM SUPPORT")) {
+    for (let tr = r + 1; tr <= r + 5 && tr < rows.length; tr++) {
+      if (c(rows[tr], 7).toUpperCase() === "TIME") { rrsTimeHeaderRow = tr; break; }
+    }
+    if (rrsTimeHeaderRow >= 0) break;
+  }
+}
+
 const csvRows: string[] = ["teacher,subject,grade,section,room,day,start_time,note"];
 let total = 0;
+const RRS_TEACHER = "RESOURCE ROOM SUPPORT";
+
+if (rrsTimeHeaderRow >= 0) {
+  for (let r = rrsTimeHeaderRow + 1; r < rrsTimeHeaderRow + 20 && r < rows.length; r++) {
+    const row = rows[r] ?? [];
+    const timeStr = c(row, 7);
+    if (timeStr.toLowerCase().includes("www")) break;
+    const startTime = parseStartTime(timeStr);
+    if (!startTime) continue;
+    for (let d = 0; d < 5; d++) {
+      const cell = c(row, 8 + d);
+      if (!cell) continue;
+      const upper = cell.toUpperCase();
+      if (upper === "BREAK" || upper === "LUNCH" || upper === "REGISTRATION") continue;
+      // Each cell is a free-text description like "MUSIC ADOLFO", "SPANISH ARACELLYS / ENGLISH"
+      // Save it as subject (trimmed, title-cased)
+      const subjectDesc = cell.trim();
+      csvRows.push(`${RRS_TEACHER},${subjectDesc},,,,${DAY_NAMES[d]},${startTime},`);
+      total++;
+    }
+  }
+  console.log(`  Resource Room Support block parsed from timeHeaderRow=${rrsTimeHeaderRow}`);
+}
 
 for (const block of blocks) {
   for (let r = block.timeHeaderRow + 1; r < block.timeHeaderRow + 20 && r < rows.length; r++) {
