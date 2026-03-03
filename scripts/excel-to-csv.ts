@@ -78,13 +78,12 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
     const key = prefixMatch[1].toUpperCase();
     overrideSubject = SUFFIX_TO_SUBJECT[key] ?? SUFFIX_TO_SUBJECT[key.replace(/L$/, "")];
   }
-  // Extract embedded start time before cleaning (e.g. "6B (9:45-10:45)" or "5B (10:00)" -> overrideStartTime)
+  // Extract embedded time range before cleaning (e.g. "6B (9:45-10:45)" -> overrideStartTime = "09:45")
+  // Single times like "(10:00)" are display notes only, NOT slot overrides
   let overrideStartTime: string | undefined;
   const timeRangeMatch = raw.match(/\(?(\d{1,2}:\d{2})\s*[-–]\s*\d{1,2}:\d{2}\)?/);
-  const timeSingleMatch = raw.match(/\((\d{1,2}:\d{2})\)/);
-  const timeMatch = timeRangeMatch ?? timeSingleMatch;
-  if (timeMatch) {
-    overrideStartTime = parseStartTime(timeMatch[1]) ?? undefined;
+  if (timeRangeMatch) {
+    overrideStartTime = parseStartTime(timeRangeMatch[1]) ?? undefined;
   }
   // Remove noise
   let clean = raw
