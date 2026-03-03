@@ -13,8 +13,13 @@ export default async function proxy(request: NextRequest) {
 
   // Unauthenticated: allow home and login, redirect everything else to login
   if (!sessionId && !isPublicPage) {
+    // API routes → return 401 JSON instead of redirect
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }
 
@@ -44,6 +49,6 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };
