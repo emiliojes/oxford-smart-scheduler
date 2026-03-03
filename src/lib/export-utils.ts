@@ -35,8 +35,20 @@ function buildScheduleHTML(data: ScheduleData): string {
   const dayValues = [1, 2, 3, 4, 5];
   const { label: hoursLabel, perDay: hoursPerDay } = calcHours(data);
 
+  // Grade color palette (same as web)
+  const GRADE_COLORS: Record<string, string> = {
+    "PK": "#fbbf24", "K": "#fb923c", "1": "#f87171", "2": "#fb7185",
+    "3": "#c084fc", "4": "#a78bfa", "5": "#818cf8", "6": "#60a5fa",
+    "7": "#38bdf8", "8": "#22d3ee", "9": "#2dd4bf", "10": "#10b981",
+    "11": "#84cc16", "12": "#eab308"
+  };
+  const getGradeColor = (gradeNum?: string | null) => {
+    if (!gradeNum) return "#94a3b8";
+    return GRADE_COLORS[gradeNum] || "#94a3b8";
+  };
+
   const headerCells = ["HORA", ...days].map(d =>
-    `<th style="background:#1e3a5f;color:white;padding:4px 6px;font-size:9px;text-align:center;border:1px solid #ccc;">${d}</th>`
+    `<th style="background:#1e3a5f;color:white;padding:3px 4px;font-size:8px;text-align:center;border:1px solid #ccc;font-weight:bold;">${d}</th>`
   ).join("");
 
   const rows = uniqueStartTimes.map(time => {
@@ -51,24 +63,33 @@ function buildScheduleHTML(data: ScheduleData): string {
         a => a.timeBlock.dayOfWeek === dayValue && a.timeBlock.startTime === time
       );
       if (slotA.length === 0 && isSpecial) {
-        return `<td style="background:${rowBg};text-align:center;font-weight:bold;font-size:8px;color:#888;border:1px solid #ccc;">${block?.blockType}</td>`;
+        return `<td style="background:${rowBg};text-align:center;font-weight:bold;font-size:7px;color:#666;border:1px solid #ddd;vertical-align:middle;">${block?.blockType}</td>`;
       }
-      if (slotA.length === 0) return `<td style="background:${rowBg};border:1px solid #ccc;"></td>`;
+      if (slotA.length === 0) return `<td style="background:${rowBg};border:1px solid #ddd;"></td>`;
 
       const content = slotA.map(a => {
         const grade = a.grade ? `${a.grade.name}${a.grade.section || ""}` : "";
         const room = a.room ? a.room.name : "";
         const teacher = data.viewType !== "teacher" ? a.teacher.name : "";
+        const gradeNum = a.grade?.name;
+        const gradeColor = getGradeColor(gradeNum);
+        const bgColor = gradeNum ? gradeColor : "#e2e8f0";
+        const textColor = gradeNum ? "white" : "#334155";
+        const isDuty = ["Duty", "Resource Room Support", "Homeroom"].some(k => a.subject.name.includes(k));
+        const dutyBg = isDuty ? "#fed7aa" : bgColor;
+        const dutyText = isDuty ? "#7c2d12" : textColor;
         return [
-          `<div style="font-weight:bold;font-size:8px;">${a.subject.name}</div>`,
-          grade ? `<div style="font-size:7px;color:#444;">Grado: ${grade}</div>` : "",
-          teacher ? `<div style="font-size:7px;color:#444;">${teacher}</div>` : "",
-          room ? `<div style="font-size:7px;color:#666;">Salon: ${room}</div>` : "",
-          a.note ? `<div style="font-size:7px;color:#888;">(${a.note})</div>` : "",
+          `<div style="background:${dutyBg};color:${dutyText};padding:2px 3px;border-radius:2px;margin-bottom:1px;">`,
+          `<div style="font-weight:bold;font-size:7px;line-height:1.1;">${a.subject.name}</div>`,
+          grade ? `<div style="font-size:6px;line-height:1.1;">${grade}</div>` : "",
+          teacher ? `<div style="font-size:6px;line-height:1.1;">${teacher}</div>` : "",
+          room ? `<div style="font-size:6px;line-height:1.1;">${room}</div>` : "",
+          a.note ? `<div style="font-size:6px;line-height:1.1;">(${a.note})</div>` : "",
+          `</div>`
         ].join("");
-      }).join('<hr style="margin:2px 0;border-color:#ccc;">');
+      }).join("");
 
-      return `<td style="background:${rowBg};padding:2px 3px;border:1px solid #ccc;vertical-align:top;">${content}</td>`;
+      return `<td style="background:${rowBg};padding:1px 2px;border:1px solid #ddd;vertical-align:top;">${content}</td>`;
     }).join("");
 
     return `<tr>
@@ -79,23 +100,30 @@ function buildScheduleHTML(data: ScheduleData): string {
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <style>
-      body { font-family: Arial, sans-serif; margin: 0; padding: 8px; }
-      table { border-collapse: collapse; width: 100%; }
-      h2,h3,p { text-align: center; margin: 4px 0; }
+      body { font-family: Arial, sans-serif; margin: 0; padding: 6px; font-size: 8px; }
+      table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+      h2,h3,p { text-align: center; margin: 2px 0; }
+      td, th { border: 1px solid #ddd; }
+      th { background: #1e3a5f; color: white; font-weight: bold; }
+      td { vertical-align: top; }
+      @media print {
+        body { padding: 4px; }
+        table { font-size: 7px; }
+      }
     </style>
   </head><body>
-    <h2 style="font-size:14px;">Oxford School - Santiago</h2>
-    <h3 style="font-size:12px;">${data.title}</h3>
-    <p style="font-size:10px;color:#666;">${data.subtitle}</p>
+    <h2 style="font-size:12px;">Oxford School - Santiago</h2>
+    <h3 style="font-size:10px;">${data.title}</h3>
+    <p style="font-size:8px;color:#666;">${data.subtitle}</p>
     <br>
     <table>
       <thead><tr>${headerCells}</tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <div style="margin-top:10px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;font-family:Arial,sans-serif;">
-      <span style="font-weight:bold;font-size:10px;color:#1e3a5f;">&#128336; Total semanal de clases: </span>
-      <span style="font-weight:bold;font-size:12px;color:#1d4ed8;">${hoursLabel}</span>
-      <span style="font-size:9px;color:#64748b;margin-left:12px;">${hoursPerDay}</span>
+    <div style="margin-top:8px;padding:4px 6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:3px;font-family:Arial,sans-serif;">
+      <span style="font-weight:bold;font-size:8px;color:#1e3a5f;">⏰ Total semanal de clases: </span>
+      <span style="font-weight:bold;font-size:9px;color:#1d4ed8;">${hoursLabel}</span>
+      <span style="font-size:7px;color:#64748b;margin-left:8px;">${hoursPerDay}</span>
     </div>
   </body></html>`;
 }
