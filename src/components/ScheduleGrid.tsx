@@ -99,10 +99,33 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     const blocksAtTime = relevantTimeBlocks.filter(b => b.startTime === st);
     const hasClassBlock = blocksAtTime.some(b => b.blockType === "CLASS");
     if (hasClassBlock) return assignmentStartTimes.has(st);
-    // For BREAK/LUNCH/REGISTRATION: only show if within teacher's active time range
+    // Always show non-CLASS rows that have assignments (e.g. Arrival Duty at 07:15 REGISTRATION)
+    if (assignmentStartTimes.has(st)) return true;
+    // For BREAK/LUNCH/REGISTRATION with no assignments: only show strictly within active range
     if (assignments.length === 0) return true;
-    // Must be strictly between first and last assignment (not after last)
-    return st > firstTime && st < lastTime;
+    if (!(st > firstTime && st < lastTime)) return false;
+    // Suppress duplicate LUNCH slots: if another LUNCH slot without assignments is already in range,
+    // only keep the one that matches the teacher's actual lunch time (closest to assignments)
+    const blockType = blocksAtTime[0]?.blockType;
+    if (blockType === "LUNCH") {
+      // Check if there's already another LUNCH slot in the visible times that also has no assignment
+      const otherLunchInRange = relevantTimeBlocks
+        .filter(b => b.blockType === "LUNCH" && b.startTime !== st)
+        .some(b => b.startTime > firstTime && b.startTime < lastTime && !assignmentStartTimes.has(b.startTime));
+      if (otherLunchInRange) {
+        // Keep only the LUNCH slot that is closer to the teacher's assignments
+        const assignedTimes = sortedAssignmentTimes;
+        const distSt = Math.min(...assignedTimes.map(t => Math.abs(parseInt(st.replace(":", "")) - parseInt(t.replace(":", "")))));
+        const closerExists = relevantTimeBlocks
+          .filter(b => b.blockType === "LUNCH" && b.startTime !== st && b.startTime > firstTime && b.startTime < lastTime && !assignmentStartTimes.has(b.startTime))
+          .some(b => {
+            const d = Math.min(...assignedTimes.map(t => Math.abs(parseInt(b.startTime.replace(":", "")) - parseInt(t.replace(":", "")))));
+            return d < distSt;
+          });
+        if (closerExists) return false;
+      }
+    }
+    return true;
   });
 
   const getAssignmentsForSlot = (dayOfWeek: number, startTime: string) => {
