@@ -19,7 +19,7 @@ const SKIP_WORDS = ["registration", "break", "lunch", "dismissal", "supervision"
 const PRIMARY_LEVEL_GRADES = new Set(["K", "PK", "1", "2", "3", "4", "5"]);
 const SECONDARY_TO_PRIMARY_TIME: Record<string, string> = {
   "07:30": "07:30",
-  "08:00": "07:30", // PK/K early start -> closest PRIMARY slot
+  "08:00": "08:00", // K/1 dedicated slot - keep as-is
   "08:15": "08:30", // PK/K slot -> PRIMARY 08:30
   "08:30": "08:30",
   "09:00": "09:15", // PK/K slot -> PRIMARY 09:15
@@ -29,10 +29,10 @@ const SECONDARY_TO_PRIMARY_TIME: Record<string, string> = {
   "10:00": "10:15", // PK/K slot -> PRIMARY 10:15
   "10:15": "10:15",
   "10:30": "10:15", // PK/K slot -> PRIMARY 10:15
-  "10:45": "10:15", // SECONDARY row time -> PRIMARY 10:15
+  "10:45": "10:45", // keep as-is (exists as PRIMARY time block)
   "11:00": "11:15", // PK/K slot -> PRIMARY 11:15
   "11:15": "11:15",
-  "11:45": "11:15", // SECONDARY row time -> PRIMARY 11:15
+  "11:45": "11:45", // keep as-is (exists as PRIMARY time block)
   "12:00": "12:00",
   "12:30": "12:30",
   "12:45": "12:00",
