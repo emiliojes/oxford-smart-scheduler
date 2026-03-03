@@ -246,7 +246,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                         className={`border-r last:border-r-0 p-1 print:p-0.5 align-top transition-colors ${
                           isDropTarget ? "bg-blue-100 dark:bg-blue-900/40 ring-2 ring-inset ring-blue-400" :
                           blockInfo?.blockType === "BREAK" ? "bg-slate-100 dark:bg-slate-700" :
-                          blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
+                          blockInfo?.blockType === "LUNCH" ? "bg-amber-50/40 dark:bg-amber-950/20" :
                           blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50 dark:bg-slate-900" :
                           ""
                         }`}
@@ -282,7 +282,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                       a.status === "CONFLICT"
                                         ? "border-red-300 bg-red-50 dark:bg-red-900/30 dark:border-red-500 hover:brightness-110"
                                         : a.subject.name.startsWith("Lunch Duty") || a.subject.name.startsWith("Arrival Duty") || a.subject.name.startsWith("Dismissal Duty") || a.subject.name === "Resource Room Support"
-                                        ? "border-amber-300 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 hover:brightness-110"
+                                        ? "border-orange-400 bg-orange-100 dark:bg-orange-900/40 dark:border-orange-400 hover:brightness-110"
                                         : a.subject.name === "Homeroom"
                                         ? "border-purple-300 bg-purple-50 dark:bg-purple-900/30 dark:border-purple-500 hover:brightness-110"
                                         : `${getGradeColor(a.grade?.name)} hover:brightness-110`
