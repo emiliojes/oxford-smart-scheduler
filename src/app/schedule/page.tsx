@@ -210,7 +210,7 @@ export default function ScheduleViewPage() {
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="w-full md:w-1/3 space-y-2">
-                <label className="text-sm font-medium text-slate-700">{t.schedule.viewType}</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.schedule.viewType}</label>
                 <Tabs value={viewType} onValueChange={(v) => setViewType(v as any)} className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="teacher">{t.schedule.types.teacher}</TabsTrigger>
@@ -220,7 +220,7 @@ export default function ScheduleViewPage() {
                 </Tabs>
               </div>
               <div className="w-full md:w-2/3 space-y-2 relative" ref={comboboxRef}>
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {t.schedule.select.replace('{type}', t.schedule.types[viewType])}
                 </label>
                 <div className="relative">
@@ -229,10 +229,10 @@ export default function ScheduleViewPage() {
                     onChange={e => { setSearchQuery(e.target.value); setComboOpen(true); }}
                     onFocus={() => { setSearchQuery(""); setComboOpen(true); }}
                     placeholder="Buscar..."
-                    className="w-full text-sm border rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                    className="w-full text-sm border rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 bg-white dark:bg-slate-800"
                   />
                   {comboOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border rounded-md shadow-lg max-h-60 overflow-y-auto">
                       {options
                         .filter(opt => {
                           const label = viewType === "grade" ? `${opt.name}${opt.section || ""}` : opt.name;
@@ -262,7 +262,7 @@ export default function ScheduleViewPage() {
       {isLoading ? (
         <div className="h-64 flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-          <p className="text-slate-500 font-medium">Cargando horario...</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando horario...</p>
         </div>
       ) : (
         <div id="printable-schedule" className="print:m-0">
@@ -274,7 +274,7 @@ export default function ScheduleViewPage() {
                 : `${t.nav.schedule.toUpperCase()}: ${options.find(o => o.id === selectedId)?.name ?? ""}${viewType === "grade" ? " " + (options.find(o => o.id === selectedId)?.section ?? "") : ""}`
               }
             </h3>
-            <p className="text-sm text-slate-500 mt-1">{t.schedule.export.subtitle.split('|')[1]}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.schedule.export.subtitle.split('|')[1]}</p>
           </div>
           
           <ScheduleGrid 
@@ -339,3 +339,5 @@ export default function ScheduleViewPage() {
 }
 
 // Remove local Card/CardContent as they are now imported from ui
+
+

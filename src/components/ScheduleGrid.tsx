@@ -150,14 +150,14 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
 
   return (
     <TooltipProvider>
-      <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+      <div className="border rounded-lg overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
         <div className="overflow-x-auto w-full">
         <Table className="border-collapse min-w-[600px]">
           <TableHeader>
-            <TableRow className="bg-slate-50">
-              <TableHead className="w-[70px] md:w-[100px] border-r font-bold text-slate-900 text-xs md:text-sm">{t.schedule.grid.time}</TableHead>
+            <TableRow className="bg-slate-50 dark:bg-slate-900">
+              <TableHead className="w-[70px] md:w-[100px] border-r font-bold text-slate-900 dark:text-slate-100 text-xs md:text-sm">{t.schedule.grid.time}</TableHead>
               {t.timeBlocks.days.map((dayLabel: string, index: number) => (
-                <TableHead key={index + 1} className="text-center font-bold text-slate-900 border-r last:border-r-0 text-xs md:text-sm">
+                <TableHead key={index + 1} className="text-center font-bold text-slate-900 dark:text-slate-100 border-r last:border-r-0 text-xs md:text-sm">
                   <span className="hidden sm:inline">{dayLabel.toUpperCase()}</span>
                   <span className="sm:hidden">{dayLabel.slice(0, 3).toUpperCase()}</span>
                 </TableHead>
@@ -171,7 +171,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
 
               return (
                 <TableRow key={startTime} className={`h-auto ${rowSpecial ? "print:h-6" : "print:h-auto"}`}>
-                  <TableCell className="font-medium border-r bg-slate-50 align-middle py-1 print:py-0.5 print:w-20">
+                  <TableCell className="font-medium border-r bg-slate-50 dark:bg-slate-900 align-middle py-1 print:py-0.5 print:w-20">
                     <div className="text-xs font-bold print:text-[9px] whitespace-nowrap">
                       {blockInfo?.endTime ? `${startTime} - ${blockInfo.endTime}` : startTime}
                     </div>
@@ -185,16 +185,16 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                       <TableCell
                         key={`${dayValue}-${startTime}`}
                         className={`border-r last:border-r-0 p-1 print:p-0.5 align-top ${
-                          blockInfo?.blockType === "BREAK" ? "bg-slate-100" :
+                          blockInfo?.blockType === "BREAK" ? "bg-slate-100 dark:bg-slate-700" :
                           blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
-                          blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50" :
+                          blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50 dark:bg-slate-900" :
                           ""
                         }`}
                       >
                         {slotAssignments.length === 0 && (blockInfo?.blockType === "LUNCH" || blockInfo?.blockType === "BREAK" || blockInfo?.blockType === "REGISTRATION") ? (
                           <div className="flex items-center justify-center py-1 print:py-0">
                             <span className={`text-xs font-bold tracking-widest uppercase print:text-[8px] ${
-                              blockInfo?.blockType === "BREAK" ? "text-slate-500" :
+                              blockInfo?.blockType === "BREAK" ? "text-slate-500 dark:text-slate-400" :
                               blockInfo?.blockType === "LUNCH" ? "text-amber-600" :
                               "text-slate-400"
                             }`}>
@@ -240,7 +240,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                       </Tooltip>
                                     )}
                                     <div className="font-bold text-blue-900 truncate">{a.subject.name}</div>
-                                    <div className="flex flex-col text-slate-600 print:text-slate-700">
+                                    <div className="flex flex-col text-slate-600 dark:text-slate-400 print:text-slate-700 dark:text-slate-300">
                                       {viewType !== "grade" && (
                                         <span className="truncate">{a.grade ? `${t.schedule.types.grade}: ${a.grade.name}${a.grade.section ?? ""}` : ""}</span>
                                       )}
@@ -248,7 +248,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                         <span className="text-xs text-slate-400">({a.note})</span>
                                       )}
                                       {viewType !== "teacher" && (
-                                        <span className="truncate font-medium text-slate-700">{a.teacher.name}</span>
+                                        <span className="truncate font-medium text-slate-700 dark:text-slate-300">{a.teacher.name}</span>
                                       )}
                                       {viewType !== "room" && a.room && (
                                         <span className="truncate">{t.schedule.types.room}: {a.room.name}</span>
@@ -273,3 +273,5 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     </TooltipProvider>
   );
 }
+
+

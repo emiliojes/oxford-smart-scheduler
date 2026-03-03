@@ -74,7 +74,7 @@ export default function ImportSchedulePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Step 1: Download template */}
-        <Card className="border-slate-200">
+        <Card className="border-slate-200 dark:border-slate-700">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">1</span>
@@ -83,15 +83,15 @@ export default function ImportSchedulePage() {
             <CardDescription>Usa esta plantilla CSV como base para ingresar el horario</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-slate-50 rounded-lg p-3 text-xs font-mono text-slate-600 overflow-x-auto">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3 text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto">
               <p className="font-bold text-slate-800 mb-1">Columnas requeridas:</p>
               <p>teacher, subject, grade, section,</p>
               <p>room, day, start_time</p>
-              <p className="mt-2 text-slate-500">Ejemplo de fila:</p>
+              <p className="mt-2 text-slate-500 dark:text-slate-400">Ejemplo de fila:</p>
               <p>Irlanda Tuñon, English, 1, A,</p>
               <p>Salon 1, Monday, 07:30</p>
             </div>
-            <div className="text-xs text-slate-500 space-y-1">
+            <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
               <p><strong>day:</strong> Monday, Tuesday, Wednesday, Thursday, Friday</p>
               <p><strong>start_time:</strong> formato 24h — 07:30, 08:30, 09:45...</p>
               <p><strong>section:</strong> A, B, C (dejar vacío si no aplica)</p>
@@ -140,7 +140,7 @@ export default function ImportSchedulePage() {
               {fileName ? (
                 <p className="text-sm font-medium text-blue-700">{fileName}</p>
               ) : (
-                <p className="text-sm text-slate-500">Haz clic para seleccionar un archivo .csv</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Haz clic para seleccionar un archivo .csv</p>
               )}
               <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleFileChange} />
             </div>
@@ -160,13 +160,13 @@ export default function ImportSchedulePage() {
       {previewRows.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-slate-600">Vista previa del archivo ({csvContent.split("\n").filter(Boolean).length - 1} filas de datos)</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Vista previa del archivo ({csvContent.split("\n").filter(Boolean).length - 1} filas de datos)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="text-xs w-full">
                 {previewRows.map((row, i) => (
-                  <tr key={i} className={i === 0 ? "font-bold bg-slate-100" : "border-t"}>
+                  <tr key={i} className={i === 0 ? "font-bold bg-slate-100 dark:bg-slate-700" : "border-t"}>
                     {row.split(",").map((cell, j) => (
                       <td key={j} className="px-2 py-1">{cell.trim()}</td>
                     ))}
@@ -215,3 +215,5 @@ export default function ImportSchedulePage() {
     </div>
   );
 }
+
+

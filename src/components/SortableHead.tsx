@@ -18,7 +18,7 @@ export function SortableHead({ label, field, sortField, sortDir, onSort, classNa
   const active = sortField === field;
   return (
     <TableHead
-      className={`cursor-pointer select-none hover:bg-slate-100 transition-colors ${className}`}
+      className={`cursor-pointer select-none hover:bg-slate-100 dark:bg-slate-700 transition-colors ${className}`}
       onClick={() => onSort(field)}
     >
       <div className="flex items-center gap-1">
@@ -42,3 +42,5 @@ export function useSorting<T>(items: T[], sortField: string | null, sortDir: Sor
     return sortDir === "asc" ? cmp : -cmp;
   });
 }
+
+

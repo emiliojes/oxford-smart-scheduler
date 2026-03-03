@@ -136,14 +136,14 @@ export default function TimeBlocksPage() {
     bt === "CLASS"        ? "bg-blue-100 text-blue-700" :
     bt === "BREAK"        ? "bg-orange-100 text-orange-700" :
     bt === "LUNCH"        ? "bg-yellow-100 text-yellow-700" :
-    bt === "REGISTRATION" ? "bg-slate-100 text-slate-600" :
+    bt === "REGISTRATION" ? "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400" :
     bt === "HOMEROOM"     ? "bg-teal-100 text-teal-700" :
-    "bg-slate-100 text-slate-700";
+    "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300";
 
   const BlockTable = ({ levelBlocks }: { levelBlocks: TimeBlock[] }) => (
     <Table>
       <TableHeader>
-        <TableRow className="bg-slate-50">
+        <TableRow className="bg-slate-50 dark:bg-slate-900">
           <TableHead className="w-[110px]">{t.timeBlocks.day}</TableHead>
           <TableHead className="w-[140px]">Hora</TableHead>
           <TableHead>{t.timeBlocks.type}</TableHead>
@@ -159,7 +159,7 @@ export default function TimeBlocksPage() {
           </TableRow>
         ) : (
           levelBlocks.map((block) => (
-            <TableRow key={block.id} className="hover:bg-slate-50/50">
+            <TableRow key={block.id} className="hover:bg-slate-50 dark:bg-slate-900/50">
               <TableCell className="font-medium">{getDayLabel(block.dayOfWeek)}</TableCell>
               <TableCell className="font-mono text-sm">{block.startTime} – {block.endTime}</TableCell>
               <TableCell>
@@ -329,8 +329,8 @@ export default function TimeBlocksPage() {
           {LEVEL_GROUPS.map(({ key, label, color, badge }) => {
             const levelBlocks = blocks.filter((b) => b.level === key);
             return (
-              <div key={key} className={`border-l-4 ${color} rounded-lg bg-white shadow-sm overflow-hidden`}>
-                <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50/70">
+              <div key={key} className={`border-l-4 ${color} rounded-lg bg-white dark:bg-slate-800 shadow-sm overflow-hidden`}>
+                <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50 dark:bg-slate-900/70">
                   <div className="flex items-center gap-3">
                     <h2 className="font-semibold text-base">{label}</h2>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge}`}>
@@ -347,3 +347,5 @@ export default function TimeBlocksPage() {
     </div>
   );
 }
+
+

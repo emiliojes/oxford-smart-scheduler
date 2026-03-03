@@ -64,7 +64,7 @@ export default function GeneratePage() {
             Importar desde CSV
           </Link>
         </Button>
-        <Button asChild variant="ghost" size="sm" className="gap-2 text-slate-500">
+        <Button asChild variant="ghost" size="sm" className="gap-2 text-slate-500 dark:text-slate-400">
           <Link href="/schedule">← Ver horario</Link>
         </Button>
       </div>
@@ -140,3 +140,5 @@ export default function GeneratePage() {
     </div>
   );
 }
+
+

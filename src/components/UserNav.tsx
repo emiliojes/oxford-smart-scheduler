@@ -18,7 +18,7 @@ export function UserNav({ user }: UserNavProps) {
 
   if (!user) {
     return (
-      <Button asChild variant="outline" className="text-slate-900 border-white hover:bg-slate-100">
+      <Button asChild variant="outline" className="text-slate-900 dark:text-slate-100 border-white hover:bg-slate-100 dark:bg-slate-700">
         <Link href="/login">{t.auth.login}</Link>
       </Button>
     );
@@ -43,7 +43,7 @@ export function UserNav({ user }: UserNavProps) {
           type="submit" 
           variant="ghost" 
           size="sm" 
-          className="text-white hover:text-red-400 hover:bg-white/10 gap-2"
+          className="text-white hover:text-red-400 hover:bg-white dark:bg-slate-800/10 gap-2"
         >
           <LogOut className="w-4 h-4" />
           <span className="hidden md:inline">{t.auth.signOut}</span>
@@ -52,3 +52,5 @@ export function UserNav({ user }: UserNavProps) {
     </div>
   );
 }
+
+

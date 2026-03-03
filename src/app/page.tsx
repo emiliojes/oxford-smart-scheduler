@@ -48,8 +48,8 @@ export default function Home() {
           <div className="flex items-center justify-center w-20 h-20 mx-auto bg-blue-600 rounded-2xl shadow-lg">
             <Calendar className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">Oxford School</h1>
-          <p className="text-lg text-slate-500 max-w-md mx-auto">
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Oxford School</h1>
+          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             {t.home.landingSubtitle}
           </p>
         </div>
@@ -68,10 +68,10 @@ export default function Home() {
   return (
     <div className="space-y-8">
       <section className="text-center space-y-4">
-        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-slate-900">
+        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-slate-900 dark:text-slate-100">
           {t.home.title}
         </h1>
-        <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+        <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
           {t.home.subtitle}
         </p>
       </section>
@@ -134,12 +134,12 @@ export default function Home() {
         </div>
       )}
 
-      <section className="bg-slate-50 p-8 rounded-xl border border-slate-200">
-        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-slate-900">
+      <section className="bg-slate-50 dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-700">
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100">
           <AlertTriangle className="text-amber-500" />
           {t.home.priorities}
         </h2>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700">
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700 dark:text-slate-300">
           <li className="flex items-start gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2" />
             <span>{t.home.priority1}</span>
@@ -177,24 +177,26 @@ function Card({ title, description, icon, href, highlight = false, count, countL
       className={`p-6 rounded-xl border transition-all hover:shadow-lg flex flex-col gap-4 relative group ${
         highlight 
           ? "border-blue-200 bg-blue-50 hover:bg-blue-100" 
-          : "border-slate-200 bg-white hover:border-blue-300"
+          : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300"
       }`}
     >
       <div className="flex justify-between items-start">
-        <div className="p-3 bg-white rounded-lg shadow-sm w-fit group-hover:scale-110 transition-transform">
+        <div className="p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm w-fit group-hover:scale-110 transition-transform">
           {icon}
         </div>
         {count !== undefined && (
           <div className="text-right">
-            <span className="text-2xl font-black text-slate-900 leading-none">{count}</span>
+            <span className="text-2xl font-black text-slate-900 dark:text-slate-100 leading-none">{count}</span>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{countLabel || title}</p>
           </div>
         )}
       </div>
       <div>
-        <h3 className="text-xl font-bold text-slate-900">{title}</h3>
-        <p className="text-slate-600 mt-1 text-sm">{description}</p>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{title}</h3>
+        <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm">{description}</p>
       </div>
     </Link>
   );
 }
+
+

@@ -160,12 +160,12 @@ export default function ApprovalsPage() {
       {isLoading ? (
         <p className="text-muted-foreground">Cargando...</p>
       ) : pendingUsers.length === 0 ? (
-        <div className="border rounded-lg bg-white shadow-sm p-12 text-center text-muted-foreground">
+        <div className="border rounded-lg bg-white dark:bg-slate-800 dark:bg-slate-800 shadow-sm p-12 text-center text-muted-foreground">
           <CheckCircle className="w-10 h-10 mx-auto mb-3 text-green-400" />
           <p className="font-medium">No hay solicitudes pendientes</p>
         </div>
       ) : (
-        <div className="border-l-4 border-amber-400 rounded-lg bg-white shadow-sm overflow-hidden">
+        <div className="border-l-4 border-amber-400 rounded-lg bg-white dark:bg-slate-800 dark:bg-slate-800 shadow-sm overflow-hidden">
           <div className="flex items-center gap-3 px-4 py-3 border-b bg-amber-50">
             <Clock className="w-5 h-5 text-amber-500" />
             <h2 className="font-semibold text-amber-800">Esperando Aprobación</h2>
@@ -209,3 +209,5 @@ export default function ApprovalsPage() {
     </div>
   );
 }
+
+

@@ -93,7 +93,7 @@ export default function ProfilePage() {
     setLanguage(lang);
   };
 
-  if (!profile) return <div className="flex items-center justify-center h-40 text-slate-500">Cargando...</div>;
+  if (!profile) return <div className="flex items-center justify-center h-40 text-slate-500 dark:text-slate-400">Cargando...</div>;
 
   const roleInfo = ROLE_LABELS[profile.role] ?? { label: profile.role, color: "bg-gray-100 text-gray-800" };
 
@@ -101,17 +101,17 @@ export default function ProfilePage() {
     <div className="max-w-2xl mx-auto space-y-6 py-4">
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-          <User className="w-6 h-6 text-slate-500 dark:text-slate-300" />
+          <User className="w-6 h-6 text-slate-500 dark:text-slate-400 dark:text-slate-300" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 dark:text-white">
             {profile.name || profile.username}
           </h1>
           <div className="flex items-center gap-2 mt-1">
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleInfo.color}`}>
               {roleInfo.label}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">@{profile.username}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">@{profile.username}</span>
           </div>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function ProfilePage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
                   theme === "light"
                     ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
                 }`}
               >
                 <Sun className="w-4 h-4" /> Claro
@@ -191,7 +191,7 @@ export default function ProfilePage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
                   theme === "dark"
                     ? "border-blue-500 bg-blue-900/20 text-blue-400"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
                 }`}
               >
                 <Moon className="w-4 h-4" /> Oscuro
@@ -210,7 +210,7 @@ export default function ProfilePage() {
                 className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
                   language === "es"
                     ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
                 }`}
               >
                 🇵🇦 Español
@@ -220,7 +220,7 @@ export default function ProfilePage() {
                 className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
                   language === "en"
                     ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
                 }`}
               >
                 🇺🇸 English
@@ -232,3 +232,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+

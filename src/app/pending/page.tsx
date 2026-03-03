@@ -51,7 +51,7 @@ export default function PendingPage() {
   if (approved) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center space-y-6">
+        <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 text-center space-y-6">
           <div className="flex justify-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
               <CheckCircle2 className="w-10 h-10 text-green-500" />
@@ -59,7 +59,7 @@ export default function PendingPage() {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-green-700">¡Cuenta aprobada!</h1>
-            <p className="text-slate-500 text-sm">Redirigiendo al sistema...</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Redirigiendo al sistema...</p>
           </div>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function PendingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center space-y-6">
+      <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 text-center space-y-6">
         <div className="flex justify-center">
           <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center">
             <Clock className="w-10 h-10 text-amber-500 animate-pulse" />
@@ -77,7 +77,7 @@ export default function PendingPage() {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-slate-800">Cuenta pendiente de aprobación</h1>
-          <p className="text-slate-500 text-sm leading-relaxed">
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
             Tu cuenta ha sido registrada exitosamente. Un administrador o coordinador
             necesita aprobarla y asignarte un rol antes de que puedas acceder al sistema.
           </p>
@@ -93,7 +93,7 @@ export default function PendingPage() {
         </div>
 
         {user && (
-          <div className="bg-slate-50 rounded-lg p-3 text-sm text-slate-600">
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3 text-sm text-slate-600 dark:text-slate-400">
             Registrado como: <span className="font-semibold">{user.username}</span>
           </div>
         )}
@@ -108,3 +108,5 @@ export default function PendingPage() {
     </div>
   );
 }
+
+

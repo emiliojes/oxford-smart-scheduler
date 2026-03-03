@@ -285,7 +285,7 @@ export default function TeachersPage() {
         </Dialog>}
       </div>
 
-      <div className="border rounded-lg bg-white shadow-sm">
+      <div className="border rounded-lg bg-white dark:bg-slate-800 dark:bg-slate-800 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -317,7 +317,7 @@ export default function TeachersPage() {
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {teacher.subjects.map((s) => (
-                        <span key={s.subject.id} className="bg-slate-100 px-2 py-0.5 rounded text-[10px]">
+                        <span key={s.subject.id} className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-[10px]">
                           {s.subject.name}
                         </span>
                       ))}
@@ -387,7 +387,7 @@ export default function TeachersPage() {
                 return (
                   <div 
                     key={subject.id} 
-                    className="flex items-center justify-between p-2 border rounded hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between p-2 border rounded hover:bg-slate-50 dark:bg-slate-900 transition-colors"
                   >
                     <span className="text-sm truncate mr-2">{subject.name}</span>
                     <Button
@@ -408,3 +408,5 @@ export default function TeachersPage() {
     </div>
   );
 }
+
+

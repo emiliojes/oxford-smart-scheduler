@@ -207,9 +207,9 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
 
           {/* Filters row */}
-          <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg">
+          <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
             <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Filtrar por nivel</Label>
+              <Label className="text-xs text-slate-500 dark:text-slate-400">Filtrar por nivel</Label>
               <Select value={selectedLevel} onValueChange={(v) => { setSelectedLevel(v); setFormData(p => ({ ...p, gradeId: "", teacherId: "", subjectId: "", timeBlockId: "" })); }}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Todos los niveles" /></SelectTrigger>
                 <SelectContent>
@@ -221,7 +221,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Filtrar por día</Label>
+              <Label className="text-xs text-slate-500 dark:text-slate-400">Filtrar por día</Label>
               <Select value={selectedDay} onValueChange={(v) => { setSelectedDay(v); set("timeBlockId", ""); }}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Todos los días" /></SelectTrigger>
                 <SelectContent>
@@ -304,7 +304,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
                   if (blocks.length === 0) return null;
                   return (
                     <div key={day}>
-                      <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-50">{DAY_NAMES[day-1]}</div>
+                      <div className="px-2 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900">{DAY_NAMES[day-1]}</div>
                       {blocks.sort((a,b) => a.startTime.localeCompare(b.startTime)).map(b => (
                         <SelectItem key={b.id} value={b.id}>
                           {b.startTime} – {b.endTime}
@@ -345,3 +345,5 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
     </Dialog>
   );
 }
+
+

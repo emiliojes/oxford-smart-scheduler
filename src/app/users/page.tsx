@@ -294,7 +294,7 @@ export default function UsersPage() {
 
       {/* ── PENDING USERS ───────────────────────────────────────── */}
       {pendingUsers.length > 0 && (
-        <div className="border-l-4 border-amber-400 rounded-lg bg-white shadow-sm overflow-hidden">
+        <div className="border-l-4 border-amber-400 rounded-lg bg-white dark:bg-slate-800 dark:bg-slate-800 shadow-sm overflow-hidden">
           <div className="flex items-center gap-3 px-4 py-3 border-b bg-amber-50">
             <Clock className="w-5 h-5 text-amber-500" />
             <h2 className="font-semibold text-amber-800">Esperando Aprobación</h2>
@@ -337,11 +337,11 @@ export default function UsersPage() {
       )}
 
       {/* ── ACTIVE USERS ────────────────────────────────────────── */}
-      <div className="border rounded-lg bg-white shadow-sm overflow-hidden">
-        <div className="flex items-center gap-3 px-4 py-3 border-b bg-slate-50">
-          <Shield className="w-5 h-5 text-slate-500" />
-          <h2 className="font-semibold text-slate-700">Usuarios Activos</h2>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">{activeUsers.length}</span>
+      <div className="border rounded-lg bg-white dark:bg-slate-800 dark:bg-slate-800 shadow-sm overflow-hidden">
+        <div className="flex items-center gap-3 px-4 py-3 border-b bg-slate-50 dark:bg-slate-900">
+          <Shield className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+          <h2 className="font-semibold text-slate-700 dark:text-slate-300">Usuarios Activos</h2>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 dark:text-slate-300">{activeUsers.length}</span>
         </div>
         <Table>
           <TableHeader>
@@ -384,3 +384,5 @@ export default function UsersPage() {
     </div>
   );
 }
+
+

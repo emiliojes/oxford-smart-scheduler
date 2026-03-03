@@ -228,7 +228,7 @@ export default function RoomsPage() {
         </Dialog>}
       </div>
 
-      <div className="border rounded-lg bg-white shadow-sm">
+      <div className="border rounded-lg bg-white dark:bg-slate-800 dark:bg-slate-800 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -296,3 +296,5 @@ export default function RoomsPage() {
     </div>
   );
 }
+
+
