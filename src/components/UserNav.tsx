@@ -25,14 +25,17 @@ export function UserNav({ user }: UserNavProps) {
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="hidden md:flex flex-col items-end gap-0 text-xs text-slate-300">
+    <div className="flex items-center gap-2">
+      <Link href="/profile" className="hidden md:flex flex-col items-end gap-0 text-xs text-slate-300 hover:text-white transition-colors px-2 py-1 rounded-md hover:bg-slate-700">
         <div className="flex items-center gap-2">
           <User className="w-3 h-3" />
           <span className="font-medium text-white">{user.username}</span>
         </div>
         <span className="text-[10px] opacity-70 uppercase tracking-wider">{user.role}</span>
-      </div>
+      </Link>
+      <Link href="/profile" className="md:hidden p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
+        <User className="w-4 h-4" />
+      </Link>
       <form action={async () => {
         await logout();
       }}>
