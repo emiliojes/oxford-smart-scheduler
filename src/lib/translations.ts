@@ -29,7 +29,7 @@ export const translations = {
     // Home/Dashboard
     home: {
       landingSubtitle: "School schedule management system",
-      landingAccess: "Exclusive access for authorized Oxford School staff",
+      landingAccess: "Exclusive access for authorized Oxford School Santiago staff",
       title: "Oxford School Schedule Manager",
       subtitle: "Intelligent school schedule management system with automatic conflict detection and resource optimization.",
       priorities: "System Priorities",
@@ -311,7 +311,7 @@ export const translations = {
     // Home/Dashboard
     home: {
       landingSubtitle: "Sistema de gestión de horarios escolares",
-      landingAccess: "Acceso exclusivo para personal autorizado de Oxford School",
+      landingAccess: "Acceso exclusivo para personal autorizado de Oxford School Santiago",
       title: "Oxford School Schedule Manager",
       subtitle: "Sistema inteligente de gestión de horarios escolares con detección automática de conflictos y optimización de recursos.",
       priorities: "Prioridad del Sistema",
