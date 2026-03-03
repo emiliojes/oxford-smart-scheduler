@@ -243,7 +243,7 @@ export default function ScheduleViewPage() {
                           return (
                             <div
                               key={opt.id}
-                              className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 ${opt.id === selectedId ? "bg-blue-100 font-medium" : ""}`}
+                              className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 dark:hover:bg-slate-700 dark:text-slate-100 ${opt.id === selectedId ? "bg-blue-100 dark:bg-slate-600 font-medium" : ""}`}
                               onMouseDown={() => { setSelectedId(opt.id); setSearchQuery(""); setComboOpen(false); }}
                             >
                               {label}
