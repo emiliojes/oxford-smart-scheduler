@@ -369,9 +369,9 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
         </div>
       </div>
 
-      {/* Hours summary — visible on screen and in print */}
+      {/* Hours summary — visible on screen only */}
       {assignments.length > 0 && (
-        <div className="mt-3 print:mt-2 border rounded-lg bg-slate-50 dark:bg-slate-900 px-4 py-2 print:px-3 print:py-1 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm print:text-[9px]">
+        <div className="mt-3 print:hidden border rounded-lg bg-slate-50 dark:bg-slate-900 px-4 py-2 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
           <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
             <Clock className="w-4 h-4 print:hidden text-blue-600" />
             <span>Total semanal:</span>
