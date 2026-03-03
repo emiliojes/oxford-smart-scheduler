@@ -335,10 +335,15 @@ for (const block of blocks) {
         : (isPrimary && mappedOverride && mappedOverride !== mappedRowTime)
         ? mappedOverride                                // PRIMARY: use embedded if it's a different slot
         : mappedRowTime;                                // default: use row time mapped to PRIMARY
-      // If cell had embedded time (e.g. "6B (9:45-10:45)"), save as note "9:45-10:45" for display
-      const noteStr = overrideStartTime
-        ? (() => { const m = gradeRaw.match(/\((\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2})\)/); return m ? m[1].replace(/\s/g, "") : ""; })()
-        : "";
+      // If cell had embedded time (range or single), save as note for display
+      // e.g. "6B (9:45-10:45)" -> note "9:45-10:45", "5B (10:00)" -> note "10:00"
+      const noteStr = (() => {
+        const rangeM = gradeRaw.match(/\((\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2})\)/);
+        if (rangeM) return rangeM[1].replace(/\s/g, "");
+        const singleM = gradeRaw.match(/\((\d{1,2}:\d{2})\)/);
+        if (singleM) return singleM[1];
+        return "";
+      })();
       csvRows.push(`${teacherSafe},${subjectMapped},${grade},${section},${room},${DAY_NAMES[d]},${effectiveStart},${noteStr}`);
       total++;
     }
