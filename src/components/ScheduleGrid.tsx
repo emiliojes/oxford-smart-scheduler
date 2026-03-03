@@ -191,6 +191,28 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     );
   };
 
+  // Calculate total teaching minutes (CLASS blocks only, exclude duties)
+  const DUTY_KEYWORDS = ["Duty", "Resource Room Support", "Homeroom"];
+  const isDuty = (name: string) => DUTY_KEYWORDS.some(k => name.includes(k));
+  const teachingAssignments = assignments.filter(a =>
+    a.timeBlock.blockType === "CLASS" && !isDuty(a.subject.name)
+  );
+  const totalMinutes = teachingAssignments.reduce((sum, a) => {
+    const dur = parseFloat(String(a.timeBlock.duration ?? 0));
+    return sum + (isNaN(dur) ? 0 : dur);
+  }, 0);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const remainingMins = totalMinutes % 60;
+  const hoursLabel = remainingMins > 0 ? `${totalHours}h ${remainingMins}min` : `${totalHours}h`;
+
+  // Per-day breakdown
+  const dayTotals = [1,2,3,4,5].map(d => {
+    const mins = teachingAssignments
+      .filter(a => a.timeBlock.dayOfWeek === d)
+      .reduce((sum, a) => sum + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
+    return { day: d, mins };
+  });
+
   const getBlockInfo = (startTime: string) => {
     return timeBlocks.find((b) => b.startTime === startTime);
   };
@@ -336,6 +358,30 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
         </Table>
         </div>
       </div>
+
+      {/* Hours summary — visible on screen and in print */}
+      {assignments.length > 0 && (
+        <div className="mt-3 print:mt-2 border rounded-lg bg-slate-50 dark:bg-slate-900 px-4 py-2 print:px-3 print:py-1 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm print:text-[9px]">
+          <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
+            <Clock className="w-4 h-4 print:hidden text-blue-600" />
+            <span>Total semanal:</span>
+            <span className="text-blue-700 dark:text-blue-300 text-base print:text-[10px] font-extrabold">{hoursLabel}</span>
+          </div>
+          <div className="flex gap-3 text-slate-500 dark:text-slate-400 flex-wrap">
+            {dayTotals.map(({ day, mins }) => {
+              const h = Math.floor(mins / 60);
+              const m = mins % 60;
+              const label = m > 0 ? `${h}h${m}` : `${h}h`;
+              const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie"];
+              return mins > 0 ? (
+                <span key={day} className="whitespace-nowrap">
+                  <span className="font-medium text-slate-600 dark:text-slate-300">{dayNames[day - 1]}:</span> {label}
+                </span>
+              ) : null;
+            })}
+          </div>
+        </div>
+      )}
     </TooltipProvider>
   );
 }

@@ -9,10 +9,31 @@ interface ScheduleData {
   assignments: any[];
 }
 
+function calcHours(data: ScheduleData) {
+  const DUTY_KEYWORDS = ["Duty", "Resource Room Support", "Homeroom"];
+  const teaching = data.assignments.filter(a =>
+    a.timeBlock.blockType === "CLASS" && !DUTY_KEYWORDS.some(k => a.subject.name.includes(k))
+  );
+  const totalMins = teaching.reduce((sum: number, a: any) => sum + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  const label = m > 0 ? `${h}h ${m}min` : `${h}h`;
+  const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie"];
+  const perDay = [1,2,3,4,5].map(d => {
+    const mins = teaching.filter((a: any) => a.timeBlock.dayOfWeek === d)
+      .reduce((s: number, a: any) => s + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
+    if (mins === 0) return "";
+    const dh = Math.floor(mins / 60), dm = mins % 60;
+    return `${dayNames[d-1]}: ${dm > 0 ? `${dh}h${dm}` : `${dh}h`}`;
+  }).filter(Boolean).join(" &nbsp;|&nbsp; ");
+  return { label, perDay };
+}
+
 function buildScheduleHTML(data: ScheduleData): string {
   const uniqueStartTimes = Array.from(new Set(data.timeBlocks.map((b) => b.startTime))).sort();
   const days = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
   const dayValues = [1, 2, 3, 4, 5];
+  const { label: hoursLabel, perDay: hoursPerDay } = calcHours(data);
 
   const headerCells = ["HORA", ...days].map(d =>
     `<th style="background:#1e3a5f;color:white;padding:4px 6px;font-size:9px;text-align:center;border:1px solid #ccc;">${d}</th>`
@@ -71,6 +92,11 @@ function buildScheduleHTML(data: ScheduleData): string {
       <thead><tr>${headerCells}</tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    <div style="margin-top:10px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;font-family:Arial,sans-serif;">
+      <span style="font-weight:bold;font-size:10px;color:#1e3a5f;">&#128336; Total semanal de clases: </span>
+      <span style="font-weight:bold;font-size:12px;color:#1d4ed8;">${hoursLabel}</span>
+      <span style="font-size:9px;color:#64748b;margin-left:12px;">${hoursPerDay}</span>
+    </div>
   </body></html>`;
 }
 
