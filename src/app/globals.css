@@ -126,63 +126,68 @@
 }
 
 @media print {
-  /* Force light background and dark text regardless of dark mode */
-  *, *::before, *::after {
-    background-color: white !important;
-    color: black !important;
-    border-color: #ccc !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-  /* Hide non-printable elements */
-  header, nav, [data-print="hidden"], .print\:hidden,
-  button:not([data-print="visible"]), select, input,
-  [class*="cursor-"], [role="dialog"] {
-    display: none !important;
-  }
+  /* Page setup — landscape, compact margins */
+  @page { size: landscape; margin: 0.6cm; }
 
-  /* Page setup */
-  @page {
-    size: landscape;
-    margin: 0.5cm;
-  }
+  /* Reset dark-mode backgrounds on body/containers only */
+  body, html { background-color: white !important; color: black !important; }
+  header, nav { display: none !important; }
+  [role="dialog"] { display: none !important; }
 
-  body {
-    font-size: 9px !important;
-    line-height: 1.2 !important;
-  }
+  /* Dark backgrounds on table header cells → keep navy */
+  th { background-color: #1e3a5f !important; color: white !important; }
 
-  /* Grade color cards — use light tinted backgrounds for print */
-  .border-pink-300    { background-color: #fce7f3 !important; border-color: #f9a8d4 !important; }
-  .border-fuchsia-300 { background-color: #fae8ff !important; border-color: #e879f9 !important; }
-  .border-violet-300  { background-color: #ede9fe !important; border-color: #a78bfa !important; }
-  .border-indigo-300  { background-color: #e0e7ff !important; border-color: #818cf8 !important; }
-  .border-sky-300     { background-color: #e0f2fe !important; border-color: #7dd3fc !important; }
-  .border-teal-300    { background-color: #ccfbf1 !important; border-color: #5eead4 !important; }
-  .border-emerald-300 { background-color: #d1fae5 !important; border-color: #6ee7b7 !important; }
-  .border-lime-300    { background-color: #ecfccb !important; border-color: #a3e635 !important; }
-  .border-yellow-300  { background-color: #fef9c3 !important; border-color: #fde047 !important; }
-  .border-orange-300  { background-color: #ffedd5 !important; border-color: #fdba74 !important; }
-  .border-red-300     { background-color: #fee2e2 !important; border-color: #fca5a5 !important; }
-  .border-rose-300    { background-color: #ffe4e6 !important; border-color: #fda4af !important; }
-  .border-blue-300    { background-color: #dbeafe !important; border-color: #93c5fd !important; }
-  .border-cyan-300    { background-color: #cffafe !important; border-color: #67e8f9 !important; }
-  .border-amber-300   { background-color: #fef3c7 !important; border-color: #fcd34d !important; }
-  .border-purple-300  { background-color: #f3e8ff !important; border-color: #c084fc !important; }
+  /* Dark bg on BREAK/LUNCH cells → light grey/yellow */
+  .dark\:bg-slate-700 { background-color: #e2e8f0 !important; }
+  .dark\:bg-slate-900 { background-color: #f8fafc !important; }
+  .dark\:bg-slate-800 { background-color: white !important; }
 
-  /* Table layout */
+  /* Dark text overrides → black */
+  .dark\:text-slate-100, .dark\:text-slate-200,
+  .dark\:text-slate-300, .dark\:text-slate-400 { color: #111 !important; }
+  .dark\:text-blue-300 { color: #1e40af !important; }
+
+  /* Grade card dark backgrounds → use their light equivalents */
+  .dark\:bg-pink-900\/30    { background-color: #fce7f3 !important; }
+  .dark\:bg-fuchsia-900\/30 { background-color: #fae8ff !important; }
+  .dark\:bg-violet-900\/30  { background-color: #ede9fe !important; }
+  .dark\:bg-indigo-900\/30  { background-color: #e0e7ff !important; }
+  .dark\:bg-sky-900\/30     { background-color: #e0f2fe !important; }
+  .dark\:bg-teal-900\/30    { background-color: #ccfbf1 !important; }
+  .dark\:bg-emerald-900\/30 { background-color: #d1fae5 !important; }
+  .dark\:bg-lime-900\/30    { background-color: #ecfccb !important; }
+  .dark\:bg-yellow-900\/30  { background-color: #fef9c3 !important; }
+  .dark\:bg-orange-900\/30  { background-color: #ffedd5 !important; }
+  .dark\:bg-red-900\/30     { background-color: #fee2e2 !important; }
+  .dark\:bg-rose-900\/30    { background-color: #ffe4e6 !important; }
+  .dark\:bg-blue-900\/40    { background-color: #dbeafe !important; }
+  .dark\:bg-cyan-900\/30    { background-color: #cffafe !important; }
+  .dark\:bg-amber-900\/30   { background-color: #fef3c7 !important; }
+  .dark\:bg-purple-900\/30  { background-color: #f3e8ff !important; }
+
+  /* Dark borders → lighter */
+  .dark\:border-pink-500,
+  .dark\:border-fuchsia-500,
+  .dark\:border-violet-500,
+  .dark\:border-indigo-500,
+  .dark\:border-sky-500,
+  .dark\:border-teal-500,
+  .dark\:border-emerald-500,
+  .dark\:border-lime-500,
+  .dark\:border-yellow-500,
+  .dark\:border-orange-500,
+  .dark\:border-red-400,
+  .dark\:border-rose-500,
+  .dark\:border-blue-500,
+  .dark\:border-cyan-500,
+  .dark\:border-amber-500,
+  .dark\:border-purple-500 { border-color: #94a3b8 !important; }
+
+  /* Compact typography */
+  body { font-size: 9px !important; line-height: 1.2 !important; }
   table { width: 100% !important; border-collapse: collapse !important; }
-  th, td { border: 1px solid #ccc !important; padding: 2px 3px !important; vertical-align: top !important; }
-  th { background-color: #1e3a5f !important; color: white !important; font-size: 8px !important; }
-
-  /* BREAK/LUNCH rows */
-  td[class*="bg-slate"] { background-color: #f1f5f9 !important; }
-  td[class*="bg-amber"] { background-color: #fef3c7 !important; }
-
-  /* Ensure cards don't overflow */
-  [class*="rounded"] { border-radius: 3px !important; }
-  .truncate { overflow: visible !important; white-space: normal !important; }
+  th, td { border: 1px solid #cbd5e1 !important; padding: 2px 3px !important; vertical-align: top !important; }
+  .truncate { overflow: visible !important; white-space: normal !important; word-break: break-word; }
 }
