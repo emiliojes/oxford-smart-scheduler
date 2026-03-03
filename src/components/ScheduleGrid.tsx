@@ -77,9 +77,15 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   // If teacher has PRIMARY grades mixed with LOW_SECONDARY (e.g. Omely: 4B,5A,6B), use PRIMARY.
   // Pure LOW_SECONDARY teachers (grades 7-8 only) use SECONDARY time blocks.
   // Pure SECONDARY (9-12) stays SECONDARY.
-  const hasPrimary = (levelCounts["PRIMARY"] ?? 0) > 0;
-  const hasLowSec  = (levelCounts["LOW_SECONDARY"] ?? 0) > 0;
-  const tbLevel = (hasPrimary && hasLowSec)
+  const hasPrimary   = (levelCounts["PRIMARY"] ?? 0) > 0;
+  const hasLowSec    = (levelCounts["LOW_SECONDARY"] ?? 0) > 0;
+  const hasSecondary = (levelCounts["SECONDARY"] ?? 0) > 0;
+  // For fully mixed teachers (PRIMARY + SECONDARY grades), include all time blocks
+  // so assignments at SECONDARY slots (14:15, etc.) are visible alongside PRIMARY ones.
+  const isFullyMixed = hasPrimary && (hasLowSec || hasSecondary);
+  const tbLevel = isFullyMixed
+    ? null                                              // show all time blocks
+    : (hasPrimary && hasLowSec)
     ? "PRIMARY"                                         // mixed PRIMARY+LOW_SEC -> PRIMARY schedule
     : dominantLevel === "LOW_SECONDARY" ? "SECONDARY"   // pure 7-8 -> SECONDARY schedule
     : dominantLevel;

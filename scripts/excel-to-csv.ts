@@ -20,11 +20,11 @@ const PRIMARY_LEVEL_GRADES = new Set(["K", "PK", "1", "2", "3", "4", "5"]);
 const SECONDARY_TO_PRIMARY_TIME: Record<string, string> = {
   "07:30": "07:30",
   "08:00": "08:00", // K/1 dedicated slot - keep as-is
-  "08:15": "08:30", // PK/K slot -> PRIMARY 08:30
+  "08:15": "08:15", // Manuel P.E. slot - keep as-is
   "08:30": "08:30",
   "09:00": "09:15", // PK/K slot -> PRIMARY 09:15
   "09:15": "09:15",
-  "09:30": "09:15",
+  "09:30": "09:30", // Manuel P.E. BREAK row - keep as-is
   "09:45": "09:45", // keep as-is (SECONDARY time block also exists)
   "10:00": "10:15", // PK/K slot -> PRIMARY 10:15
   "10:15": "10:15",
@@ -95,7 +95,7 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
     .replace(/\s+(LIT|ENG\.?|SPAN|SOC\.?|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i, "")
     .replace(/\/[A-C]$/i, "")
     .trim();
-  if (/^PK\s*\d?$/i.test(clean)) return { grade: "PK", section: "", isLab, overrideStartTime, overrideSubject };
+  if (/^PK[\s\d]*([A-C]\/[A-C])?$/i.test(clean)) return { grade: "PK", section: "", isLab, overrideStartTime, overrideSubject };
   const m = clean.match(/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I|K|\d+)\s*([A-C]?)\s*$/i);
   if (!m) return null;
   const gradeRaw = m[1].toUpperCase();
@@ -259,7 +259,10 @@ for (const block of blocks) {
     const timeStr = c(row, block.timeCol);
     if (timeStr.toLowerCase().includes("www")) break;
     const startTime = parseStartTime(timeStr);
-    if (!startTime) continue;
+    // Allow rows with no row time if cells may have embedded times (e.g. "6A (8:30-9:30)")
+    if (!startTime && !timeStr.trim()) {
+      // Still process cells — embedded times will be used as startTime
+    } else if (!startTime) continue;
 
     for (let d = 0; d < 5; d++) {
       const gradeRaw = c(row, block.dataColStart + d);
@@ -310,7 +313,7 @@ for (const block of blocks) {
       }
       // RESOURCE ROOM SUPPORT — no specific grade; map time by homeroom level
       if (gradeUpper.includes("RESOURCE ROOM")) {
-        const rrTime = mapToPrimaryTime(startTime, hrGrade);
+        const rrTime = mapToPrimaryTime(startTime ?? "", hrGrade);
         csvRows.push(`${teacherSafe},Resource Room Support,,,,${DAY_NAMES[d]},${rrTime}`);
         total++;
         continue;
@@ -320,9 +323,16 @@ for (const block of blocks) {
       const { grade, section, isLab, overrideSubject, overrideStartTime } = parsed;
       const subjectMapped = overrideSubject ?? mapSubject(block.subject, grade);
       const room = isLab ? getLabRoom(block.subject) : "";
-      // Always use the row's startTime (mapped to correct level) as the DB time block.
-      // If cell had embedded time (e.g. "6B (9:45-10:45)"), save that as a note to display in the grid.
-      const effectiveStart = mapToPrimaryTime(startTime, grade);
+      // For SECONDARY grades: use overrideStartTime when present (different SECONDARY slot).
+      // For PRIMARY grades: use overrideStartTime when it differs from mapped row time (real slot override).
+      const isPrimary = PRIMARY_LEVEL_GRADES.has(grade);
+      const mappedRowTime = mapToPrimaryTime(startTime ?? "", grade);
+      const mappedOverride = overrideStartTime ? mapToPrimaryTime(overrideStartTime, grade) : undefined;
+      const effectiveStart = (!isPrimary && overrideStartTime)
+        ? overrideStartTime                             // SECONDARY: always use embedded time
+        : (isPrimary && mappedOverride && mappedOverride !== mappedRowTime)
+        ? mappedOverride                                // PRIMARY: use embedded if it's a different slot
+        : mappedRowTime;                                // default: use row time mapped to PRIMARY
       // If cell had embedded time (e.g. "6B (9:45-10:45)"), save as note "9:45-10:45" for display
       const noteStr = overrideStartTime
         ? (() => { const m = gradeRaw.match(/\((\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2})\)/); return m ? m[1].replace(/\s/g, "") : ""; })()

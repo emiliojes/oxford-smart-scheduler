@@ -298,17 +298,17 @@ OMELY RUJANO,Spanish,5,B,,Thursday,07:30,
 OMELY RUJANO,Spanish,4,B,,Friday,07:30,7:30-8:15
 OMELY RUJANO,Spanish,6,A,,Wednesday,08:30,
 OMELY RUJANO,Spanish,5,A,,Monday,09:15,
-OMELY RUJANO,Spanish,6,B,,Tuesday,09:15,9:45-10:45
+OMELY RUJANO,Spanish,6,B,,Tuesday,09:45,9:45-10:45
 OMELY RUJANO,Spanish,5,A,,Thursday,09:15,
-OMELY RUJANO,Spanish,6,B,,Friday,09:15,9:45-10:45
+OMELY RUJANO,Spanish,6,B,,Friday,09:45,9:45-10:45
 OMELY RUJANO,Spanish,6,B,,Monday,10:45,
-OMELY RUJANO,Spanish,5,A,,Tuesday,10:45,11:15-12:00
-OMELY RUJANO,Spanish,4,B,,Wednesday,10:45,10:15-11:15
+OMELY RUJANO,Spanish,5,A,,Tuesday,11:15,11:15-12:00
+OMELY RUJANO,Spanish,4,B,,Wednesday,10:15,10:15-11:15
 OMELY RUJANO,Spanish,6,B,,Thursday,10:45,
 OMELY RUJANO,Spanish,6,A,,Friday,10:45,
 OMELY RUJANO,Resource Room Support,,,,Monday,11:45
 OMELY RUJANO,Resource Room Support,,,,Tuesday,11:45
-OMELY RUJANO,Spanish,5,B,,Wednesday,11:45,11:15-12:00
+OMELY RUJANO,Spanish,5,B,,Wednesday,11:15,11:15-12:00
 OMELY RUJANO,Dismissal Duty,,,,Friday,12:00
 OMELY RUJANO,Spanish,5,B,,Monday,12:30,
 OMELY RUJANO,Spanish,5,B,,Tuesday,12:30,
@@ -447,8 +447,8 @@ ADOLFO DIAZ,Music,7,A,,Wednesday,11:45,
 ADOLFO DIAZ,Music,6,B,,Thursday,11:45,
 ADOLFO DIAZ,Lunch Duty - School Bus Area,,,,Monday,12:45
 ADOLFO DIAZ,Dismissal Duty,,,,Friday,12:45
-ADOLFO DIAZ,Music,K,C,,Tuesday,12:30,1:00-1:50
-ADOLFO DIAZ,Music,5,B,,Wednesday,12:30,12:45-1:50
+ADOLFO DIAZ,Music,K,C,,Tuesday,13:00,1:00-1:50
+ADOLFO DIAZ,Music,5,B,,Wednesday,12:00,12:45-1:50
 ADOLFO DIAZ,Music,8,A,,Monday,13:15,
 ADOLFO DIAZ,Dismissal Duty - Parking Lot,,,,Monday,15:15
 ADOLFO DIAZ,Dismissal Duty - Parking Lot,,,,Tuesday,15:15
@@ -614,8 +614,10 @@ MANUEL ABREGO,Arrival Duty - Parking Lot,,,,Thursday,07:15
 MANUEL ABREGO,Arrival Duty - Parking Lot,,,,Friday,07:15
 MANUEL ABREGO,P.E.,3,A,,Wednesday,07:30,
 MANUEL ABREGO,P.E.,2,C,,Thursday,07:30,
-MANUEL ABREGO,P.E.,3,B,,Wednesday,08:30,
-MANUEL ABREGO,P.E.,4,A,,Thursday,08:30,
+MANUEL ABREGO,P.E.,PK,,,Tuesday,08:00,8:00-9:00
+MANUEL ABREGO,P.E.,3,B,,Wednesday,08:15,
+MANUEL ABREGO,P.E.,4,A,,Thursday,08:15,
+MANUEL ABREGO,P.E.,6,A,,Friday,08:30,8:30-9:30
 MANUEL ABREGO,P.E.,1,C,,Tuesday,09:15,9:15-10:15
 MANUEL ABREGO,P.E.,K,B,,Wednesday,09:15,9:15-10:15
 MANUEL ABREGO,P.E.,K,C,,Thursday,09:15,9:15-10:15
@@ -624,10 +626,10 @@ MANUEL ABREGO,P.E.,K,A,,Tuesday,10:15,
 MANUEL ABREGO,P.E.,5,A,,Wednesday,10:15,
 MANUEL ABREGO,P.E.,1,A,,Thursday,10:15,
 MANUEL ABREGO,P.E.,5,B,,Friday,10:15,
-MANUEL ABREGO,P.E.,PK,,,Monday,11:15,10:30-11:00
+MANUEL ABREGO,P.E.,PK,,,Monday,10:15,10:30-11:00
 MANUEL ABREGO,P.E.,2,B,,Tuesday,11:15,
 MANUEL ABREGO,P.E.,2,A,,Thursday,11:15,
-MANUEL ABREGO,P.E.,1,B,,Monday,11:45,11:00-12:00
+MANUEL ABREGO,P.E.,1,B,,Monday,11:15,11:00-12:00
 MANUEL ABREGO,Dismissal Duty,,,,Friday,12:00
 MANUEL ABREGO,P.E.,4,B,,Monday,12:30,
 MANUEL ABREGO,P.E.,6,B,,Monday,14:15,
