@@ -65,6 +65,50 @@ export async function PUT(
   }
 }
 
+// PATCH /api/assignments/[id] — move to a different timeBlock (drag & drop)
+export async function PATCH(
+  request: NextRequest,
+  context: any
+) {
+  const user = await validateApiRequest(["ADMIN", "COORDINATOR"]);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { id } = await context.params;
+    const { timeBlockId } = await request.json();
+    if (!timeBlockId) return NextResponse.json({ error: "timeBlockId required" }, { status: 400 });
+
+    const current = await prisma.assignment.findUnique({ where: { id } });
+    if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    const conflicts = await validateAssignment({
+      teacherId: current.teacherId,
+      subjectId: current.subjectId,
+      gradeId: current.gradeId || undefined,
+      roomId: current.roomId ?? null,
+      timeBlockId,
+      ignoreAssignmentId: id,
+    });
+
+    const status = conflicts.some(c => c.severity === "ERROR") ? "CONFLICT" : "CONFIRMED";
+    const assignment = await prisma.assignment.update({
+      where: { id },
+      data: {
+        timeBlockId,
+        status,
+        conflicts: {
+          deleteMany: {},
+          create: conflicts.map(c => ({ conflictType: c.type, description: c.description, severity: c.severity })),
+        },
+      },
+      include: { teacher: true, subject: true, grade: true, room: true, timeBlock: true, conflicts: true },
+    });
+    return NextResponse.json(assignment);
+  } catch (error) {
+    console.error("Error moving assignment:", error);
+    return NextResponse.json({ error: "Error moving assignment" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   context: any

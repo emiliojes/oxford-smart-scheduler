@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import {
   Table,
   TableBody,
@@ -66,6 +67,33 @@ const DAYS = [
 
 export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
+  const { canManage } = useAuth();
+  const dragAssignmentId = useRef<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null); // "day-startTime"
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDrop = async (dayValue: number, startTime: string) => {
+    const assignmentId = dragAssignmentId.current;
+    if (!assignmentId) return;
+    setDropTarget(null);
+    setIsDragging(false);
+    // Find timeBlock id for this day + startTime
+    const tb = timeBlocks.find(b => b.dayOfWeek === dayValue && b.startTime === startTime);
+    if (!tb) return;
+    // Don't drop onto same slot
+    const current = assignments.find(a => a.id === assignmentId);
+    if (current?.timeBlock.dayOfWeek === dayValue && current?.timeBlock.startTime === startTime) return;
+    try {
+      const res = await fetch(`/api/assignments/${assignmentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timeBlockId: tb.id }),
+      });
+      if (res.ok && onRefresh) onRefresh();
+    } catch (e) {
+      console.error("Drop failed", e);
+    }
+  };
 
   // Determine dominant level from assignments to filter time blocks accordingly
   const levelCounts: Record<string, number> = {};
@@ -186,16 +214,22 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                   {[1, 2, 3, 4, 5].map((dayValue) => {
                     const slotAssignments = getAssignmentsForSlot(dayValue, startTime);
                     const hasConflict = slotAssignments.some(a => a.status === "CONFLICT");
+                    const dropKey = `${dayValue}-${startTime}`;
+                    const isDropTarget = dropTarget === dropKey && isDragging;
 
                     return (
                       <TableCell
-                        key={`${dayValue}-${startTime}`}
-                        className={`border-r last:border-r-0 p-1 print:p-0.5 align-top ${
+                        key={dropKey}
+                        className={`border-r last:border-r-0 p-1 print:p-0.5 align-top transition-colors ${
+                          isDropTarget ? "bg-blue-100 dark:bg-blue-900/40 ring-2 ring-inset ring-blue-400" :
                           blockInfo?.blockType === "BREAK" ? "bg-slate-100 dark:bg-slate-700" :
                           blockInfo?.blockType === "LUNCH" ? "bg-amber-50" :
                           blockInfo?.blockType === "REGISTRATION" ? "bg-slate-50 dark:bg-slate-900" :
                           ""
                         }`}
+                        onDragOver={canManage && viewType === "teacher" ? (e) => { e.preventDefault(); setDropTarget(dropKey); } : undefined}
+                        onDragLeave={canManage && viewType === "teacher" ? () => setDropTarget(null) : undefined}
+                        onDrop={canManage && viewType === "teacher" ? (e) => { e.preventDefault(); handleDrop(dayValue, startTime); } : undefined}
                       >
                         {slotAssignments.length === 0 && (blockInfo?.blockType === "LUNCH" || blockInfo?.blockType === "BREAK" || blockInfo?.blockType === "REGISTRATION") ? (
                           <div className="flex items-center justify-center py-1 print:py-0">
@@ -216,7 +250,12 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                 onSuccess={() => onRefresh ? onRefresh() : window.location.reload()}
                                 trigger={
                                   <Card
-                                    className={`p-2 print:p-0.5 text-xs print:text-[8px] border shadow-none relative group cursor-pointer transition-colors ${
+                                    draggable={canManage && viewType === "teacher"}
+                                    onDragStart={canManage && viewType === "teacher" ? (e) => { dragAssignmentId.current = a.id; setIsDragging(true); e.dataTransfer.effectAllowed = "move"; } : undefined}
+                                    onDragEnd={canManage && viewType === "teacher" ? () => { setIsDragging(false); setDropTarget(null); } : undefined}
+                                    className={`p-2 print:p-0.5 text-xs print:text-[8px] border shadow-none relative group transition-colors ${
+                                      canManage && viewType === "teacher" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
+                                    } ${
                                       a.status === "CONFLICT"
                                         ? "border-red-200 bg-red-50 hover:border-red-400"
                                         : a.subject.name.startsWith("Lunch Duty")
