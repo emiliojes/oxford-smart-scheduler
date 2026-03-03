@@ -9,7 +9,7 @@ const ws = wb.Sheets["Hoja 1"];
 const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
 // Show full Andrea Guerra block
-const suspects = ["MANUEL ABREGO"];
+const suspects = ["ARLYN VEGA"];
 for (let r = 0; r < rows.length; r++) {
   const row = rows[r] ?? [];
   for (let ci of [1, 8]) {

@@ -78,9 +78,11 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
     const key = prefixMatch[1].toUpperCase();
     overrideSubject = SUFFIX_TO_SUBJECT[key] ?? SUFFIX_TO_SUBJECT[key.replace(/L$/, "")];
   }
-  // Extract embedded start time before cleaning (e.g. "6B (9:45-10:45)" -> overrideStartTime = "09:45")
+  // Extract embedded start time before cleaning (e.g. "6B (9:45-10:45)" or "5B (10:00)" -> overrideStartTime)
   let overrideStartTime: string | undefined;
-  const timeMatch = raw.match(/\(?(\d{1,2}:\d{2})\s*[-–]\s*\d{1,2}:\d{2}\)?/);
+  const timeRangeMatch = raw.match(/\(?(\d{1,2}:\d{2})\s*[-–]\s*\d{1,2}:\d{2}\)?/);
+  const timeSingleMatch = raw.match(/\((\d{1,2}:\d{2})\)/);
+  const timeMatch = timeRangeMatch ?? timeSingleMatch;
   if (timeMatch) {
     overrideStartTime = parseStartTime(timeMatch[1]) ?? undefined;
   }
@@ -92,6 +94,7 @@ function parseGradeCell(raw: string): { grade: string; section: string; isLab: b
     .replace(/LAB\s*ASSI?SS?TANT/gi, "")
     .replace(/Q$/i, "")
     .replace(/\(?\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2}\)?/g, "")
+    .replace(/\(\d{1,2}:\d{2}\)/g, "")
     .replace(/\s+(LIT|ENG\.?|SPAN|SOC\.?|SCI|BIO|CHEM|PHYS|COMP|MUS|ART|PE|P\.E\.?)$/i, "")
     .replace(/\/[A-C]$/i, "")
     .trim();
