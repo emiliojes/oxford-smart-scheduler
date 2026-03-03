@@ -281,8 +281,8 @@ if (rrsTimeHeaderRow >= 0) {
       const upper = cell.toUpperCase();
       if (upper === "BREAK" || upper === "LUNCH" || upper === "REGISTRATION") continue;
       // Each cell is a free-text description like "MUSIC ADOLFO", "SPANISH ARACELLYS / ENGLISH"
-      // Save it as subject (trimmed, title-cased)
-      const subjectDesc = cell.trim();
+      // Normalize multiple spaces (from Excel line breaks) to single space
+      const subjectDesc = cell.replace(/\s+/g, " ").trim();
       csvRows.push(`${RRS_TEACHER},${subjectDesc},,,,${DAY_NAMES[d]},${startTime},`);
       total++;
     }
