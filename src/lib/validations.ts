@@ -124,7 +124,10 @@ export async function validateAssignment(data: {
   }
 
   // 5. Validación de Duración en Secundaria (según encuesta: secundaria siempre 60 min)
-  if (grade && grade.level === "SECONDARY" && timeBlock.duration !== "SIXTY") {
+  // duration can be stored as numeric string "60" or legacy enum "SIXTY"
+  const durationMins = parseFloat(String(timeBlock.duration ?? 0));
+  const isSixtyMin = timeBlock.duration === "SIXTY" || durationMins === 60;
+  if (grade && grade.level === "SECONDARY" && !isSixtyMin) {
     conflicts.push({
       type: "SECONDARY_DURATION_INVALID",
       severity: "ERROR",
