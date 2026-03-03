@@ -20,7 +20,7 @@ export interface ConflictResult {
 export async function validateAssignment(data: {
   teacherId: string;
   subjectId: string;
-  gradeId: string;
+  gradeId?: string;
   roomId?: string | null;
   timeBlockId: string;
   ignoreAssignmentId?: string; // Para validaciones durante ediciones
@@ -31,12 +31,12 @@ export async function validateAssignment(data: {
   const [teacher, subject, grade, room, timeBlock] = await Promise.all([
     prisma.teacher.findUnique({ where: { id: data.teacherId } }),
     prisma.subject.findUnique({ where: { id: data.subjectId } }),
-    prisma.grade.findUnique({ where: { id: data.gradeId } }),
+    data.gradeId ? prisma.grade.findUnique({ where: { id: data.gradeId } }) : Promise.resolve(null),
     data.roomId ? prisma.room.findUnique({ where: { id: data.roomId } }) : Promise.resolve(null),
     prisma.timeBlock.findUnique({ where: { id: data.timeBlockId } }),
   ]);
 
-  if (!teacher || !subject || !grade || !timeBlock) {
+  if (!teacher || !subject || !timeBlock) {
     throw new Error("Missing required data for validation");
   }
 
@@ -76,7 +76,7 @@ export async function validateAssignment(data: {
   }
 
   // 3. Validaciones de Capacidad (solo si se asignó aula)
-  if (room) {
+  if (room && grade) {
     if (grade.studentCount > room.capacity) {
       conflicts.push({
         type: "ROOM_CAPACITY_EXCEEDED",
@@ -84,7 +84,7 @@ export async function validateAssignment(data: {
         description: "validations.roomCapacityExceeded",
       });
     }
-    if (room.specializedFor === "Computing" && grade.studentCount > 30) {
+    if (room.specializedFor === "Computing" && grade && grade.studentCount > 30) {
       conflicts.push({
         type: "ROOM_CAPACITY_EXCEEDED",
         severity: "ERROR",
@@ -124,7 +124,7 @@ export async function validateAssignment(data: {
   }
 
   // 5. Validación de Duración en Secundaria (según encuesta: secundaria siempre 60 min)
-  if (grade.level === "SECONDARY" && timeBlock.duration !== "SIXTY") {
+  if (grade && grade.level === "SECONDARY" && timeBlock.duration !== "SIXTY") {
     conflicts.push({
       type: "SECONDARY_DURATION_INVALID",
       severity: "ERROR",
