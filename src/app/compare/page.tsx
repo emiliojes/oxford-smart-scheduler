@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Printer, X, Plus, AlertTriangle, Users } from "lucide-react";
+import { Printer, X, Plus, AlertTriangle, Users, GripVertical } from "lucide-react";
 
 interface Teacher { id: string; name: string; }
 interface Assignment {
@@ -44,6 +44,9 @@ export default function ComparePage() {
   const [search, setSearch] = useState("");
   const [dropOpen, setDropOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState<{ assignmentId: string; tid: string } | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null); // "day-time"
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -78,6 +81,43 @@ export default function ComparePage() {
   const removeTeacher = (id: string) => {
     setSelected(prev => prev.filter(x => x !== id));
     setAllAssignments(prev => { const n = { ...prev }; delete n[id]; return n; });
+  };
+
+  const refreshTeacher = async (tid: string) => {
+    const res = await fetch(`/api/assignments?teacherId=${tid}`);
+    if (res.ok) {
+      const data = await res.json();
+      setAllAssignments(prev => ({ ...prev, [tid]: data }));
+    }
+  };
+
+  const handleDragStart = (assignmentId: string, tid: string) => {
+    setDragging({ assignmentId, tid });
+  };
+
+  const handleDrop = async (targetDay: number, targetTime: string) => {
+    if (!dragging) return;
+    setDragOver(null);
+    // Find the target timeBlock
+    const targetBlock = timeBlocks.find(b => b.dayOfWeek === targetDay && b.startTime === targetTime);
+    if (!targetBlock) { toast.error("Slot no encontrado"); setDragging(null); return; }
+    // Check it's a CLASS slot
+    if (targetBlock.blockType !== "CLASS") { toast.error("Solo puedes mover a slots de clase"); setDragging(null); return; }
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/assignments/${dragging.assignmentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timeBlockId: targetBlock.id }),
+      });
+      const result = await res.json();
+      if (!res.ok) { toast.error(result.error || "Error al mover"); }
+      else {
+        toast.success("Clase movida correctamente");
+        await refreshTeacher(dragging.tid);
+      }
+    } catch { toast.error("Error de conexión"); }
+    finally { setSaving(false); setDragging(null); }
   };
 
   // Build unified time slots
@@ -207,6 +247,14 @@ export default function ComparePage() {
         </div>
       )}
 
+      {/* Drag hint */}
+      {selected.length > 0 && (
+        <p className="no-print text-xs text-slate-400 flex items-center gap-1">
+          <GripVertical className="w-3 h-3" /> Arrastra una clase a otro slot para moverla
+          {saving && <span className="ml-2 text-blue-500 animate-pulse">Guardando...</span>}
+        </p>
+      )}
+
       {/* Grid */}
       {selected.length > 0 && (
         <div className="overflow-x-auto rounded-lg border">
@@ -214,7 +262,7 @@ export default function ComparePage() {
             <thead>
               <tr className="bg-slate-800 text-white">
                 <th className="px-2 py-2 text-left font-bold w-24 border-r border-slate-600">HORA</th>
-                {DAYS.map((d, i) => (
+                {DAYS.map((d) => (
                   <th key={d} className="px-2 py-2 text-center font-bold border-r border-slate-600 last:border-r-0">{d}</th>
                 ))}
               </tr>
@@ -225,6 +273,7 @@ export default function ComparePage() {
                 const isBreak = block?.blockType === "BREAK";
                 const isLunch = block?.blockType === "LUNCH";
                 const isReg = block?.blockType === "REGISTRATION";
+                const isClass = block?.blockType === "CLASS";
                 const rowBg = isBreak ? "bg-slate-50 dark:bg-slate-800/50" : isLunch ? "bg-amber-50/60 dark:bg-amber-950/20" : isReg ? "bg-slate-50/50" : "";
 
                 return (
@@ -234,6 +283,7 @@ export default function ComparePage() {
                     </td>
                     {[1,2,3,4,5].map(day => {
                       const cellKey = `${day}-${time}`;
+                      const isDragTarget = dragOver === cellKey && isClass;
                       const slotAssignments = selected.flatMap((tid, tidx) =>
                         (allAssignments[tid] || [])
                           .filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time)
@@ -241,28 +291,66 @@ export default function ComparePage() {
                       );
 
                       if (slotAssignments.length === 0) {
-                        if (isBreak) return <td key={day} className="px-2 py-1 text-center text-[9px] text-slate-400 border-r last:border-r-0">BREAK</td>;
-                        if (isLunch) return <td key={day} className="px-2 py-1 text-center text-[9px] text-amber-500 font-medium border-r last:border-r-0">LUNCH</td>;
-                        return <td key={day} className="border-r last:border-r-0" />;
+                        if (isBreak) return (
+                          <td key={day} className="px-2 py-1 text-center text-[9px] text-slate-400 border-r last:border-r-0">BREAK</td>
+                        );
+                        if (isLunch) return (
+                          <td key={day} className="px-2 py-1 text-center text-[9px] text-amber-500 font-medium border-r last:border-r-0">LUNCH</td>
+                        );
+                        // Empty class slot — valid drop target
+                        return (
+                          <td
+                            key={day}
+                            className={`border-r last:border-r-0 min-h-[40px] transition-colors ${
+                              isDragTarget ? "bg-blue-100 dark:bg-blue-900/40 border-2 border-dashed border-blue-400" : ""
+                            }`}
+                            onDragOver={e => { if (dragging && isClass) { e.preventDefault(); setDragOver(cellKey); } }}
+                            onDragLeave={() => setDragOver(null)}
+                            onDrop={() => handleDrop(day, time)}
+                          />
+                        );
                       }
 
                       return (
-                        <td key={day} className="px-1 py-1 border-r last:border-r-0 align-top">
+                        <td
+                          key={day}
+                          className={`px-1 py-1 border-r last:border-r-0 align-top transition-colors ${
+                            isDragTarget ? "bg-blue-100 dark:bg-blue-900/40 ring-2 ring-inset ring-blue-400" : ""
+                          }`}
+                          onDragOver={e => { if (dragging && isClass) { e.preventDefault(); setDragOver(cellKey); } }}
+                          onDragLeave={() => setDragOver(null)}
+                          onDrop={() => handleDrop(day, time)}
+                        >
                           <div className="flex flex-col gap-0.5">
                             {slotAssignments.map((a: any, ai) => {
                               const isConflict = conflicts.has(`${a._tid}-${day}-${time}`);
                               const colorClass = TEACHER_COLORS[a._tidx % TEACHER_COLORS.length];
                               const grade = a.grade ? `${a.grade.name}${a.grade.section || ""}` : "";
+                              const isDraggingThis = dragging?.assignmentId === a.id;
                               return (
                                 <div
                                   key={a.id + ai}
-                                  className={`px-1.5 py-0.5 rounded border text-[10px] leading-tight ${colorClass} ${isConflict ? "ring-1 ring-red-500" : ""}`}
+                                  draggable
+                                  onDragStart={() => handleDragStart(a.id, a._tid)}
+                                  onDragEnd={() => { setDragging(null); setDragOver(null); }}
+                                  className={`px-1.5 py-0.5 rounded border text-[10px] leading-tight cursor-grab active:cursor-grabbing select-none transition-opacity ${
+                                    colorClass
+                                  } ${
+                                    isConflict ? "ring-1 ring-red-500" : ""
+                                  } ${
+                                    isDraggingThis ? "opacity-40" : "opacity-100"
+                                  }`}
                                 >
-                                  {isConflict && <AlertTriangle className="w-2.5 h-2.5 inline text-red-500 mr-0.5" />}
-                                  <span className="font-semibold">{a.subject.name}</span>
-                                  {grade && <span className="block opacity-75">{grade}</span>}
-                                  {a.room && <span className="block opacity-60">{a.room.name}</span>}
-                                  <span className="block opacity-50 font-medium">{selectedTeachers[a._tidx]?.name.split(" ")[0]}</span>
+                                  <div className="flex items-start gap-0.5">
+                                    <GripVertical className="w-2.5 h-2.5 mt-0.5 opacity-40 shrink-0" />
+                                    <div>
+                                      {isConflict && <AlertTriangle className="w-2.5 h-2.5 inline text-red-500 mr-0.5" />}
+                                      <span className="font-semibold">{a.subject.name}</span>
+                                      {grade && <span className="block opacity-75">{grade}</span>}
+                                      {a.room && <span className="block opacity-60">{a.room.name}</span>}
+                                      <span className="block opacity-50 font-medium">{selectedTeachers[a._tidx]?.name.split(" ")[0]}</span>
+                                    </div>
+                                  </div>
                                 </div>
                               );
                             })}
