@@ -257,14 +257,12 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                       canManage && viewType === "teacher" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                                     } ${
                                       a.status === "CONFLICT"
-                                        ? "border-red-200 bg-red-50 hover:border-red-400"
-                                        : a.subject.name.startsWith("Lunch Duty")
-                                        ? "border-amber-200 bg-amber-50 hover:border-amber-400"
-                                        : a.subject.name === "Dismissal Duty"
-                                        ? "border-orange-200 bg-orange-50 hover:border-orange-400"
+                                        ? "border-red-300 bg-red-50 dark:bg-red-900/30 dark:border-red-500 hover:border-red-400"
+                                        : a.subject.name.startsWith("Lunch Duty") || a.subject.name.startsWith("Arrival Duty") || a.subject.name.startsWith("Dismissal Duty") || a.subject.name === "Resource Room Support"
+                                        ? "border-amber-300 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 hover:border-amber-400"
                                         : a.subject.name === "Homeroom"
-                                        ? "border-purple-200 bg-purple-50 hover:border-purple-400"
-                                        : "border-blue-100 bg-blue-50/50 hover:border-blue-400"
+                                        ? "border-purple-300 bg-purple-50 dark:bg-purple-900/30 dark:border-purple-500 hover:border-purple-400"
+                                        : "border-blue-300 bg-blue-50 dark:bg-blue-900/40 dark:border-blue-500 hover:border-blue-400"
                                     }`}
                                   >
                                     {a.status === "CONFLICT" && (
