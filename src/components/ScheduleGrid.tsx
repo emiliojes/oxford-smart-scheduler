@@ -197,7 +197,11 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   const teachingAssignments = assignments.filter(a =>
     a.timeBlock.blockType === "CLASS" && !isDuty(a.subject.name)
   );
-  const totalMinutes = teachingAssignments.reduce((sum, a) => {
+  // Deduplicate by (dayOfWeek, startTime) — a slot shared by 2 grades only counts once
+  const uniqueSlots = Array.from(
+    new Map(teachingAssignments.map(a => [`${a.timeBlock.dayOfWeek}-${a.timeBlock.startTime}`, a])).values()
+  );
+  const totalMinutes = uniqueSlots.reduce((sum, a) => {
     const dur = parseFloat(String(a.timeBlock.duration ?? 0));
     return sum + (isNaN(dur) ? 0 : dur);
   }, 0);
@@ -205,11 +209,17 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   const remainingMins = totalMinutes % 60;
   const hoursLabel = remainingMins > 0 ? `${totalHours}h ${remainingMins}min` : `${totalHours}h`;
 
-  // Per-day breakdown
+  // Per-day breakdown (also deduplicated)
   const dayTotals = [1,2,3,4,5].map(d => {
+    const seen = new Set<string>();
     const mins = teachingAssignments
       .filter(a => a.timeBlock.dayOfWeek === d)
-      .reduce((sum, a) => sum + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
+      .reduce((sum, a) => {
+        const key = a.timeBlock.startTime;
+        if (seen.has(key)) return sum;
+        seen.add(key);
+        return sum + parseFloat(String(a.timeBlock.duration ?? 0));
+      }, 0);
     return { day: d, mins };
   });
 

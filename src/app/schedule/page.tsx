@@ -119,7 +119,11 @@ export default function ScheduleViewPage() {
   const teachingAssignments = assignments.filter((a: any) =>
     a.timeBlock.blockType === "CLASS" && !DUTY_KEYWORDS.some(k => a.subject.name.includes(k))
   );
-  const totalMins = teachingAssignments.reduce((sum: number, a: any) => sum + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
+  // Deduplicate by (dayOfWeek, startTime) — a slot shared by 2 grades only counts once
+  const uniqueTeachingSlots = Array.from(
+    new Map(teachingAssignments.map((a: any) => [`${a.timeBlock.dayOfWeek}-${a.timeBlock.startTime}`, a])).values()
+  );
+  const totalMins = (uniqueTeachingSlots as any[]).reduce((sum: number, a: any) => sum + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
   const th = Math.floor(totalMins / 60);
   const tm = totalMins % 60;
   const hoursLabel = totalMins > 0 ? (tm > 0 ? `${th}h ${tm}min` : `${th}h`) : "";
