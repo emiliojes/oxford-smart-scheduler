@@ -40,7 +40,7 @@ export const exportToPDF = (data: ScheduleData) => {
       
       if (slotAssignments.length > 0) {
         row.push(slotAssignments.map(a => 
-          `${a.subject.name}\n${data.viewType !== 'teacher' ? 'P: ' + a.teacher.name : ''}\n${data.viewType !== 'grade' ? 'G: ' + a.grade.name + (a.grade.section || '') : ''}\n${data.viewType !== 'room' ? 'R: ' + a.room.name : ''}`
+          `${a.subject.name}${data.viewType !== 'teacher' ? '\nP: ' + a.teacher.name : ''}${data.viewType !== 'grade' && a.grade ? '\nG: ' + a.grade.name + (a.grade.section || '') : ''}${data.viewType !== 'room' && a.room ? '\nS: ' + a.room.name : ''}`
         ).join("\n---\n"));
       } else {
         const block = data.timeBlocks.find(b => b.startTime === time);
@@ -97,14 +97,14 @@ export const exportToWord = async (data: ScheduleData) => {
               children: [new TextRun({ text: `P: ${a.teacher.name}`, size: 16 })] 
             }));
           }
-          if (data.viewType !== 'grade') {
+          if (data.viewType !== 'grade' && a.grade) {
             cellContent.push(new Paragraph({ 
               children: [new TextRun({ text: `G: ${a.grade.name}${a.grade.section || ''}`, size: 16 })] 
             }));
           }
-          if (data.viewType !== 'room') {
+          if (data.viewType !== 'room' && a.room) {
             cellContent.push(new Paragraph({ 
-              children: [new TextRun({ text: `R: ${a.room.name}`, size: 16 })] 
+              children: [new TextRun({ text: `S: ${a.room.name}`, size: 16 })] 
             }));
           }
         });
