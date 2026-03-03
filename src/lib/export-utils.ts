@@ -1,8 +1,5 @@
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-import { saveAs } from "file-saver";
-import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType, HeadingLevel, TextRun } from "docx";
 import { toPng } from "html-to-image";
+import { saveAs } from "file-saver";
 
 interface ScheduleData {
   title: string;
@@ -12,136 +9,85 @@ interface ScheduleData {
   assignments: any[];
 }
 
-export const exportToPDF = (data: ScheduleData) => {
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a4",
-  });
-
-  // Header
-  doc.setFontSize(20);
-  doc.text("Oxford School - Santiago", 148.5, 20, { align: "center" });
-  doc.setFontSize(16);
-  doc.text(data.title, 148.5, 30, { align: "center" });
-  doc.setFontSize(12);
-  doc.text(data.subtitle, 148.5, 38, { align: "center" });
-
+function buildScheduleHTML(data: ScheduleData): string {
   const uniqueStartTimes = Array.from(new Set(data.timeBlocks.map((b) => b.startTime))).sort();
-  const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
-  
-  const body = uniqueStartTimes.map((time) => {
-    const row: any[] = [time];
-    days.forEach((day, index) => {
-      const dayValue = index + 1;
-      const slotAssignments = data.assignments.filter(
-        (a) => a.timeBlock.dayOfWeek === dayValue && a.timeBlock.startTime === time
+  const days = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
+  const dayValues = [1, 2, 3, 4, 5];
+
+  const headerCells = ["HORA", ...days].map(d =>
+    `<th style="background:#1e3a5f;color:white;padding:4px 6px;font-size:9px;text-align:center;border:1px solid #ccc;">${d}</th>`
+  ).join("");
+
+  const rows = uniqueStartTimes.map(time => {
+    const block = data.timeBlocks.find(b => b.startTime === time);
+    const endTime = block?.endTime ?? "";
+    const label = endTime ? `${time} - ${endTime}` : time;
+    const isSpecial = block?.blockType === "BREAK" || block?.blockType === "LUNCH";
+    const rowBg = block?.blockType === "BREAK" ? "#f1f5f9" : block?.blockType === "LUNCH" ? "#fef9c3" : "white";
+
+    const cells = dayValues.map(dayValue => {
+      const slotA = data.assignments.filter(
+        a => a.timeBlock.dayOfWeek === dayValue && a.timeBlock.startTime === time
       );
-      
-      if (slotAssignments.length > 0) {
-        row.push(slotAssignments.map(a => 
-          `${a.subject.name}${data.viewType !== 'teacher' ? '\nP: ' + a.teacher.name : ''}${data.viewType !== 'grade' && a.grade ? '\nG: ' + a.grade.name + (a.grade.section || '') : ''}${data.viewType !== 'room' && a.room ? '\nS: ' + a.room.name : ''}`
-        ).join("\n---\n"));
-      } else {
-        const block = data.timeBlocks.find(b => b.startTime === time);
-        row.push(block?.blockType !== 'CLASS' ? block?.blockType : "");
+      if (slotA.length === 0 && isSpecial) {
+        return `<td style="background:${rowBg};text-align:center;font-weight:bold;font-size:8px;color:#888;border:1px solid #ccc;">${block?.blockType}</td>`;
       }
-    });
-    return row;
-  });
+      if (slotA.length === 0) return `<td style="background:${rowBg};border:1px solid #ccc;"></td>`;
 
-  autoTable(doc, {
-    startY: 45,
-    head: [["TIME", ...days]],
-    body: body,
-    theme: "grid",
-    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] },
-    styles: { fontSize: 8, cellPadding: 2, overflow: "linebreak" },
-    columnStyles: { 0: { cellWidth: 25 } },
-  });
+      const content = slotA.map(a => {
+        const grade = a.grade ? `${a.grade.name}${a.grade.section || ""}` : "";
+        const room = a.room ? a.room.name : "";
+        const teacher = data.viewType !== "teacher" ? a.teacher.name : "";
+        return [
+          `<div style="font-weight:bold;font-size:8px;">${a.subject.name}</div>`,
+          grade ? `<div style="font-size:7px;color:#444;">Grado: ${grade}</div>` : "",
+          teacher ? `<div style="font-size:7px;color:#444;">${teacher}</div>` : "",
+          room ? `<div style="font-size:7px;color:#666;">Salon: ${room}</div>` : "",
+          a.note ? `<div style="font-size:7px;color:#888;">(${a.note})</div>` : "",
+        ].join("");
+      }).join('<hr style="margin:2px 0;border-color:#ccc;">');
 
-  doc.save(`Horario_${data.title.replace(/\s+/g, "_")}.pdf`);
+      return `<td style="background:${rowBg};padding:2px 3px;border:1px solid #ccc;vertical-align:top;">${content}</td>`;
+    }).join("");
+
+    return `<tr>
+      <td style="font-weight:bold;font-size:8px;white-space:nowrap;padding:2px 4px;background:#f8fafc;border:1px solid #ccc;">${label}</td>
+      ${cells}
+    </tr>`;
+  }).join("");
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; padding: 8px; }
+      table { border-collapse: collapse; width: 100%; }
+      h2,h3,p { text-align: center; margin: 4px 0; }
+    </style>
+  </head><body>
+    <h2 style="font-size:14px;">Oxford School - Santiago</h2>
+    <h3 style="font-size:12px;">${data.title}</h3>
+    <p style="font-size:10px;color:#666;">${data.subtitle}</p>
+    <br>
+    <table>
+      <thead><tr>${headerCells}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </body></html>`;
+}
+
+export const exportToPDF = (data: ScheduleData) => {
+  const html = buildScheduleHTML(data);
+  const win = window.open("", "_blank");
+  if (!win) { alert("Permite ventanas emergentes para exportar PDF"); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 500);
 };
 
 export const exportToWord = async (data: ScheduleData) => {
-  const uniqueStartTimes = Array.from(new Set(data.timeBlocks.map((b) => b.startTime))).sort();
-  const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
-
-  const headerRow = new TableRow({
-    children: ["TIME", ...days].map(text => new TableCell({
-      children: [new Paragraph({ text, alignment: AlignmentType.CENTER })],
-      shading: { fill: "0f172a", color: "ffffff" },
-    })),
-  });
-
-  const tableRows = uniqueStartTimes.map(time => {
-    const cells = [
-      new TableCell({ children: [new Paragraph({ 
-        children: [new TextRun({ text: time, bold: true })]
-      })] })
-    ];
-
-    days.forEach((day, index) => {
-      const dayValue = index + 1;
-      const slotAssignments = data.assignments.filter(
-        (a) => a.timeBlock.dayOfWeek === dayValue && a.timeBlock.startTime === time
-      );
-
-      let cellContent: Paragraph[] = [];
-      if (slotAssignments.length > 0) {
-        slotAssignments.forEach((a, i) => {
-          if (i > 0) cellContent.push(new Paragraph({ text: "---" }));
-          cellContent.push(new Paragraph({ children: [new TextRun({ text: a.subject.name, bold: true })] }));
-          if (data.viewType !== 'teacher') {
-            cellContent.push(new Paragraph({ 
-              children: [new TextRun({ text: `P: ${a.teacher.name}`, size: 16 })] 
-            }));
-          }
-          if (data.viewType !== 'grade' && a.grade) {
-            cellContent.push(new Paragraph({ 
-              children: [new TextRun({ text: `G: ${a.grade.name}${a.grade.section || ''}`, size: 16 })] 
-            }));
-          }
-          if (data.viewType !== 'room' && a.room) {
-            cellContent.push(new Paragraph({ 
-              children: [new TextRun({ text: `S: ${a.room.name}`, size: 16 })] 
-            }));
-          }
-        });
-      } else {
-        const block = data.timeBlocks.find(b => b.startTime === time);
-        cellContent.push(new Paragraph({ 
-          children: [new TextRun({ 
-            text: block?.blockType !== 'CLASS' ? block?.blockType : "", 
-            color: "94a3b8"
-          })],
-          alignment: AlignmentType.CENTER,
-        }));
-      }
-
-      cells.push(new TableCell({ children: cellContent }));
-    });
-
-    return new TableRow({ children: cells });
-  });
-
-  const doc = new Document({
-    sections: [{
-      properties: { page: { size: { orientation: "landscape" as any } } },
-      children: [
-        new Paragraph({ text: "Oxford School - Santiago", heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
-        new Paragraph({ text: data.title, heading: HeadingLevel.HEADING_2, alignment: AlignmentType.CENTER }),
-        new Paragraph({ text: data.subtitle, alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [headerRow, ...tableRows],
-        }),
-      ],
-    }],
-  });
-
-  const blob = await Packer.toBlob(doc);
-  saveAs(blob, `Horario_${data.title.replace(/\s+/g, "_")}.docx`);
+  const html = buildScheduleHTML(data);
+  const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
+  saveAs(blob, `Horario_${data.title.replace(/\s+/g, "_")}.doc`);
 };
 
 export const exportToImage = async (elementId: string, filename: string) => {
