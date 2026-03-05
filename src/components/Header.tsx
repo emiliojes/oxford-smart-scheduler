@@ -78,9 +78,9 @@ export function Header({ user }: HeaderProps) {
           {/* Desktop right side */}
           <div className="hidden md:flex items-center gap-3">
             {isGuest ? (
-              <Link href="/login" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold px-4 py-1.5 rounded-lg text-sm hover:bg-slate-100 dark:bg-slate-700 transition-colors">
+              <a href="/login" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold px-4 py-1.5 rounded-lg text-sm hover:bg-slate-100 dark:bg-slate-700 transition-colors">
                 Login
-              </Link>
+              </a>
             ) : (
               <>
                 <UserNav user={user} />
@@ -92,9 +92,9 @@ export function Header({ user }: HeaderProps) {
           {/* Mobile: right side + hamburger */}
           <div className="flex md:hidden items-center gap-2">
             {isGuest ? (
-              <Link href="/login" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold px-3 py-1.5 rounded-lg text-sm hover:bg-slate-100 dark:bg-slate-700 transition-colors">
+              <a href="/login" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold px-3 py-1.5 rounded-lg text-sm hover:bg-slate-100 dark:bg-slate-700 transition-colors">
                 Login
-              </Link>
+              </a>
             ) : (
               <>
                 <LanguageSwitcher />

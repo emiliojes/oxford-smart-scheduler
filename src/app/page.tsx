@@ -53,12 +53,12 @@ export default function Home() {
             {t.home.landingSubtitle}
           </p>
         </div>
-        <Link
+        <a
           href="/login"
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow transition-colors text-lg"
         >
           {t.auth.signIn}
-        </Link>
+        </a>
         <p className="text-sm text-slate-400">{t.home.landingAccess}</p>
       </div>
     );
