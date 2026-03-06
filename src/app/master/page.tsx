@@ -229,7 +229,7 @@ export default function MasterPage() {
           <tbody><tr>
             <td className="p-1 text-center align-middle border border-slate-400" style={{width:'56px'}}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.jpg" alt="Oxford" style={{width:'44px',height:'auto',margin:'0 auto'}} />
+              <img src="/logo.png" alt="Oxford" style={{width:'44px',height:'auto',margin:'0 auto'}} />
             </td>
             <td className="text-center align-middle py-1 border border-slate-400">
               <div className="text-xs font-semibold uppercase tracking-widest text-slate-500">2026 — MASTER SCHEDULE</div>

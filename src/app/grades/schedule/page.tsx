@@ -241,7 +241,7 @@ export default function GradeSchedulePage() {
                 <tr>
                   <td className="w-16 border border-slate-700 p-1 text-center align-middle" rowSpan={2}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo.jpg" alt="Oxford Logo" style={{width:'48px',height:'auto',margin:'0 auto'}} />
+                    <img src="/logo.png" alt="Oxford Logo" style={{width:'48px',height:'auto',margin:'0 auto'}} />
                   </td>
                   <td className="border border-slate-700 text-center align-middle py-1" colSpan={5}>
                     <div className="text-sm font-bold uppercase tracking-wide">2026 CLASS SCHEDULE</div>
@@ -261,7 +261,7 @@ export default function GradeSchedulePage() {
                 <tr>
                   <td className="border border-slate-300 p-2 text-center align-middle bg-white dark:bg-slate-800" style={{width:'72px'}}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo.jpg" alt="Oxford" style={{width:'56px',height:'auto',margin:'0 auto'}} />
+                    <img src="/logo.png" alt="Oxford" style={{width:'56px',height:'auto',margin:'0 auto'}} />
                   </td>
                   <td className="border border-slate-300 text-center align-middle py-2 bg-white dark:bg-slate-800">
                     <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest">2026 CLASS SCHEDULE</div>
