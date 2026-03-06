@@ -50,7 +50,7 @@ async function main() {
     console.log(`  Grade 1C ya existe (id: ${grade1C.id})`);
   } else {
     grade1C = await prisma.grade.create({
-      data: { name: '1', section: 'C', level: 'PRIMARY', capacity: 25 },
+      data: { name: '1', section: 'C', level: 'PRIMARY', studentCount: 25, subjectCount: 8 },
     });
     console.log(`  Created Grade 1C (id: ${grade1C.id})`);
   }
