@@ -58,6 +58,9 @@ export function Header({ user }: HeaderProps) {
       {canManage && (
         <Link href="/grades/schedule" className={`${linkClass("/grades/schedule")} !bg-teal-600 hover:!bg-teal-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.schedule.types.grade}</Link>
       )}
+      {canManage && (
+        <Link href="/master" className={`${linkClass("/master")} !bg-slate-600 hover:!bg-slate-700 !text-white`} onClick={() => setMenuOpen(false)}>Master</Link>
+      )}
       <Link href="/schedule" className={`${linkClass("/schedule")} !bg-blue-600 hover:!bg-blue-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.nav.schedule}</Link>
     </>
   );
