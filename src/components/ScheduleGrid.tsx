@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 import { AssignmentForm } from "./AssignmentForm";
 
 interface Assignment {
@@ -112,8 +113,25 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ timeBlockId: tb.id }),
       });
-      if (res.ok && onRefresh) onRefresh();
+      const result = await res.json();
+      if (res.ok) {
+        if (result.status === "CONFLICT" && result.conflicts?.length > 0) {
+          const msgs = (result.conflicts as Array<{description: string; severity: string}>)
+            .filter(c => c.severity === "ERROR")
+            .map(c => c.description);
+          toast.warning("Clase movida con conflictos", {
+            description: msgs.join(" • "),
+            duration: 8000,
+          });
+        } else {
+          toast.success("Clase movida");
+        }
+        if (onRefresh) onRefresh();
+      } else {
+        toast.error(result.error || "Error al mover");
+      }
     } catch (e) {
+      toast.error("Error de conexión");
       console.error("Drop failed", e);
     }
   };
