@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +48,7 @@ const TEACHER_COLORS = [
 
 export default function ComparePage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -90,7 +92,7 @@ export default function ComparePage() {
       const data = await res.json();
       setAllAssignments(prev => ({ ...prev, [id]: data }));
       setSelected(prev => [...prev, id]);
-    } catch { toast.error("Error cargando horario"); }
+    } catch { toast.error(t.compare.toasts.errorLoading); }
     finally { setLoadingId(null); setSearch(""); setDropOpen(false); }
   };
 
@@ -116,9 +118,9 @@ export default function ComparePage() {
     setDragOver(null);
     // Find the target timeBlock
     const targetBlock = timeBlocks.find(b => b.dayOfWeek === targetDay && b.startTime === targetTime);
-    if (!targetBlock) { toast.error("Slot no encontrado"); setDragging(null); return; }
+    if (!targetBlock) { toast.error(t.compare.toasts.slotNotFound); setDragging(null); return; }
     // Check it's a CLASS slot
-    if (targetBlock.blockType !== "CLASS") { toast.error("Solo puedes mover a slots de clase"); setDragging(null); return; }
+    if (targetBlock.blockType !== "CLASS") { toast.error(t.compare.toasts.classOnlySlots); setDragging(null); return; }
     setSaving(true);
     try {
       const res = await fetch(`/api/assignments/${dragging.assignmentId}`, {
@@ -127,12 +129,12 @@ export default function ComparePage() {
         body: JSON.stringify({ timeBlockId: targetBlock.id }),
       });
       const result = await res.json();
-      if (!res.ok) { toast.error(result.error || "Error al mover"); }
+      if (!res.ok) { toast.error(result.error || t.compare.toasts.errorMoving); }
       else {
-        toast.success("Clase movida correctamente");
+        toast.success(t.compare.toasts.movedOk);
         await refreshTeacher(dragging.tid);
       }
-    } catch { toast.error("Error de conexión"); }
+    } catch { toast.error(t.compare.toasts.connectionError); }
     finally { setSaving(false); setDragging(null); }
   };
 
@@ -160,10 +162,10 @@ export default function ComparePage() {
       });
       Object.entries(teacherMap).forEach(([tid, as]) => {
         if (as.length > 1) {
-          const t = teachers.find(t => t.id === tid);
+          const tt = teachers.find(x => x.id === tid);
           detectedConflicts.push({
             type: "TEACHER_DOUBLE",
-            label: `${t?.name ?? tid}: doble clase`,
+            label: t.compare.conflictLabels.TEACHER_DOUBLE.replace("{name}", tt?.name ?? tid),
             day: d, time,
             assignments: as,
           });
@@ -183,7 +185,7 @@ export default function ComparePage() {
         if (uniqueTeachers.size > 1) {
           detectedConflicts.push({
             type: "ROOM",
-            label: `Sala ${room}: ocupada por ${uniqueTeachers.size} profesores`,
+            label: t.compare.conflictLabels.ROOM.replace("{room}", room).replace("{count}", String(uniqueTeachers.size)),
             day: d, time,
             assignments: as,
           });
@@ -203,7 +205,7 @@ export default function ComparePage() {
         if (uniqueT.size > 1) {
           detectedConflicts.push({
             type: "GRADE",
-            label: `Grado ${grade}: 2 clases simultáneas`,
+            label: t.compare.conflictLabels.GRADE.replace("{grade}", grade),
             day: d, time,
             assignments: as,
           });
@@ -229,7 +231,7 @@ export default function ComparePage() {
   const handleMoveAssignment = async () => {
     if (!movingAssignment || !moveTargetTime) return;
     const targetBlock = timeBlocks.find(b => b.dayOfWeek === moveTargetDay && b.startTime === moveTargetTime);
-    if (!targetBlock) { toast.error("Slot no encontrado"); return; }
+    if (!targetBlock) { toast.error(t.compare.toasts.slotNotFound); return; }
     setSaving(true);
     try {
       const res = await fetch(`/api/assignments/${movingAssignment.id}`, {
@@ -238,27 +240,27 @@ export default function ComparePage() {
         body: JSON.stringify({ timeBlockId: targetBlock.id }),
       });
       if (res.ok) {
-        toast.success("Clase movida");
+        toast.success(t.compare.toasts.moved);
         await refreshTeacher(movingAssignment._tid);
         setMovingAssignment(null);
       } else {
         const r = await res.json();
-        toast.error(r.error || "Error al mover");
+        toast.error(r.error || t.compare.toasts.errorMoving);
       }
-    } catch { toast.error("Error de conexión"); }
+    } catch { toast.error(t.compare.toasts.connectionError); }
     finally { setSaving(false); }
   };
 
   const handleDeleteAssignment = async (a: Assignment & { _tid: string }) => {
-    if (!confirm(`¿Eliminar "${a.subject.name}" de ${a.teacher.name}?`)) return;
+    if (!confirm(t.compare.confirmDelete.replace("{subject}", a.subject.name).replace("{teacher}", a.teacher.name))) return;
     setSaving(true);
     try {
       const res = await fetch(`/api/assignments/${a.id}`, { method: "DELETE" });
       if (res.ok) {
-        toast.success("Clase eliminada");
+        toast.success(t.compare.toasts.deleted);
         await refreshTeacher(a._tid);
-      } else toast.error("Error al eliminar");
-    } catch { toast.error("Error de conexión"); }
+      } else toast.error(t.compare.toasts.errorDeleting);
+    } catch { toast.error(t.compare.toasts.connectionError); }
     finally { setSaving(false); }
   };
 
@@ -283,17 +285,17 @@ export default function ComparePage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5 text-blue-600" />
-          <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Comparar Horarios</h1>
-          <Badge variant="outline">{selected.length}/6 profesores</Badge>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{t.compare.title}</h1>
+          <Badge variant="outline">{selected.length}/6 {t.compare.badge.split(' ')[1]}</Badge>
         </div>
         <div className="flex gap-2">
           {detectedConflicts.length > 0 && (
             <Badge variant="destructive" className="gap-1">
-              <AlertTriangle className="w-3 h-3" /> {detectedConflicts.length} conflicto{detectedConflicts.length > 1 ? "s" : ""}
+              <AlertTriangle className="w-3 h-3" /> {detectedConflicts.length} {t.compare.conflictTypes.TEACHER_DOUBLE.toLowerCase()}{detectedConflicts.length > 1 ? "s" : ""}
             </Badge>
           )}
           <Button variant="outline" size="sm" className="gap-1 no-print" onClick={() => window.print()}>
-            <Printer className="w-4 h-4" /> Imprimir
+            <Printer className="w-4 h-4" /> {t.schedule.print}
           </Button>
         </div>
       </div>
@@ -310,20 +312,20 @@ export default function ComparePage() {
         {selected.length < 6 && (
           <div className="relative" ref={dropRef}>
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setDropOpen(v => !v)}>
-              <Plus className="w-4 h-4" /> Agregar profesor
+              <Plus className="w-4 h-4" /> {t.compare.addTeacher}
             </Button>
             {dropOpen && (
               <div className="absolute top-full left-0 mt-1 z-50 w-72 bg-white dark:bg-slate-900 border rounded-lg shadow-lg">
                 <input
                   autoFocus
                   className="w-full px-3 py-2 text-sm border-b outline-none bg-transparent"
-                  placeholder="Buscar profesor..."
+                  placeholder={t.compare.searchPlaceholder}
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                 />
                 <div className="max-h-60 overflow-y-auto">
                   {filteredTeachers.length === 0 && (
-                    <p className="text-xs text-slate-400 p-3">No hay resultados</p>
+                    <p className="text-xs text-slate-400 p-3">{t.actions.noData}</p>
                   )}
                   {filteredTeachers.map(t => (
                     <button
@@ -345,8 +347,8 @@ export default function ComparePage() {
       {selected.length === 0 && (
         <div className="text-center py-16 text-slate-400">
           <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="text-lg font-medium">Selecciona hasta 6 profesores para comparar sus horarios</p>
-          <p className="text-sm mt-1">Se detectarán conflictos de sala automáticamente</p>
+          <p className="text-lg font-medium">{t.compare.emptyTitle}</p>
+          <p className="text-sm mt-1">{t.compare.emptySubtitle}</p>
         </div>
       )}
 
@@ -365,8 +367,8 @@ export default function ComparePage() {
                 : <CheckCircle2 className="w-4 h-4 text-green-500" />}
               <span className={detectedConflicts.length > 0 ? "text-red-700 dark:text-red-300" : "text-green-700 dark:text-green-300"}>
                 {detectedConflicts.length > 0
-                  ? `${detectedConflicts.length} conflicto${detectedConflicts.length > 1 ? "s" : ""} detectado${detectedConflicts.length > 1 ? "s" : ""}`
-                  : "Sin conflictos detectados"}
+                  ? t.compare.conflictsDetected.replace("{count}", String(detectedConflicts.length)).replace(/\{plural\}/g, detectedConflicts.length > 1 ? "s" : "")
+                  : t.compare.noConflicts}
               </span>
             </div>
             {conflictPanelOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -378,7 +380,7 @@ export default function ComparePage() {
                 <div key={ci} className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="destructive" className="text-[10px]">
-                      {c.type === "TEACHER_DOUBLE" ? "Doble clase" : c.type === "ROOM" ? "Sala" : "Grado"}
+                      {t.compare.conflictTypes[c.type]}
                     </Badge>
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{c.label}</span>
                     <span className="text-xs text-slate-400 ml-auto">{fmtSlot(c.day, c.time)}</span>
@@ -411,7 +413,7 @@ export default function ComparePage() {
                                 }}
                               >
                                 <MoveRight className="w-3 h-3" />
-                                {isMoving ? "Cancelar" : "Mover"}
+                                {isMoving ? t.compare.cancel : t.compare.move}
                               </Button>
                               <Button
                                 size="sm"
@@ -421,7 +423,7 @@ export default function ComparePage() {
                                 disabled={saving}
                               >
                                 <Trash2 className="w-3 h-3" />
-                                Quitar
+                                {t.compare.remove}
                               </Button>
                             </div>
                           </div>
@@ -429,7 +431,7 @@ export default function ComparePage() {
                           {/* Move controls */}
                           {isMoving && (
                             <div className="flex items-center gap-2 pl-2 flex-wrap">
-                              <span className="text-[10px] text-slate-500">Mover a:</span>
+                              <span className="text-[10px] text-slate-500">{t.compare.moveTo}</span>
                               <select
                                 className="text-xs border rounded px-2 py-0.5 bg-white dark:bg-slate-800"
                                 value={moveTargetDay}
@@ -442,7 +444,7 @@ export default function ComparePage() {
                                 value={moveTargetTime}
                                 onChange={e => setMoveTargetTime(e.target.value)}
                               >
-                                <option value="">-- hora --</option>
+                                <option value="">{t.compare.selectHour}</option>
                                 {uniqueTimes
                                   .filter(t => timeBlocks.find(b => b.startTime === t)?.blockType === "CLASS")
                                   .map(t => (
@@ -455,7 +457,7 @@ export default function ComparePage() {
                                 disabled={!moveTargetTime || saving}
                                 onClick={handleMoveAssignment}
                               >
-                                Confirmar
+                                {t.compare.confirmMove}
                               </Button>
                             </div>
                           )}
@@ -485,8 +487,8 @@ export default function ComparePage() {
       {/* Drag hint */}
       {selected.length > 0 && (
         <p className="no-print text-xs text-slate-400 flex items-center gap-1">
-          <GripVertical className="w-3 h-3" /> Arrastra una clase a otro slot para moverla
-          {saving && <span className="ml-2 text-blue-500 animate-pulse">Guardando...</span>}
+          <GripVertical className="w-3 h-3" /> {t.compare.dragHint}
+          {saving && <span className="ml-2 text-blue-500 animate-pulse">{t.compare.saving}</span>}
         </p>
       )}
 
@@ -496,9 +498,9 @@ export default function ComparePage() {
           <table className="w-full border-collapse text-xs">
             <thead>
               <tr className="bg-slate-800 text-white">
-                <th className="px-2 py-2 text-left font-bold w-24 border-r border-slate-600">HORA</th>
-                {DAYS.map((d) => (
-                  <th key={d} className="px-2 py-2 text-center font-bold border-r border-slate-600 last:border-r-0">{d}</th>
+                <th className="px-2 py-2 text-left font-bold w-24 border-r border-slate-600">{t.schedule.grid.time}</th>
+                {t.timeBlocks.days.map((d: string) => (
+                  <th key={d} className="px-2 py-2 text-center font-bold border-r border-slate-600 last:border-r-0">{d.toUpperCase()}</th>
                 ))}
               </tr>
             </thead>
