@@ -155,6 +155,9 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   ).sort().filter(st => {
     const blocksAtTime = relevantTimeBlocks.filter(b => b.startTime === st);
     const hasClassBlock = blocksAtTime.some(b => b.blockType === "CLASS");
+    // Always show 07:15 REGISTRATION row if teacher has any assignments
+    const isRegistration0715 = st === "07:15" && blocksAtTime.some(b => b.blockType === "REGISTRATION");
+    if (isRegistration0715 && assignments.length > 0) return true;
     if (hasClassBlock) return assignmentStartTimes.has(st);
     // Always show non-CLASS rows that have assignments (e.g. Arrival Duty at 07:15 REGISTRATION)
     if (assignmentStartTimes.has(st)) return true;
