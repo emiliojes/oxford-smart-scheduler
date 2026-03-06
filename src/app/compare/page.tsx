@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Printer, X, Plus, AlertTriangle, Users, GripVertical } from "lucide-react";
+import { Printer, X, Plus, AlertTriangle, Users, GripVertical, ChevronDown, ChevronUp, Trash2, MoveRight, CheckCircle2 } from "lucide-react";
 
 interface Teacher { id: string; name: string; }
 interface Assignment {
@@ -19,10 +19,22 @@ interface Assignment {
   note: string | null;
 }
 
+interface DetectedConflict {
+  type: "TEACHER_DOUBLE" | "ROOM" | "GRADE";
+  label: string;
+  day: number;
+  time: string;
+  assignments: (Assignment & { _tid: string; _tidx: number })[];
+}
+
 const DAYS = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
 const DAY_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie"];
 const DUTY_KEYWORDS = ["Duty", "Resource Room Support", "Homeroom"];
 const isDuty = (name: string) => DUTY_KEYWORDS.some(k => name.includes(k));
+
+function fmtSlot(day: number, time: string) {
+  return `${DAY_SHORT[day - 1]} ${time}`;
+}
 
 const TEACHER_COLORS = [
   "bg-blue-100 border-blue-400 text-blue-900",
@@ -47,6 +59,10 @@ export default function ComparePage() {
   const [dragging, setDragging] = useState<{ assignmentId: string; tid: string } | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null); // "day-time"
   const [saving, setSaving] = useState(false);
+  const [conflictPanelOpen, setConflictPanelOpen] = useState(true);
+  const [movingAssignment, setMovingAssignment] = useState<(Assignment & { _tid: string; _tidx: number }) | null>(null);
+  const [moveTargetDay, setMoveTargetDay] = useState<number>(1);
+  const [moveTargetTime, setMoveTargetTime] = useState<string>("");
 
   useEffect(() => {
     if (!user) return;
@@ -123,29 +139,128 @@ export default function ComparePage() {
   // Build unified time slots
   const uniqueTimes = Array.from(new Set(timeBlocks.map(b => b.startTime))).sort();
 
-  // Detect conflicts: same slot, same teacher appears twice (shouldn't happen) OR
-  // same room used by 2 selected teachers at the same time
-  const conflicts = new Set<string>();
+  // ── Conflict detection ────────────────────────────────────────────────────
+  const detectedConflicts: DetectedConflict[] = [];
+  const conflictCellKeys = new Set<string>(); // for grid highlighting
+
   for (const time of uniqueTimes) {
     for (let d = 1; d <= 5; d++) {
-      const key = `${d}-${time}`;
-      // Room conflict: 2 teachers in same room at same time
-      const roomMap: Record<string, string[]> = {};
-      for (const tid of selected) {
-        const slot = (allAssignments[tid] || []).filter(
-          a => a.timeBlock.dayOfWeek === d && a.timeBlock.startTime === time && a.room
-        );
-        slot.forEach(a => {
-          const r = a.room!.name;
-          if (!roomMap[r]) roomMap[r] = [];
-          roomMap[r].push(tid);
-        });
-      }
-      Object.values(roomMap).forEach(tids => {
-        if (tids.length > 1) tids.forEach(tid => conflicts.add(`${tid}-${d}-${time}`));
+      // Gather all assignments at this slot across selected teachers
+      const slotAll = selected.flatMap((tid, tidx) =>
+        (allAssignments[tid] || [])
+          .filter(a => a.timeBlock.dayOfWeek === d && a.timeBlock.startTime === time)
+          .map(a => ({ ...a, _tid: tid, _tidx: tidx }))
+      );
+
+      // 1. Teacher double-booked (same teacher, 2+ assignments at same time)
+      const teacherMap: Record<string, typeof slotAll> = {};
+      slotAll.forEach(a => {
+        if (!teacherMap[a._tid]) teacherMap[a._tid] = [];
+        teacherMap[a._tid].push(a);
+      });
+      Object.entries(teacherMap).forEach(([tid, as]) => {
+        if (as.length > 1) {
+          const t = teachers.find(t => t.id === tid);
+          detectedConflicts.push({
+            type: "TEACHER_DOUBLE",
+            label: `${t?.name ?? tid}: doble clase`,
+            day: d, time,
+            assignments: as,
+          });
+          as.forEach(a => conflictCellKeys.add(`${a._tid}-${d}-${time}`));
+        }
+      });
+
+      // 2. Room conflict (2 different teachers in same room)
+      const roomMap: Record<string, typeof slotAll> = {};
+      slotAll.filter(a => a.room).forEach(a => {
+        const r = a.room!.name;
+        if (!roomMap[r]) roomMap[r] = [];
+        roomMap[r].push(a);
+      });
+      Object.entries(roomMap).forEach(([room, as]) => {
+        const uniqueTeachers = new Set(as.map(a => a._tid));
+        if (uniqueTeachers.size > 1) {
+          detectedConflicts.push({
+            type: "ROOM",
+            label: `Sala ${room}: ocupada por ${uniqueTeachers.size} profesores`,
+            day: d, time,
+            assignments: as,
+          });
+          as.forEach(a => conflictCellKeys.add(`${a._tid}-${d}-${time}`));
+        }
+      });
+
+      // 3. Grade conflict (same grade, 2+ assignments at same time, across all assignments)
+      const gradeMap: Record<string, typeof slotAll> = {};
+      slotAll.filter(a => a.grade).forEach(a => {
+        const g = `${a.grade!.name}${a.grade!.section ?? ""}`;
+        if (!gradeMap[g]) gradeMap[g] = [];
+        gradeMap[g].push(a);
+      });
+      Object.entries(gradeMap).forEach(([grade, as]) => {
+        const uniqueT = new Set(as.map(a => a._tid));
+        if (uniqueT.size > 1) {
+          detectedConflicts.push({
+            type: "GRADE",
+            label: `Grado ${grade}: 2 clases simultáneas`,
+            day: d, time,
+            assignments: as,
+          });
+          as.forEach(a => conflictCellKeys.add(`${a._tid}-${d}-${time}`));
+        }
       });
     }
   }
+
+  // Free CLASS slots per day (for move target selector)
+  const freeSlots = uniqueTimes
+    .filter(t => timeBlocks.find(b => b.startTime === t)?.blockType === "CLASS")
+    .flatMap(t => [1,2,3,4,5].map(d => ({ day: d, time: t })))
+    .filter(({ day, time }) =>
+      selected.every(tid =>
+        !(allAssignments[tid] || []).some(
+          a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time
+        )
+      )
+    );
+
+  // Move assignment handler
+  const handleMoveAssignment = async () => {
+    if (!movingAssignment || !moveTargetTime) return;
+    const targetBlock = timeBlocks.find(b => b.dayOfWeek === moveTargetDay && b.startTime === moveTargetTime);
+    if (!targetBlock) { toast.error("Slot no encontrado"); return; }
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/assignments/${movingAssignment.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timeBlockId: targetBlock.id }),
+      });
+      if (res.ok) {
+        toast.success("Clase movida");
+        await refreshTeacher(movingAssignment._tid);
+        setMovingAssignment(null);
+      } else {
+        const r = await res.json();
+        toast.error(r.error || "Error al mover");
+      }
+    } catch { toast.error("Error de conexión"); }
+    finally { setSaving(false); }
+  };
+
+  const handleDeleteAssignment = async (a: Assignment & { _tid: string }) => {
+    if (!confirm(`¿Eliminar "${a.subject.name}" de ${a.teacher.name}?`)) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/assignments/${a.id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Clase eliminada");
+        await refreshTeacher(a._tid);
+      } else toast.error("Error al eliminar");
+    } catch { toast.error("Error de conexión"); }
+    finally { setSaving(false); }
+  };
 
   const selectedTeachers = selected.map(id => teachers.find(t => t.id === id)).filter(Boolean) as Teacher[];
   const filteredTeachers = teachers.filter(t =>
@@ -172,9 +287,9 @@ export default function ComparePage() {
           <Badge variant="outline">{selected.length}/6 profesores</Badge>
         </div>
         <div className="flex gap-2">
-          {conflicts.size > 0 && (
+          {detectedConflicts.length > 0 && (
             <Badge variant="destructive" className="gap-1">
-              <AlertTriangle className="w-3 h-3" /> {conflicts.size > 0 ? "Conflictos detectados" : ""}
+              <AlertTriangle className="w-3 h-3" /> {detectedConflicts.length} conflicto{detectedConflicts.length > 1 ? "s" : ""}
             </Badge>
           )}
           <Button variant="outline" size="sm" className="gap-1 no-print" onClick={() => window.print()}>
@@ -232,6 +347,126 @@ export default function ComparePage() {
           <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p className="text-lg font-medium">Selecciona hasta 6 profesores para comparar sus horarios</p>
           <p className="text-sm mt-1">Se detectarán conflictos de sala automáticamente</p>
+        </div>
+      )}
+
+      {/* ── Conflict Panel ── */}
+      {selected.length > 0 && (
+        <div className={`no-print rounded-lg border ${
+          detectedConflicts.length > 0 ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800" : "border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800"
+        }`}>
+          <button
+            className="w-full flex items-center justify-between px-4 py-2 text-sm font-semibold"
+            onClick={() => setConflictPanelOpen(v => !v)}
+          >
+            <div className="flex items-center gap-2">
+              {detectedConflicts.length > 0
+                ? <AlertTriangle className="w-4 h-4 text-red-500" />
+                : <CheckCircle2 className="w-4 h-4 text-green-500" />}
+              <span className={detectedConflicts.length > 0 ? "text-red-700 dark:text-red-300" : "text-green-700 dark:text-green-300"}>
+                {detectedConflicts.length > 0
+                  ? `${detectedConflicts.length} conflicto${detectedConflicts.length > 1 ? "s" : ""} detectado${detectedConflicts.length > 1 ? "s" : ""}`
+                  : "Sin conflictos detectados"}
+              </span>
+            </div>
+            {conflictPanelOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+
+          {conflictPanelOpen && detectedConflicts.length > 0 && (
+            <div className="px-4 pb-4 space-y-3">
+              {detectedConflicts.map((c, ci) => (
+                <div key={ci} className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="destructive" className="text-[10px]">
+                      {c.type === "TEACHER_DOUBLE" ? "Doble clase" : c.type === "ROOM" ? "Sala" : "Grado"}
+                    </Badge>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{c.label}</span>
+                    <span className="text-xs text-slate-400 ml-auto">{fmtSlot(c.day, c.time)}</span>
+                  </div>
+
+                  {/* Conflicting assignments */}
+                  <div className="flex flex-col gap-1.5">
+                    {c.assignments.map((a, ai) => {
+                      const colorClass = TEACHER_COLORS[a._tidx % TEACHER_COLORS.length];
+                      const grade = a.grade ? `${a.grade.name}${a.grade.section ?? ""}` : "";
+                      const isMoving = movingAssignment?.id === a.id;
+                      return (
+                        <div key={a.id + ai} className="space-y-1">
+                          <div className={`flex items-center gap-2 px-2 py-1.5 rounded border text-xs ${colorClass}`}>
+                            <div className="flex-1 min-w-0">
+                              <span className="font-semibold">{a.subject.name}</span>
+                              <span className="opacity-70 ml-1">{a.teacher.name}</span>
+                              {grade && <span className="opacity-60 ml-1">· {grade}</span>}
+                              {a.room && <span className="opacity-60 ml-1">· {a.room.name}</span>}
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-[10px] gap-1"
+                                onClick={() => {
+                                  setMovingAssignment(isMoving ? null : a);
+                                  setMoveTargetDay(c.day);
+                                  setMoveTargetTime("");
+                                }}
+                              >
+                                <MoveRight className="w-3 h-3" />
+                                {isMoving ? "Cancelar" : "Mover"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-[10px] gap-1 text-red-600 border-red-300 hover:bg-red-50"
+                                onClick={() => handleDeleteAssignment(a)}
+                                disabled={saving}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                Quitar
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Move controls */}
+                          {isMoving && (
+                            <div className="flex items-center gap-2 pl-2 flex-wrap">
+                              <span className="text-[10px] text-slate-500">Mover a:</span>
+                              <select
+                                className="text-xs border rounded px-2 py-0.5 bg-white dark:bg-slate-800"
+                                value={moveTargetDay}
+                                onChange={e => { setMoveTargetDay(Number(e.target.value)); setMoveTargetTime(""); }}
+                              >
+                                {DAY_SHORT.map((d, i) => <option key={i} value={i + 1}>{d}</option>)}
+                              </select>
+                              <select
+                                className="text-xs border rounded px-2 py-0.5 bg-white dark:bg-slate-800"
+                                value={moveTargetTime}
+                                onChange={e => setMoveTargetTime(e.target.value)}
+                              >
+                                <option value="">-- hora --</option>
+                                {uniqueTimes
+                                  .filter(t => timeBlocks.find(b => b.startTime === t)?.blockType === "CLASS")
+                                  .map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                  ))}
+                              </select>
+                              <Button
+                                size="sm"
+                                className="h-6 px-3 text-[10px]"
+                                disabled={!moveTargetTime || saving}
+                                onClick={handleMoveAssignment}
+                              >
+                                Confirmar
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -323,7 +558,7 @@ export default function ComparePage() {
                         >
                           <div className="flex flex-col gap-0.5">
                             {slotAssignments.map((a: any, ai) => {
-                              const isConflict = conflicts.has(`${a._tid}-${day}-${time}`);
+                              const isConflict = conflictCellKeys.has(`${a._tid}-${day}-${time}`);
                               const colorClass = TEACHER_COLORS[a._tidx % TEACHER_COLORS.length];
                               const grade = a.grade ? `${a.grade.name}${a.grade.section || ""}` : "";
                               const isDraggingThis = dragging?.assignmentId === a.id;
