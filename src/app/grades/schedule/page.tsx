@@ -234,13 +234,24 @@ export default function GradeSchedulePage() {
       {/* Schedule grid */}
       {selectedGrade && (
         <div id="printable-grade-schedule">
-          {/* Print header */}
-          <div className="hidden print:block mb-6 text-center border-b-2 border-slate-800 pb-3">
-            <div className="text-xs text-slate-500 mb-1">2026 CLASS SCHEDULE</div>
-            <h2 className="text-xl font-bold uppercase text-slate-900">
-              {gradeLabel(selectedGrade)}
-              {homeroomTeacher && ` — ${homeroomTeacher}`}
-            </h2>
+          {/* Print header — Excel style matching Oxford PNG schedules */}
+          <div className="hidden print:block mb-3">
+            <table className="w-full border-2 border-slate-700" style={{borderCollapse:'collapse'}}>
+              <tbody>
+                <tr>
+                  <td className="w-16 border border-slate-700 p-1 text-center align-middle" rowSpan={2}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo.jpg" alt="Oxford Logo" style={{width:'48px',height:'auto',margin:'0 auto'}} />
+                  </td>
+                  <td className="border border-slate-700 text-center align-middle py-1" colSpan={5}>
+                    <div className="text-sm font-bold uppercase tracking-wide">2026 CLASS SCHEDULE</div>
+                    <div className="text-base font-bold uppercase">
+                      {gradeLabel(selectedGrade)}{homeroomTeacher ? ` - ${homeroomTeacher}` : ""}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           {/* Screen header */}

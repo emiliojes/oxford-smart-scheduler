@@ -46,3 +46,7 @@ next-env.d.ts
 *.png
 *.xlsx
 *.xls
+
+# School logo (local only, do not commit)
+public/logo.jpg
+public/logo.png
