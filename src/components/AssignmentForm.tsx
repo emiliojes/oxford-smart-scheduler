@@ -20,6 +20,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useHistory } from "@/context/HistoryContext";
 
 interface Teacher { id: string; name: string; level: string; }
 interface Subject { id: string; name: string; level: string; }
@@ -38,6 +39,7 @@ const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFormProps) {
   const { t } = useLanguage();
+  const { pushAction } = useHistory();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -158,8 +160,34 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
       });
       const result = await response.json();
       if (response.ok) {
+        // Push to undo history
+        const subjectName = subjects.find(s => s.id === formData.subjectId)?.name ?? "?";
+        if (initialData?.id) {
+          // EDIT: before = initialData snapshot, after = new formData
+          pushAction({
+            id: initialData.id,
+            actionType: "EDIT",
+            description: `Edited ${subjectName}`,
+            before: {
+              teacherId: initialData.teacherId ?? initialData.teacher?.id ?? "",
+              subjectId: initialData.subjectId ?? initialData.subject?.id ?? "",
+              gradeId: initialData.gradeId ?? initialData.grade?.id ?? null,
+              roomId: initialData.roomId ?? initialData.room?.id ?? null,
+              timeBlockId: initialData.timeBlockId ?? initialData.timeBlock?.id ?? "",
+            },
+            after: { ...formData, gradeId: formData.gradeId || null, roomId: formData.roomId || null },
+          });
+        } else {
+          // CREATE: before = null (undo = delete), after = formData
+          pushAction({
+            id: result.id,
+            actionType: "CREATE",
+            description: `Created ${subjectName}`,
+            before: null,
+            after: { ...formData, gradeId: formData.gradeId || null, roomId: formData.roomId || null },
+          });
+        }
         if (result.status === "CONFLICT" && result.conflicts?.length > 0) {
-          // Show each conflict as a separate toast line
           const msgs = (result.conflicts as Array<{description: string; severity: string}>)
             .filter(c => c.severity === "ERROR")
             .map(c => c.description);
@@ -188,6 +216,21 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
     try {
       const response = await fetch(`/api/assignments/${initialData.id}`, { method: "DELETE" });
       if (response.ok) {
+        // Push to undo history — undo = recreate
+        const subjectName = subjects.find(s => s.id === formData.subjectId)?.name ?? initialData?.subject?.name ?? "?";
+        pushAction({
+          id: initialData.id,
+          actionType: "DELETE",
+          description: `Deleted ${subjectName}`,
+          before: {
+            teacherId: initialData.teacherId ?? initialData.teacher?.id ?? "",
+            subjectId: initialData.subjectId ?? initialData.subject?.id ?? "",
+            gradeId: initialData.gradeId ?? initialData.grade?.id ?? null,
+            roomId: initialData.roomId ?? initialData.room?.id ?? null,
+            timeBlockId: initialData.timeBlockId ?? initialData.timeBlock?.id ?? "",
+          },
+          after: null,
+        });
         toast.success(t.messages.assignmentDeleted);
         setIsOpen(false);
         onSuccess();

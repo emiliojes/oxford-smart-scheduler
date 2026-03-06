@@ -8,6 +8,8 @@ import { Header } from "@/components/Header";
 import { validateRequest } from "@/lib/auth-utils";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { HistoryProvider } from "@/context/HistoryContext";
+import { UndoRedoBar } from "@/components/UndoRedoBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -52,6 +54,7 @@ export default async function RootLayout({
         <ThemeProvider initialTheme={initialTheme}>
           <LanguageProvider>
             <AuthProvider user={authUser}>
+              <HistoryProvider>
               <TooltipProvider>
                 <div className="min-h-screen flex flex-col">
                   <Header user={user} />
@@ -62,7 +65,9 @@ export default async function RootLayout({
                     2026 Oxford School Schedule Manager
                   </footer>
                 </div>
+                <UndoRedoBar />
               </TooltipProvider>
+              </HistoryProvider>
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

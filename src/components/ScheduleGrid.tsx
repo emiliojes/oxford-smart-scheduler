@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import { useHistory } from "@/context/HistoryContext";
 import { AssignmentForm } from "./AssignmentForm";
 
 interface Assignment {
@@ -92,6 +93,7 @@ const DAYS = [
 export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
   const { canManage } = useAuth();
+  const { pushAction } = useHistory();
   const dragAssignmentId = useRef<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null); // "day-startTime"
   const [isDragging, setIsDragging] = useState(false);
@@ -115,6 +117,28 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
       });
       const result = await res.json();
       if (res.ok) {
+        // Push to undo history
+        if (current) {
+          pushAction({
+            id: current.id,
+            actionType: "MOVE",
+            description: `Moved ${current.subject.name} → ${startTime} Day${dayValue}`,
+            before: {
+              teacherId: (current as any).teacherId ?? result.teacherId,
+              subjectId: (current as any).subjectId ?? result.subjectId,
+              gradeId: (current as any).gradeId ?? result.gradeId ?? null,
+              roomId: (current as any).roomId ?? result.roomId ?? null,
+              timeBlockId: timeBlocks.find(b => b.dayOfWeek === current.timeBlock.dayOfWeek && b.startTime === current.timeBlock.startTime)?.id ?? "",
+            },
+            after: {
+              teacherId: result.teacherId,
+              subjectId: result.subjectId,
+              gradeId: result.gradeId ?? null,
+              roomId: result.roomId ?? null,
+              timeBlockId: tb.id,
+            },
+          });
+        }
         if (result.status === "CONFLICT" && result.conflicts?.length > 0) {
           const msgs = (result.conflicts as Array<{description: string; severity: string}>)
             .filter(c => c.severity === "ERROR")
