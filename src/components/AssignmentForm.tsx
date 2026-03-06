@@ -158,8 +158,15 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
       });
       const result = await response.json();
       if (response.ok) {
-        if (result.status === "CONFLICT") {
-          toast.warning(t.messages.assignmentConflict, { description: t.messages.assignmentConflictDesc });
+        if (result.status === "CONFLICT" && result.conflicts?.length > 0) {
+          // Show each conflict as a separate toast line
+          const msgs = (result.conflicts as Array<{description: string; severity: string}>)
+            .filter(c => c.severity === "ERROR")
+            .map(c => c.description);
+          toast.warning(t.messages.assignmentConflict, {
+            description: msgs.length > 0 ? msgs.join(" • ") : t.messages.assignmentConflictDesc,
+            duration: 8000,
+          });
         } else {
           toast.success(t.messages.assignmentCreated);
         }
@@ -319,10 +326,39 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
 
           {/* Conflict summary */}
           {formData.timeBlockId && (
-            <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${hasConflict ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
-              {hasConflict
-                ? <><AlertTriangle className="w-4 h-4 shrink-0" /> Hay conflictos — aun así puedes guardar</>
-                : <><CheckCircle2 className="w-4 h-4 shrink-0" /> Sin conflictos detectados</>}
+            <div className={`text-sm px-3 py-2 rounded-lg border ${
+              hasConflict
+                ? "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-300"
+                : "bg-green-50 border-green-200 text-green-700 dark:bg-green-950/30 dark:border-green-800 dark:text-green-300"
+            }`}>
+              {hasConflict ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    {t.schedule.grid.conflicts}
+                  </div>
+                  <ul className="text-xs space-y-0.5 pl-5 list-disc">
+                    {conflicts.teacher && (
+                      <li>{t.validations.teacherDoubleBooking.replace("{name}",
+                        teachers.find(tc => tc.id === formData.teacherId)?.name ?? "?")}</li>
+                    )}
+                    {conflicts.grade && (
+                      <li>{t.validations.gradeDoubleBooking.replace("{name}",
+                        (() => { const g = grades.find(g => g.id === formData.gradeId); return g ? `${g.name}${g.section ?? ""}` : "?"; })())}</li>
+                    )}
+                    {conflicts.room && (
+                      <li>{t.validations.roomDoubleBooking.replace("{name}",
+                        rooms.find(r => r.id === formData.roomId)?.name ?? "?")}</li>
+                    )}
+                  </ul>
+                  <p className="text-xs opacity-70 pt-0.5">{t.messages.assignmentConflictDesc}</p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  {t.compare.noConflicts}
+                </div>
+              )}
             </div>
           )}
 
