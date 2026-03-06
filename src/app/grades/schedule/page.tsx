@@ -254,18 +254,25 @@ export default function GradeSchedulePage() {
             </table>
           </div>
 
-          {/* Screen header */}
-          <div className="no-print flex items-center gap-3 mb-3">
-            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-              <div className="text-xs opacity-80">2026 CLASS SCHEDULE</div>
-              <div className="text-lg font-bold">{gradeLabel(selectedGrade)}</div>
-            </div>
-            {homeroomTeacher && (
-              <div className="text-sm text-slate-600 dark:text-slate-300">
-                <span className="font-medium">Homeroom teacher:</span> {homeroomTeacher}
-              </div>
-            )}
-            {loading && <span className="text-xs text-blue-500 animate-pulse ml-2">Cargando...</span>}
+          {/* Screen header — matches print format */}
+          <div className="no-print mb-3 border-2 border-slate-700 rounded overflow-hidden">
+            <table className="w-full" style={{borderCollapse:'collapse'}}>
+              <tbody>
+                <tr>
+                  <td className="border border-slate-300 p-2 text-center align-middle bg-white dark:bg-slate-800" style={{width:'72px'}}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo.jpg" alt="Oxford" style={{width:'56px',height:'auto',margin:'0 auto'}} />
+                  </td>
+                  <td className="border border-slate-300 text-center align-middle py-2 bg-white dark:bg-slate-800">
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest">2026 CLASS SCHEDULE</div>
+                    <div className="text-xl font-bold uppercase text-slate-900 dark:text-white mt-0.5">
+                      {gradeLabel(selectedGrade)}{homeroomTeacher ? ` - ${homeroomTeacher.toUpperCase()}` : ""}
+                    </div>
+                    {loading && <div className="text-xs text-blue-500 animate-pulse mt-1">Cargando...</div>}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           {/* Grid table */}
