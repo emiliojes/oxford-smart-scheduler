@@ -79,6 +79,14 @@ function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HI
   return null;
 }
 
+function getSchoolLevel(g: Grade): string {
+  const n = Number(g.name);
+  if ([6,7,8].includes(n)) return "MIDDLE SCHOOL";
+  if ([9,10,11,12].includes(n)) return "HIGH SCHOOL";
+  if (g.level === "PRIMARY") return "PRIMARY SCHOOL";
+  return "SECONDARY";
+}
+
 export default function GradeSchedulePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -127,6 +135,15 @@ export default function GradeSchedulePage() {
     teacherCount[tid].count++;
   });
   const homeroomTeacher = Object.values(teacherCount).sort((a, b) => b.count - a.count)[0]?.name ?? "";
+
+  const roomCount: Record<string, { name: string; count: number }> = {};
+  assignments.forEach(a => {
+    if (!a.room) return;
+    const rn = a.room.name;
+    if (!roomCount[rn]) roomCount[rn] = { name: rn, count: 0 };
+    roomCount[rn].count++;
+  });
+  const homeroomRoom = Object.values(roomCount).sort((a, b) => b.count - a.count)[0]?.name ?? "";
 
   // Build time slots — filter to relevant level
   const gradeLevel = selectedGrade?.level ?? "";
@@ -271,39 +288,41 @@ export default function GradeSchedulePage() {
         <div id="printable-grade-schedule">
           {/* Print header — Excel style matching Oxford PNG schedules */}
           <div className="hidden print:block mb-3">
-            <table className="w-full border-2 border-slate-700" style={{borderCollapse:'collapse'}}>
+            <table className="w-full border-2 border-[#1e3a5f]" style={{borderCollapse:'collapse'}}>
               <tbody>
-                <tr>
-                  <td className="w-16 border border-slate-700 p-1 text-center align-middle" rowSpan={2}>
+                <tr style={{background:'#1e3a5f'}}>
+                  <td className="w-16 border border-[#1e3a5f] p-1 text-center align-middle bg-white" rowSpan={2} style={{width:'56px'}}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo.png" alt="Oxford Logo" style={{width:'48px',height:'auto',margin:'0 auto'}} />
+                    <img src="/logo.png" alt="Oxford Logo" style={{width:'44px',height:'auto',margin:'0 auto'}} />
                   </td>
-                  <td className="border border-slate-700 text-center align-middle py-1" colSpan={5}>
-                    <div className="text-sm font-bold uppercase tracking-wide">2026 CLASS SCHEDULE</div>
-                    <div className="text-base font-bold uppercase">
-                      {gradeLabel(selectedGrade)}{homeroomTeacher ? ` - ${homeroomTeacher}` : ""}
-                    </div>
+                  <td className="border border-[#2d5a9e] text-center align-middle py-2" colSpan={5} style={{background:'#1e3a5f',color:'white'}}>
+                    <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'#93c5fd'}}>2026 CLASS SCHEDULE</div>
+                    <div className="text-sm font-bold uppercase">{getSchoolLevel(selectedGrade)} · GRADE {gradeLabel(selectedGrade)}</div>
+                    {homeroomTeacher && <div className="text-[10px]" style={{color:'#cbd5e1'}}>{homeroomTeacher}{homeroomRoom ? ` — ${homeroomRoom}` : ""}</div>}
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* Screen header — matches print format */}
-          <div className="no-print mb-3 border-2 border-slate-700 rounded overflow-hidden">
+          {/* Screen header — matches Oxford reference style */}
+          <div className="no-print mb-3 rounded overflow-hidden border-2 border-[#1e3a5f]">
             <table className="w-full" style={{borderCollapse:'collapse'}}>
               <tbody>
-                <tr>
-                  <td className="border border-slate-300 p-2 text-center align-middle bg-white dark:bg-slate-800" style={{width:'72px'}}>
+                <tr style={{background:'#1e3a5f'}}>
+                  <td className="p-2 text-center align-middle bg-white" style={{width:'72px',borderRight:'2px solid #1e3a5f'}}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/logo.png" alt="Oxford" style={{width:'56px',height:'auto',margin:'0 auto'}} />
                   </td>
-                  <td className="border border-slate-300 text-center align-middle py-2 bg-white dark:bg-slate-800">
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest">2026 CLASS SCHEDULE</div>
-                    <div className="text-xl font-bold uppercase text-slate-900 dark:text-white mt-0.5">
-                      {gradeLabel(selectedGrade)}{homeroomTeacher ? ` - ${homeroomTeacher.toUpperCase()}` : ""}
-                    </div>
-                    {loading && <div className="text-xs text-blue-500 animate-pulse mt-1">Cargando...</div>}
+                  <td className="text-center align-middle py-3" style={{background:'#1e3a5f',color:'white'}}>
+                    <div className="text-[11px] font-semibold uppercase tracking-widest" style={{color:'#93c5fd'}}>2026 CLASS SCHEDULE</div>
+                    <div className="text-lg font-bold uppercase mt-0.5">{getSchoolLevel(selectedGrade)} · GRADE {gradeLabel(selectedGrade)}</div>
+                    {(homeroomTeacher || homeroomRoom) && (
+                      <div className="text-sm mt-0.5" style={{color:'#cbd5e1'}}>
+                        {homeroomTeacher}{homeroomRoom ? ` — ${homeroomRoom}` : ""}
+                      </div>
+                    )}
+                    {loading && <div className="text-xs text-blue-300 animate-pulse mt-1">Cargando...</div>}
                   </td>
                 </tr>
               </tbody>
@@ -328,15 +347,18 @@ export default function GradeSchedulePage() {
               <tbody>
                 {uniqueTimes.map(time => {
                   const block = blockAt(time);
-                  const isBreak = block?.blockType === "BREAK";
-                  const isLunch = block?.blockType === "LUNCH";
-                  const isReg   = block?.blockType === "REGISTRATION";
+                  const isBreak    = block?.blockType === "BREAK";
+                  const isLunch    = block?.blockType === "LUNCH";
+                  const isReg      = block?.blockType === "REGISTRATION";
+                  const isDismissal = block?.blockType === "DISMISSAL";
                   const rowBg = isBreak
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-700 text-white"
                     : isLunch
-                    ? "bg-amber-100 dark:bg-amber-950/30"
+                    ? "bg-amber-50 dark:bg-amber-950/30"
                     : isReg
-                    ? "bg-blue-50 dark:bg-slate-800/50"
+                    ? "bg-slate-50 dark:bg-slate-800/50"
+                    : isDismissal
+                    ? "bg-blue-900 text-white"
                     : "";
 
                   return (
@@ -349,40 +371,41 @@ export default function GradeSchedulePage() {
                       </td>
                       {[1,2,3,4,5].map(day => {
                         const slot = getSlot(day, time);
+                        const isLastDay = day === 5;
                         return (
-                          <td key={day} className={`px-1.5 py-1 border-r last:border-r-0 align-middle print:px-1 ${
-                            isBreak ? "text-center text-xs font-bold text-white" : ""
+                          <td key={day} className={`px-1.5 py-1.5 border-r last:border-r-0 text-center align-middle print:px-1 ${
+                            isBreak || isDismissal ? "text-white" : ""
                           }`}>
                             {slot.length === 0 ? (
                               isBreak ? (
-                                <span className="text-xs font-bold tracking-widest">BREAK</span>
+                                <span className="text-xs font-bold tracking-widest uppercase">BREAK</span>
                               ) : isLunch ? (
-                                <span className="text-xs font-bold text-amber-600 tracking-widest">LUNCH</span>
+                                isLastDay
+                                  ? <span className="text-xs font-bold text-blue-700 tracking-widest uppercase">DEPARTURE</span>
+                                  : <span className="text-xs font-bold text-amber-600 tracking-widest uppercase">LUNCH</span>
                               ) : isReg ? (
-                                <span className="text-xs text-slate-400 tracking-widest">REGISTRATION</span>
+                                <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">REGISTRATION</span>
+                              ) : isDismissal ? (
+                                <span className="text-xs font-bold tracking-widest uppercase">DEPARTURE</span>
                               ) : null
                             ) : (
                               <div className="flex flex-col gap-0.5">
-                                {slot.map((a, ai) => {
-                                  const color = subjectColorMap[a.subject.name] ?? subjectColors[0];
-                                  return (
-                                    <div
-                                      key={a.id + ai}
-                                      className={`px-2 py-1 rounded border text-xs font-medium leading-tight print:text-[8px] print:py-0.5 ${color} ${
-                                        a.status === "CONFLICT" ? "ring-1 ring-red-500" : ""
-                                      }`}
-                                    >
-                                      <div className="font-semibold truncate">{a.subject.name}</div>
-                                      {a.room && (
-                                        <div className="text-[11px] font-bold truncate print:text-[8px]">{a.room.name}</div>
-                                      )}
-                                      {a.note && (
-                                        <div className="text-[10px] opacity-70 print:text-[7px]">({a.note})</div>
-                                      )}
-                                      <div className="text-[9px] opacity-50 truncate print:text-[7px]">{a.teacher.name}</div>
-                                    </div>
-                                  );
-                                })}
+                                {slot.map((a, ai) => (
+                                  <div
+                                    key={a.id + ai}
+                                    className={`py-1 text-xs leading-tight ${
+                                      a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
+                                    }`}
+                                  >
+                                    <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
+                                    {a.room && (
+                                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">{a.room.name}</div>
+                                    )}
+                                    {a.note && (
+                                      <div className="text-[9px] opacity-60">({a.note})</div>
+                                    )}
+                                  </div>
+                                ))}
                               </div>
                             )}
                           </td>
