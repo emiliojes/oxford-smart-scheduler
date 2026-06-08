@@ -29,8 +29,49 @@ function calcHours(data: ScheduleData) {
   return { label, perDay };
 }
 
+function formatTime12h(time: string): string {
+  const [hourStr, minute = "00"] = time.split(":");
+  const hour = Number(hourStr);
+  if (Number.isNaN(hour)) return time;
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minute.padStart(2, "0")} ${suffix}`;
+}
+
+function formatTimeRange(startTime: string, endTime?: string): string {
+  return endTime ? `${formatTime12h(startTime)} - ${formatTime12h(endTime)}` : formatTime12h(startTime);
+}
+
+function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HIGH" | null {
+  const grade = Number(gradeName);
+  if ([6, 7, 8].includes(grade)) return "MIDDLE";
+  if ([9, 10, 11, 12].includes(grade)) return "HIGH";
+  return null;
+}
+
+function getExportTimeBlocks(data: ScheduleData) {
+  const secondaryGroups = new Set(data.assignments.map(a => getSecondaryGroup(a.grade?.name)).filter(Boolean));
+  const hasSecondaryAssignments = data.assignments.some(a => a.grade?.level === "SECONDARY" || getSecondaryGroup(a.grade?.name));
+  if (!hasSecondaryAssignments || secondaryGroups.size === 0) return data.timeBlocks;
+
+  return [
+    ...data.timeBlocks.filter(b => !(b.level === "SECONDARY" && b.blockType === "LUNCH")),
+    ...[1, 2, 3, 4, 5].flatMap(day => {
+      const blocks: any[] = [];
+      if (secondaryGroups.has("MIDDLE")) {
+        blocks.push({ id: `middle-lunch-${day}`, dayOfWeek: day, startTime: "12:30", endTime: "13:00", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+      }
+      if (secondaryGroups.has("HIGH")) {
+        blocks.push({ id: `high-lunch-${day}`, dayOfWeek: day, startTime: "13:00", endTime: "13:30", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+      }
+      return blocks;
+    }),
+  ];
+}
+
 function buildScheduleHTML(data: ScheduleData): string {
-  const uniqueStartTimes = Array.from(new Set(data.timeBlocks.map((b) => b.startTime))).sort();
+  const timeBlocks = getExportTimeBlocks(data);
+  const uniqueStartTimes = Array.from(new Set(timeBlocks.map((b) => b.startTime))).sort();
   const days = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
   const dayValues = [1, 2, 3, 4, 5];
   const { label: hoursLabel, perDay: hoursPerDay } = calcHours(data);
@@ -52,9 +93,9 @@ function buildScheduleHTML(data: ScheduleData): string {
   ).join("");
 
   const rows = uniqueStartTimes.map(time => {
-    const block = data.timeBlocks.find(b => b.startTime === time);
+    const block = timeBlocks.find(b => b.startTime === time);
     const endTime = block?.endTime ?? "";
-    const label = endTime ? `${time} - ${endTime}` : time;
+    const label = formatTimeRange(time, endTime);
     const isSpecial = block?.blockType === "BREAK" || block?.blockType === "LUNCH";
     const rowBg = block?.blockType === "BREAK" ? "#f1f5f9" : block?.blockType === "LUNCH" ? "#fef9c3" : "white";
 

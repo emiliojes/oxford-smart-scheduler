@@ -28,7 +28,7 @@ interface Assignment {
   id: string;
   teacher: { name: string };
   subject: { name: string };
-  grade: { name: string; section: string | null } | null;
+  grade: { name: string; section: string | null; level?: string } | null;
   room: { name: string } | null;
   timeBlock: {
     dayOfWeek: number;
@@ -89,6 +89,26 @@ const DAYS = [
   { value: 4, label: "THURSDAY" },
   { value: 5, label: "FRIDAY" },
 ];
+
+function formatTime12h(time: string): string {
+  const [hourStr, minute = "00"] = time.split(":");
+  const hour = Number(hourStr);
+  if (Number.isNaN(hour)) return time;
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minute.padStart(2, "0")} ${suffix}`;
+}
+
+function formatTimeRange(startTime: string, endTime?: string): string {
+  return endTime ? `${formatTime12h(startTime)} - ${formatTime12h(endTime)}` : formatTime12h(startTime);
+}
+
+function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HIGH" | null {
+  const grade = Number(gradeName);
+  if ([6, 7, 8].includes(grade)) return "MIDDLE";
+  if ([9, 10, 11, 12].includes(grade)) return "HIGH";
+  return null;
+}
 
 export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
@@ -183,9 +203,26 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     : dominantLevel === "LOW_SECONDARY" ? "SECONDARY"   // pure 7-8 -> SECONDARY schedule
     : dominantLevel;
   // Filter time blocks to only the relevant level (or BOTH), falling back to all if unclear
-  const relevantTimeBlocks = tbLevel
+  const baseRelevantTimeBlocks = tbLevel
     ? timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
     : timeBlocks;
+  const secondaryGroups = new Set(assignments.map(a => getSecondaryGroup(a.grade?.name)).filter(Boolean));
+  const shouldUseSecondaryLunchSplit = tbLevel === "SECONDARY" && secondaryGroups.size > 0;
+  const relevantTimeBlocks = shouldUseSecondaryLunchSplit
+    ? [
+        ...baseRelevantTimeBlocks.filter(b => b.blockType !== "LUNCH"),
+        ...[1, 2, 3, 4, 5].flatMap(day => {
+          const blocks: TimeBlock[] = [];
+          if (secondaryGroups.has("MIDDLE")) {
+            blocks.push({ id: `middle-lunch-${day}`, dayOfWeek: day, startTime: "12:30", endTime: "13:00", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+          }
+          if (secondaryGroups.has("HIGH")) {
+            blocks.push({ id: `high-lunch-${day}`, dayOfWeek: day, startTime: "13:00", endTime: "13:30", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+          }
+          return blocks;
+        }),
+      ]
+    : baseRelevantTimeBlocks;
 
   // Only show rows that have assignments OR are non-CLASS blocks within the teacher's active range
   const assignmentStartTimes = new Set(assignments.map(a => a.timeBlock.startTime));
@@ -269,7 +306,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   });
 
   const getBlockInfo = (startTime: string) => {
-    return timeBlocks.find((b) => b.startTime === startTime);
+    return relevantTimeBlocks.find((b) => b.startTime === startTime);
   };
 
   // A row is "special" (BREAK/LUNCH/etc) only if every time block at that time is non-CLASS
@@ -277,7 +314,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   const isRowSpecial = (startTime: string) => {
     const hasAnyAssignment = [1,2,3,4,5].some(d => getAssignmentsForSlot(d, startTime).length > 0);
     if (hasAnyAssignment) return false;
-    const blocksAtTime = timeBlocks.filter(b => b.startTime === startTime);
+    const blocksAtTime = relevantTimeBlocks.filter(b => b.startTime === startTime);
     return blocksAtTime.every(b => b.blockType !== "CLASS");
   };
 
@@ -307,7 +344,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                 <TableRow key={startTime} className={`h-auto ${rowSpecial ? "print:h-6" : "print:h-auto"}`}>
                   <TableCell className="font-medium border-r bg-slate-50 dark:bg-slate-900 align-middle py-1 print:py-0.5 print:w-20">
                     <div className="text-xs font-bold print:text-[9px] whitespace-nowrap">
-                      {blockInfo?.endTime ? `${startTime} - ${blockInfo.endTime}` : startTime}
+                      {formatTimeRange(startTime, blockInfo?.endTime)}
                     </div>
                   </TableCell>
                   
