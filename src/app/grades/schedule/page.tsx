@@ -136,9 +136,10 @@ export default function GradeSchedulePage() {
     gradeLevel === ""
   );
   const secondaryGroup = getSecondaryGroup(selectedGrade?.name);
+  const lunchStart = secondaryGroup === "MIDDLE" ? "12:30" : secondaryGroup === "HIGH" ? "13:00" : null;
   const relevantTBs = secondaryGroup
     ? [
-        ...baseRelevantTBs.filter(b => b.blockType !== "LUNCH"),
+        ...baseRelevantTBs.filter(b => b.blockType !== "LUNCH" && b.startTime !== lunchStart),
         ...[1, 2, 3, 4, 5].map(day => ({
           id: `${secondaryGroup.toLowerCase()}-lunch-${day}`,
           dayOfWeek: day,
@@ -372,12 +373,13 @@ export default function GradeSchedulePage() {
                                       }`}
                                     >
                                       <div className="font-semibold truncate">{a.subject.name}</div>
+                                      {a.room && (
+                                        <div className="text-[11px] font-bold truncate print:text-[8px]">{a.room.name}</div>
+                                      )}
                                       {a.note && (
                                         <div className="text-[10px] opacity-70 print:text-[7px]">({a.note})</div>
                                       )}
-                                      {slot.length > 1 && (
-                                        <div className="text-[10px] opacity-60 truncate print:text-[7px]">{a.teacher.name.split(" ")[0]}</div>
-                                      )}
+                                      <div className="text-[9px] opacity-50 truncate print:text-[7px]">{a.teacher.name}</div>
                                     </div>
                                   );
                                 })}
