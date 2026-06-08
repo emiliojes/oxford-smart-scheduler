@@ -63,6 +63,22 @@ function gradeLabel(g: Grade) {
   return `${name}${g.section ? ` ${g.section}` : ""}`;
 }
 
+function formatTime12h(time: string): string {
+  const [hourStr, minute = "00"] = time.split(":");
+  const hour = Number(hourStr);
+  if (Number.isNaN(hour)) return time;
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minute.padStart(2, "0")} ${suffix}`;
+}
+
+function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HIGH" | null {
+  const grade = Number(gradeName);
+  if ([6, 7, 8].includes(grade)) return "MIDDLE";
+  if ([9, 10, 11, 12].includes(grade)) return "HIGH";
+  return null;
+}
+
 export default function GradeSchedulePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -114,11 +130,26 @@ export default function GradeSchedulePage() {
 
   // Build time slots — filter to relevant level
   const gradeLevel = selectedGrade?.level ?? "";
-  const relevantTBs = timeBlocks.filter(b =>
+  const baseRelevantTBs = timeBlocks.filter(b =>
     b.level === gradeLevel || b.level === "BOTH" ||
     (gradeLevel === "LOW_SECONDARY" && b.level === "SECONDARY") ||
     gradeLevel === ""
   );
+  const secondaryGroup = getSecondaryGroup(selectedGrade?.name);
+  const relevantTBs = secondaryGroup
+    ? [
+        ...baseRelevantTBs.filter(b => b.blockType !== "LUNCH"),
+        ...[1, 2, 3, 4, 5].map(day => ({
+          id: `${secondaryGroup.toLowerCase()}-lunch-${day}`,
+          dayOfWeek: day,
+          startTime: secondaryGroup === "MIDDLE" ? "12:30" : "13:00",
+          endTime: secondaryGroup === "MIDDLE" ? "13:00" : "13:30",
+          duration: "30",
+          blockType: "LUNCH",
+          level: "SECONDARY",
+        })),
+      ]
+    : baseRelevantTBs;
 
   const assignmentTimes = new Set(assignments.map(a => a.timeBlock.startTime));
   const firstTime = [...assignmentTimes].sort()[0] ?? "";
@@ -135,8 +166,11 @@ export default function GradeSchedulePage() {
 
   const DAYS = t.timeBlocks.days as string[];
 
-  const getSlot = (day: number, time: string) =>
-    assignments.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
+  const getSlot = (day: number, time: string) => {
+    const block = blockAt(time);
+    if (block?.blockType === "LUNCH") return [];
+    return assignments.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
+  };
 
   const blockAt = (time: string) => relevantTBs.find(b => b.startTime === time);
 
@@ -309,8 +343,8 @@ export default function GradeSchedulePage() {
                       <td className={`px-3 py-1.5 font-mono text-xs font-bold border-r whitespace-nowrap print:px-1 ${
                         isBreak ? "text-white" : "text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900"
                       }`}>
-                        {time}<br />
-                        <span className="opacity-60 font-normal">{block?.endTime}</span>
+                        {formatTime12h(time)}<br />
+                        <span className="opacity-60 font-normal">{block?.endTime ? formatTime12h(block.endTime) : ""}</span>
                       </td>
                       {[1,2,3,4,5].map(day => {
                         const slot = getSlot(day, time);
