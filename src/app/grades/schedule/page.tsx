@@ -175,10 +175,14 @@ export default function GradeSchedulePage() {
 
   const uniqueTimes = Array.from(new Set(relevantTBs.map(b => b.startTime))).sort().filter(st => {
     const blocks = relevantTBs.filter(b => b.startTime === st);
-    const isClass = blocks.some(b => b.blockType === "CLASS");
+    const isClass      = blocks.some(b => b.blockType === "CLASS");
+    const isRegistration = blocks.some(b => b.blockType === "REGISTRATION");
+    const isDismissalB   = blocks.some(b => b.blockType === "DISMISSAL");
     if (isClass) return assignmentTimes.has(st);
     if (assignmentTimes.has(st)) return true;
     if (!firstTime) return false;
+    if (isRegistration && assignments.length > 0) return true;
+    if (isDismissalB   && assignments.length > 0) return true;
     return st >= firstTime && st <= lastTime;
   });
 
