@@ -140,7 +140,14 @@ export default function GradeSchedulePage() {
     if (!teacherCount[tid]) teacherCount[tid] = { name: a.teacher.name, count: 0 };
     teacherCount[tid].count++;
   });
-  const homeroomTeacher = Object.values(teacherCount).sort((a, b) => b.count - a.count)[0]?.name ?? "";
+  const homeroomAssignment = assignments.find(
+    a => a.timeBlock.dayOfWeek === 1 && a.timeBlock.startTime === "07:30" && a.subject.name.toLowerCase() === "homeroom"
+  ) ?? assignments.find(
+    a => a.timeBlock.dayOfWeek === 1 && a.timeBlock.startTime === "07:30"
+  );
+  const homeroomTeacher = homeroomAssignment?.teacher.name
+    ?? Object.values(teacherCount).sort((a, b) => b.count - a.count)[0]?.name
+    ?? "";
 
   const roomCount: Record<string, { name: string; count: number }> = {};
   assignments.forEach(a => {
