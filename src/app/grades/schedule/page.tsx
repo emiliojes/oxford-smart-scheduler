@@ -196,25 +196,26 @@ export default function GradeSchedulePage() {
       const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
         <style>
           *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-          body{background:#fff;}
+          html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff;}
           .page{page-break-after:always;padding:12px;}
           .page:last-child{page-break-after:auto;}
-          .header{background:#1e3a5f;color:white;text-align:center;padding:12px;margin-bottom:8px;border-radius:4px;}
-          .header-sub{font-size:10px;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
-          .header-title{font-size:16px;font-weight:bold;text-transform:uppercase;margin:2px 0;}
-          .header-info{font-size:11px;color:#cbd5e1;margin-top:2px;}
+          .header{background:#1e3a5f!important;color:white!important;text-align:center;padding:14px;margin-bottom:8px;border-radius:4px;}
+          .header-sub{font-size:10px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+          .header-title{font-size:18px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white!important;}
+          .header-info{font-size:11px;color:#cbd5e1!important;margin-top:4px;}
           table{width:100%;border-collapse:collapse;font-size:10px;}
-          th{background:#1e3a5f;color:white;padding:6px 4px;text-align:center;font-size:9px;}
-          td{border:1px solid #d1d5db;padding:4px;text-align:center;vertical-align:middle;}
-          td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:70px;}
-          td.time span{font-weight:normal;font-size:8px;color:#64748b;}
-          .special{font-weight:bold;font-size:9px;text-transform:uppercase;}
-          .reg{color:#2563eb;background:#eff6ff;}
-          .brk{color:#1e3a5f;background:#1e3a5f;color:white;}
-          .lnc{color:#92400e;background:#fef3c7;}
-          .dep{color:white;background:#1e3a5f;}
-          .subj{font-weight:bold;text-transform:uppercase;font-size:9px;}
+          th{background:#1e3a5f!important;color:white!important;padding:7px 4px;text-align:center;font-size:9px;font-weight:bold;letter-spacing:0.5px;}
+          td{border:1px solid #d1d5db;padding:5px 4px;text-align:center;vertical-align:middle;min-height:28px;}
+          td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:72px;background:#f8fafc;}
+          td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;}
+          .special{font-weight:bold;font-size:9px;text-transform:uppercase;padding:2px;}
+          .reg{color:#2563eb!important;background:#eff6ff!important;}
+          .brk{color:white!important;background:#1e3a5f!important;}
+          .lnc{color:#92400e!important;background:#fef3c7!important;}
+          .dep{color:white!important;background:#1e3a5f!important;}
+          .subj{font-weight:bold;text-transform:uppercase;font-size:9px;color:#1e293b;}
           @media print{
+            html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
             .page{page-break-after:always;}
             .page:last-child{page-break-after:auto;}
           }
