@@ -176,6 +176,9 @@ export default function GradeSchedulePage() {
           if (b.blockType === "LUNCH") return false; // replaced by virtual below
           if (secondaryGroup === "MIDDLE" && HIGH_ONLY_TIMES.has(b.startTime)) return false;
           if (secondaryGroup === "HIGH"   && MIDDLE_ONLY_TIMES.has(b.startTime)) return false;
+          // Slot 5: Middle uses 11:45-12:30, High uses 11:45-12:45
+          if (b.startTime === "11:45" && secondaryGroup === "MIDDLE" && b.endTime === "12:45") return false;
+          if (b.startTime === "11:45" && secondaryGroup === "HIGH"   && b.endTime === "12:30") return false;
           return true;
         }),
         ...[1, 2, 3, 4, 5].map(day => ({
