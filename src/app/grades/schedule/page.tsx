@@ -208,9 +208,9 @@ export default function GradeSchedulePage() {
           const blk = blockAtA(time);
           const btype = blk?.blockType ?? "CLASS";
           const endT = blk?.endTime ?? "";
-          const timeCell = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:4pt;border:1px solid #d1d5db;width:65pt;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">${fmt(endT)}</span></td>`;
+          const timeCell = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:6pt 5pt;border:1px solid #d1d5db;width:72pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">- ${fmt(endT)}</span></td>`;
           const mkCell = (txt: string, bg: string, clr: string) =>
-            `<td style="background:${bg};color:${clr};font-size:8pt;font-weight:bold;text-align:center;padding:4pt;border:1px solid #d1d5db;">${txt}</td>`;
+            `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:7pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
           if (btype === "REGISTRATION") return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
           if (btype === "BREAK")        return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("BREAK","#1e3a5f","white")).join("")}</tr>`;
           if (btype === "LUNCH")        return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>mkCell(di===4?"DEPARTURE":"LUNCH",di===4?"#1e3a5f":"#fef3c7",di===4?"white":"#92400e")).join("")}</tr>`;
@@ -218,7 +218,7 @@ export default function GradeSchedulePage() {
           return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>{
             const slot = getSlotA(di+1, time);
             const txt = slot.map(a=>a.subject.name.toUpperCase()).join(" / ") || "";
-            return `<td style="font-size:8pt;font-weight:bold;text-align:center;padding:4pt;border:1px solid #d1d5db;">${txt}</td>`;
+            return `<td style="font-size:8.5pt;font-weight:bold;text-align:center;padding:7pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
           }).join("")}</tr>`;
         }).join("");
         tables.push(`
@@ -303,11 +303,12 @@ export default function GradeSchedulePage() {
           const blk = blockAt(time);
           const btype = blk?.blockType ?? "CLASS";
           const endT = blk?.endTime ?? "";
-          if (btype === "REGISTRATION") return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map(()=>`<td class="special reg">REGISTRATION</td>`).join("")}</tr>`;
-          if (btype === "BREAK")        return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map(()=>`<td class="special brk">BREAK</td>`).join("")}</tr>`;
-          if (btype === "LUNCH")        return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map((_, di) => { const isFriday = di === 4; return isFriday && aTimes.size > 0 && !getSlot(5, time).length ? `<td class="special dep">DEPARTURE</td>` : `<td class="special lnc">LUNCH</td>`; }).join("")}</tr>`;
-          if (btype === "DISMISSAL")    return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map(()=>`<td class="special dep">DEPARTURE</td>`).join("")}</tr>`;
-          return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map((_,di) => {
+          const tc = `<td class="time">${fmt(time)}<br><span>- ${fmt(endT)}</span></td>`;
+          if (btype === "REGISTRATION") return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special reg">REGISTRATION</td>`).join("")}</tr>`;
+          if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special brk">BREAK</td>`).join("")}</tr>`;
+          if (btype === "LUNCH")        return `<tr>${tc}${[1,2,3,4,5].map((_, di) => { const isFriday = di === 4; return isFriday && aTimes.size > 0 && !getSlot(5, time).length ? `<td class="special dep">DEPARTURE</td>` : `<td class="special lnc">LUNCH</td>`; }).join("")}</tr>`;
+          if (btype === "DISMISSAL")    return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special dep">DEPARTURE</td>`).join("")}</tr>`;
+          return `<tr>${tc}${[1,2,3,4,5].map((_,di) => {
             const slot = getSlot(di+1, time);
             if (!slot.length) return `<td></td>`;
             return `<td>${slot.map(a => `<div class="subj">${a.subject.name}</div>`).join("")}</td>`;
@@ -340,9 +341,9 @@ export default function GradeSchedulePage() {
           .header-info{font-size:11px;color:#cbd5e1!important;margin-top:4px;}
           table{width:100%;border-collapse:collapse;font-size:10px;}
           th{background:#1e3a5f!important;color:white!important;padding:7px 4px;text-align:center;font-size:9px;font-weight:bold;letter-spacing:0.5px;}
-          td{border:1px solid #d1d5db;padding:5px 4px;text-align:center;vertical-align:middle;min-height:28px;}
-          td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:72px;background:#f8fafc;}
-          td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;}
+          td{border:1px solid #d1d5db;padding:7px 5px;text-align:center;vertical-align:middle;min-height:32px;}
+          td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:76px;background:#f8fafc;text-align:left;padding-left:6px;}
+          td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin-top:1px;}
           .special{font-weight:bold;font-size:9px;text-transform:uppercase;padding:2px;}
           .reg{color:#2563eb!important;background:#eff6ff!important;}
           .brk{color:white!important;background:#1e3a5f!important;}
