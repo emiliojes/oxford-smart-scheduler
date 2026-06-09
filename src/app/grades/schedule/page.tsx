@@ -6,7 +6,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Printer, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet } from "lucide-react";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
 interface Grade {
   id: string;
@@ -104,6 +106,139 @@ export default function GradeSchedulePage() {
   const [loading, setLoading] = useState(false);
   const [showRoom, setShowRoom] = useState(false);
   const [exportingAll, setExportingAll] = useState(false);
+  const [exportingWord, setExportingWord] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
+
+  // ── Shared helper: build per-grade data for export ────────────
+  const buildGradeData = async (grade: Grade) => {
+    const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
+    const secGroup = getSecondaryGroup(grade.name);
+    const HIGH_ONLY  = new Set(["13:30","14:30","15:30"]);
+    const MID_ONLY   = new Set(["13:00","14:00","15:00"]);
+    const baseTBs = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
+    const tbs = secGroup ? [
+      ...baseTBs.filter(b => {
+        if (b.blockType === "LUNCH") return false;
+        if (secGroup === "MIDDLE" && HIGH_ONLY.has(b.startTime)) return false;
+        if (secGroup === "HIGH"   && MID_ONLY.has(b.startTime))  return false;
+        if (b.startTime === "11:45" && secGroup === "MIDDLE" && b.endTime === "12:45") return false;
+        if (b.startTime === "11:45" && secGroup === "HIGH"   && b.endTime === "12:30") return false;
+        return true;
+      }),
+      ...[1,2,3,4,5].map(day => ({
+        id: `${secGroup.toLowerCase()}-lunch-${day}`,
+        dayOfWeek: day, blockType: "LUNCH", level: "SECONDARY",
+        startTime: secGroup === "MIDDLE" ? "12:30" : "13:00",
+        endTime:   secGroup === "MIDDLE" ? "13:00" : "13:30",
+        duration: "30",
+      })),
+    ] : baseTBs;
+    const aTimes = new Set(asgns.map(a => a.timeBlock.startTime));
+    const firstT = [...aTimes].sort()[0] ?? "";
+    const lastT  = [...aTimes].sort().reverse()[0] ?? "";
+    const uniqueT = Array.from(new Set(tbs.map(b => b.startTime))).sort().filter(st => {
+      const blocks = tbs.filter(b => b.startTime === st);
+      const isCls  = blocks.some(b => b.blockType === "CLASS");
+      if (isCls) return aTimes.has(st);
+      if (aTimes.has(st)) return true;
+      if (!firstT) return false;
+      if (blocks.some(b => b.blockType === "REGISTRATION" || b.blockType === "DISMISSAL") && asgns.length > 0) return true;
+      return st >= firstT && st <= lastT;
+    });
+    const hrAssign = asgns.find(a => a.timeBlock.dayOfWeek === 1 && a.timeBlock.startTime === "07:30" && a.subject.name.toLowerCase() === "homeroom")
+      ?? asgns.find(a => a.timeBlock.dayOfWeek === 1 && a.timeBlock.startTime === "07:30");
+    const hrTeacher = hrAssign?.teacher.name ?? "";
+    const roomCounts: Record<string,number> = {};
+    asgns.forEach(a => { if (a.room) roomCounts[a.room.name] = (roomCounts[a.room.name] ?? 0) + 1; });
+    const hrRoom = Object.entries(roomCounts).sort((a,b) => b[1]-a[1])[0]?.[0] ?? "";
+    const schoolLevel = ["9","10","11","12"].includes(grade.name) ? "HIGH SCHOOL" : "MIDDLE SCHOOL";
+    const gradeTitle = `GRADE ${grade.name}${grade.section ?? ""}`;
+    const fmt = (t: string) => { const [h,m="00"]=t.split(":"); const hr=Number(h); return `${hr%12||12}:${m.padStart(2,"0")} ${hr>=12?"PM":"AM"}`; };
+    const getSlotA = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
+    const blockAtA = (time: string) => tbs.find(b => b.startTime === time);
+    return { asgns, tbs, aTimes, uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA };
+  };
+
+  // ── Excel export ─────────────────────────────────────────────────
+  const exportAllExcel = async () => {
+    setExportingExcel(true);
+    try {
+      const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
+      const wb = XLSX.utils.book_new();
+      const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
+      for (const grade of secondaryGrades) {
+        const { uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
+        const shortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
+        const header1 = [`2026 CLASS SCHEDULE — ${schoolLevel} · ${gradeTitle}${hrTeacher ? ` | ${hrTeacher}${hrRoom ? ` — ${shortRoom(hrRoom)}` : ""}` : ""}`, "","","","",""];
+        const header2 = ["TIME", ...DAYS];
+        const dataRows = uniqueT.map(time => {
+          const blk = blockAtA(time);
+          const btype = blk?.blockType ?? "CLASS";
+          const endT = blk?.endTime ?? "";
+          const timeLabel = `${fmt(time)} - ${fmt(endT)}`;
+          if (btype === "REGISTRATION") return [timeLabel, "REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION"];
+          if (btype === "BREAK")        return [timeLabel, "BREAK","BREAK","BREAK","BREAK","BREAK"];
+          if (btype === "LUNCH")        return [timeLabel, "LUNCH","LUNCH","LUNCH","LUNCH","DEPARTURE"];
+          if (btype === "DISMISSAL")    return [timeLabel, "DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE"];
+          return [timeLabel, ...DAYS.map((_,di) => getSlotA(di+1, time).map(a => a.subject.name).join(" / ") || "")];
+        });
+        const ws = XLSX.utils.aoa_to_sheet([header1, header2, ...dataRows]);
+        ws["!merges"] = [{ s:{r:0,c:0}, e:{r:0,c:5} }];
+        ws["!cols"] = [{wch:18},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16}];
+        const sheetName = `${grade.name}${grade.section ?? ""}`.replace(/[^a-zA-Z0-9]/g,"").slice(0,31);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      }
+      const buf = XLSX.write(wb, { bookType:"xlsx", type:"array" });
+      saveAs(new Blob([buf], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "horarios-secundaria-2026.xlsx");
+    } finally { setExportingExcel(false); }
+  };
+
+  // ── Word export ───────────────────────────────────────────────────
+  const exportAllWord = async () => {
+    setExportingWord(true);
+    try {
+      const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
+      const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
+      const tables: string[] = [];
+      for (const grade of secondaryGrades) {
+        const { uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
+        const shortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
+        const thStyle = `style="background:#1e3a5f;color:white;padding:5pt;font-size:9pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
+        const rows = uniqueT.map(time => {
+          const blk = blockAtA(time);
+          const btype = blk?.blockType ?? "CLASS";
+          const endT = blk?.endTime ?? "";
+          const timeCell = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:4pt;border:1px solid #d1d5db;width:65pt;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">${fmt(endT)}</span></td>`;
+          const mkCell = (txt: string, bg: string, clr: string) =>
+            `<td style="background:${bg};color:${clr};font-size:8pt;font-weight:bold;text-align:center;padding:4pt;border:1px solid #d1d5db;">${txt}</td>`;
+          if (btype === "REGISTRATION") return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
+          if (btype === "BREAK")        return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("BREAK","#1e3a5f","white")).join("")}</tr>`;
+          if (btype === "LUNCH")        return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>mkCell(di===4?"DEPARTURE":"LUNCH",di===4?"#1e3a5f":"#fef3c7",di===4?"white":"#92400e")).join("")}</tr>`;
+          if (btype === "DISMISSAL")    return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("DEPARTURE","#1e3a5f","white")).join("")}</tr>`;
+          return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>{
+            const slot = getSlotA(di+1, time);
+            const txt = slot.map(a=>a.subject.name.toUpperCase()).join(" / ") || "";
+            return `<td style="font-size:8pt;font-weight:bold;text-align:center;padding:4pt;border:1px solid #d1d5db;">${txt}</td>`;
+          }).join("")}</tr>`;
+        }).join("");
+        tables.push(`
+          <div style="page-break-after:always;padding:10pt;">
+            <table width="100%" style="background:#1e3a5f;margin-bottom:8pt;border-radius:4pt;"><tr><td style="color:white;text-align:center;padding:10pt;">
+              <div style="font-size:8pt;color:#93c5fd;font-weight:bold;letter-spacing:2pt;text-transform:uppercase;">2026 CLASS SCHEDULE</div>
+              <div style="font-size:15pt;font-weight:bold;text-transform:uppercase;color:white;margin:3pt 0;">${schoolLevel} · ${gradeTitle}</div>
+              ${hrTeacher?`<div style="font-size:9pt;color:#cbd5e1;">${hrTeacher}${hrRoom?` — ${shortRoom(hrRoom)}`:""}</div>`:""}
+            </td></tr></table>
+            <table width="100%" style="border-collapse:collapse;font-size:9pt;">
+              <thead><tr><th ${thStyle}>TIME</th>${DAYS.map(d=>`<th ${thStyle}>${d}</th>`).join("")}</tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`);
+      }
+      const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}</style></head><body>${tables.join("")}</body></html>`;
+      const blob = new Blob(["\ufeff", html], { type:"application/msword" });
+      saveAs(blob, "horarios-secundaria-2026.doc");
+    } finally { setExportingWord(false); }
+  };
 
   const exportAllPDF = async () => {
     setExportingAll(true);
@@ -398,6 +533,12 @@ export default function GradeSchedulePage() {
           </Button>
           <Button variant="outline" size="sm" className="gap-1 border-blue-500 text-blue-700 hover:bg-blue-50" onClick={exportAllPDF} disabled={exportingAll || grades.length === 0}>
             <Printer className="w-4 h-4" /> {exportingAll ? "Generando..." : "PDF Todos"}
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1 border-green-600 text-green-700 hover:bg-green-50" onClick={exportAllExcel} disabled={exportingExcel || grades.length === 0}>
+            <Sheet className="w-4 h-4" /> {exportingExcel ? "Generando..." : "Excel"}
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1 border-indigo-500 text-indigo-700 hover:bg-indigo-50" onClick={exportAllWord} disabled={exportingWord || grades.length === 0}>
+            <FileText className="w-4 h-4" /> {exportingWord ? "Generando..." : "Word"}
           </Button>
         </div>
       </div>
