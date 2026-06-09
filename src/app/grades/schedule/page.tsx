@@ -167,15 +167,22 @@ export default function GradeSchedulePage() {
     gradeLevel === ""
   );
   const secondaryGroup = getSecondaryGroup(selectedGrade?.name);
-  const lunchStart = secondaryGroup === "MIDDLE" ? "12:30" : secondaryGroup === "HIGH" ? "13:00" : null;
+  // Times exclusive to each group — filter them out for the other group
+  const HIGH_ONLY_TIMES  = new Set(["13:30", "14:30", "15:30"]);
+  const MIDDLE_ONLY_TIMES = new Set(["13:00", "14:00", "15:00"]);
   const relevantTBs = secondaryGroup
     ? [
-        ...baseRelevantTBs.filter(b => b.blockType !== "LUNCH" && b.startTime !== lunchStart),
+        ...baseRelevantTBs.filter(b => {
+          if (b.blockType === "LUNCH") return false; // replaced by virtual below
+          if (secondaryGroup === "MIDDLE" && HIGH_ONLY_TIMES.has(b.startTime)) return false;
+          if (secondaryGroup === "HIGH"   && MIDDLE_ONLY_TIMES.has(b.startTime)) return false;
+          return true;
+        }),
         ...[1, 2, 3, 4, 5].map(day => ({
           id: `${secondaryGroup.toLowerCase()}-lunch-${day}`,
           dayOfWeek: day,
           startTime: secondaryGroup === "MIDDLE" ? "12:30" : "13:00",
-          endTime: secondaryGroup === "MIDDLE" ? "13:00" : "13:30",
+          endTime:   secondaryGroup === "MIDDLE" ? "13:00" : "13:30",
           duration: "30",
           blockType: "LUNCH",
           level: "SECONDARY",
