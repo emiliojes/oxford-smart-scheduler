@@ -229,7 +229,7 @@ export default function GradeSchedulePage() {
             <table width="100%" style="background:#1e3a5f;margin-bottom:8pt;border-radius:4pt;"><tr><td style="color:white;text-align:center;padding:10pt;">
               <div style="font-size:8pt;color:#93c5fd;font-weight:bold;letter-spacing:2pt;text-transform:uppercase;">2026 CLASS SCHEDULE</div>
               <div style="font-size:15pt;font-weight:bold;text-transform:uppercase;color:white;margin:3pt 0;">${schoolLevel} · ${gradeTitle}</div>
-              ${hrTeacher?`<div style="font-size:9pt;color:#cbd5e1;">${hrTeacher}${hrRoom?` — ${shortRoom(hrRoom)}`:""}</div>`:""}
+              ${hrTeacher?`<div style="font-size:9pt;color:#cbd5e1;"><span style="color:#93c5fd;font-weight:bold;">HR:</span> ${hrTeacher}${hrRoom?` — ${shortRoom(hrRoom)}`:""}</div>`:""}
             </td></tr></table>
             <table width="100%" style="border-collapse:collapse;font-size:9pt;">
               <thead><tr><th ${thStyle}>TIME</th>${DAYS.map(d=>`<th ${thStyle}>${d}</th>`).join("")}</tr></thead>
@@ -324,7 +324,7 @@ export default function GradeSchedulePage() {
             <div class="header">
               <div class="header-sub">2026 CLASS SCHEDULE</div>
               <div class="header-title">${schoolLevel} · ${gradeTitle}</div>
-              ${hrTeacher ? `<div class="header-info">${hrTeacher}${hrRoom ? ` — ${subShortRoom(hrRoom)}` : ""}</div>` : ""}
+              ${hrTeacher ? `<div class="header-info"><span style="color:#93c5fd;font-weight:bold;">HR:</span> ${hrTeacher}${hrRoom ? ` — ${subShortRoom(hrRoom)}` : ""}</div>` : ""}
             </div>
             <table>
               <thead><tr><th>TIME</th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead>
@@ -618,7 +618,7 @@ export default function GradeSchedulePage() {
                   <td className="border border-[#2d5a9e] text-center align-middle py-2" colSpan={5} style={{background:'#1e3a5f',color:'white'}}>
                     <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'#93c5fd'}}>2026 CLASS SCHEDULE</div>
                     <div className="text-sm font-bold uppercase">{getSchoolLevel(selectedGrade)} · GRADE {gradeLabel(selectedGrade)}</div>
-                    {homeroomTeacher && <div className="text-[10px]" style={{color:'#cbd5e1'}}>{homeroomTeacher}{(showRoom && homeroomRoom) ? ` — ${shortRoom(homeroomRoom)}` : ""}</div>}
+                    {homeroomTeacher && <div className="text-[10px]" style={{color:'#cbd5e1'}}><span style={{color:'#93c5fd',fontWeight:'bold'}}>HR:</span> {homeroomTeacher}{(showRoom && homeroomRoom) ? ` — ${shortRoom(homeroomRoom)}` : ""}</div>}
                   </td>
                 </tr>
               </tbody>
@@ -639,7 +639,7 @@ export default function GradeSchedulePage() {
                     <div className="text-lg font-bold uppercase mt-0.5">{getSchoolLevel(selectedGrade)} · GRADE {gradeLabel(selectedGrade)}</div>
                     {(homeroomTeacher || homeroomRoom) && (
                       <div className="text-sm mt-0.5" style={{color:'#cbd5e1'}}>
-                        {homeroomTeacher}{(showRoom && homeroomRoom) ? ` — ${shortRoom(homeroomRoom)}` : ""}
+                        <span style={{color:'#93c5fd',fontWeight:'bold'}}>HR:</span> {homeroomTeacher}{(showRoom && homeroomRoom) ? ` — ${shortRoom(homeroomRoom)}` : ""}
                       </div>
                     )}
                     {loading && <div className="text-xs text-blue-300 animate-pulse mt-1">Cargando...</div>}
