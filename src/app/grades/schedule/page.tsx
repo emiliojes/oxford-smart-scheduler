@@ -102,6 +102,7 @@ export default function GradeSchedulePage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showRoom, setShowRoom] = useState(true);
 
   useEffect(() => {
     if (!user) return;
@@ -277,6 +278,22 @@ export default function GradeSchedulePage() {
         ))}
       </div>
 
+      {/* Toolbar */}
+      {selectedGrade && (
+        <div className="no-print flex items-center gap-2">
+          <button
+            onClick={() => setShowRoom(v => !v)}
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+              showRoom
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white dark:bg-slate-800 border-slate-300 text-slate-500 dark:text-slate-400"
+            }`}
+          >
+            {showRoom ? "Ocultar Salón" : "Mostrar Salón"}
+          </button>
+        </div>
+      )}
+
       {/* Prev / Next navigation */}
       {selectedGrade && (
         <div className="no-print flex items-center justify-between">
@@ -307,7 +324,7 @@ export default function GradeSchedulePage() {
                   <td className="border border-[#2d5a9e] text-center align-middle py-2" colSpan={5} style={{background:'#1e3a5f',color:'white'}}>
                     <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'#93c5fd'}}>2026 CLASS SCHEDULE</div>
                     <div className="text-sm font-bold uppercase">{getSchoolLevel(selectedGrade)} · GRADE {gradeLabel(selectedGrade)}</div>
-                    {homeroomTeacher && <div className="text-[10px]" style={{color:'#cbd5e1'}}>{homeroomTeacher}{homeroomRoom ? ` — ${shortRoom(homeroomRoom)}` : ""}</div>}
+                    {homeroomTeacher && <div className="text-[10px]" style={{color:'#cbd5e1'}}>{homeroomTeacher}{(showRoom && homeroomRoom) ? ` — ${shortRoom(homeroomRoom)}` : ""}</div>}
                   </td>
                 </tr>
               </tbody>
@@ -328,7 +345,7 @@ export default function GradeSchedulePage() {
                     <div className="text-lg font-bold uppercase mt-0.5">{getSchoolLevel(selectedGrade)} · GRADE {gradeLabel(selectedGrade)}</div>
                     {(homeroomTeacher || homeroomRoom) && (
                       <div className="text-sm mt-0.5" style={{color:'#cbd5e1'}}>
-                        {homeroomTeacher}{homeroomRoom ? ` — ${shortRoom(homeroomRoom)}` : ""}
+                        {homeroomTeacher}{(showRoom && homeroomRoom) ? ` — ${shortRoom(homeroomRoom)}` : ""}
                       </div>
                     )}
                     {loading && <div className="text-xs text-blue-300 animate-pulse mt-1">Cargando...</div>}
@@ -407,8 +424,8 @@ export default function GradeSchedulePage() {
                                     }`}
                                   >
                                     <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
-                                    {a.room && (
-                                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">{shortRoom(a.room.name)}</div>
+                                    {showRoom && a.room && (
+                                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 print:block">{shortRoom(a.room.name)}</div>
                                     )}
                                     {a.note && (
                                       <div className="text-[9px] opacity-60">({a.note})</div>
