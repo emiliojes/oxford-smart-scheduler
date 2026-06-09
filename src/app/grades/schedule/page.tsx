@@ -113,8 +113,8 @@ export default function GradeSchedulePage() {
   const buildGradeData = async (grade: Grade) => {
     const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
     const secGroup = getSecondaryGroup(grade.name);
-    const HIGH_ONLY  = new Set(["13:30","14:30","15:30"]);
-    const MID_ONLY   = new Set(["13:00","14:00","15:00"]);
+    const HIGH_ONLY  = new Set(["13:30","14:15"]);
+    const MID_ONLY   = new Set(["13:00","14:00"]);
     const baseTBs = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
     const tbs = secGroup ? [
       ...baseTBs.filter(b => {
@@ -253,8 +253,8 @@ export default function GradeSchedulePage() {
       for (const grade of secondaryGrades) {
         const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
         const secGroup = getSecondaryGroup(grade.name);
-        const HIGH_ONLY  = new Set(["13:30","14:30","15:30"]);
-        const MID_ONLY   = new Set(["13:00","14:00","15:00"]);
+        const HIGH_ONLY  = new Set(["13:30","14:15"]);
+        const MID_ONLY   = new Set(["13:00","14:00"]);
         const baseTBs = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
         const tbs = secGroup ? [
           ...baseTBs.filter(b => {
@@ -433,8 +433,8 @@ export default function GradeSchedulePage() {
   );
   const secondaryGroup = getSecondaryGroup(selectedGrade?.name);
   // Times exclusive to each group — filter them out for the other group
-  const HIGH_ONLY_TIMES  = new Set(["13:30", "14:30", "15:30"]);
-  const MIDDLE_ONLY_TIMES = new Set(["13:00", "14:00", "15:00"]);
+  const HIGH_ONLY_TIMES  = new Set(["13:30", "14:15"]);
+  const MIDDLE_ONLY_TIMES = new Set(["13:00", "14:00"]);
   const relevantTBs = secondaryGroup
     ? [
         ...baseRelevantTBs.filter(b => {
