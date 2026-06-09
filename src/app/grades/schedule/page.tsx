@@ -113,7 +113,8 @@ export default function GradeSchedulePage() {
       const sorted = sortGrades(g);
       setGrades(sorted);
       setTimeBlocks(tb);
-      if (sorted.length > 0) setSelectedGradeId(sorted[0].id);
+      const firstSecondary = sorted.find(gr => gr.level === "SECONDARY" || gr.level === "LOW_SECONDARY");
+      setSelectedGradeId((firstSecondary ?? sorted[0])?.id ?? "");
     }).catch(() => {});
   }, [user]);
 
@@ -263,7 +264,7 @@ export default function GradeSchedulePage() {
 
       {/* Grade selector */}
       <div className="no-print flex flex-wrap gap-4 items-start">
-        {LEVEL_ORDER.filter(l => levelGroups[l]).map(level => (
+        {LEVEL_ORDER.filter(l => levelGroups[l] && l !== "PRIMARY").map(level => (
           <div key={level}>
             <p className="text-xs font-bold text-slate-500 uppercase mb-1">{levelLabel(level)}</p>
             <div className="flex flex-wrap gap-1">
