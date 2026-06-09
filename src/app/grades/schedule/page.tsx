@@ -103,6 +103,130 @@ export default function GradeSchedulePage() {
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [loading, setLoading] = useState(false);
   const [showRoom, setShowRoom] = useState(false);
+  const [exportingAll, setExportingAll] = useState(false);
+
+  const exportAllPDF = async () => {
+    setExportingAll(true);
+    try {
+      const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
+      const pages: string[] = [];
+
+      for (const grade of secondaryGrades) {
+        const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
+        const secGroup = getSecondaryGroup(grade.name);
+        const HIGH_ONLY  = new Set(["13:30","14:30","15:30"]);
+        const MID_ONLY   = new Set(["13:00","14:00","15:00"]);
+        const baseTBs = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
+        const tbs = secGroup ? [
+          ...baseTBs.filter(b => {
+            if (b.blockType === "LUNCH") return false;
+            if (secGroup === "MIDDLE" && HIGH_ONLY.has(b.startTime)) return false;
+            if (secGroup === "HIGH"   && MID_ONLY.has(b.startTime))  return false;
+            if (b.startTime === "11:45" && secGroup === "MIDDLE" && b.endTime === "12:45") return false;
+            if (b.startTime === "11:45" && secGroup === "HIGH"   && b.endTime === "12:30") return false;
+            return true;
+          }),
+          ...[1,2,3,4,5].map(day => ({
+            id: `${secGroup.toLowerCase()}-lunch-${day}`,
+            dayOfWeek: day, blockType: "LUNCH", level: "SECONDARY",
+            startTime: secGroup === "MIDDLE" ? "12:30" : "13:00",
+            endTime:   secGroup === "MIDDLE" ? "13:00" : "13:30",
+            duration: "30",
+          })),
+        ] : baseTBs;
+
+        const aTimes = new Set(asgns.map(a => a.timeBlock.startTime));
+        const firstT = [...aTimes].sort()[0] ?? "";
+        const lastT  = [...aTimes].sort().reverse()[0] ?? "";
+        const uniqueT = Array.from(new Set(tbs.map(b => b.startTime))).sort().filter(st => {
+          const blocks = tbs.filter(b => b.startTime === st);
+          const isCls  = blocks.some(b => b.blockType === "CLASS");
+          if (isCls) return aTimes.has(st);
+          if (aTimes.has(st)) return true;
+          if (!firstT) return false;
+          if (blocks.some(b => b.blockType === "REGISTRATION" || b.blockType === "DISMISSAL") && asgns.length > 0) return true;
+          return st >= firstT && st <= lastT;
+        });
+
+        const hrAssign = asgns.find(a => a.timeBlock.dayOfWeek === 1 && a.timeBlock.startTime === "07:30" && a.subject.name.toLowerCase() === "homeroom")
+          ?? asgns.find(a => a.timeBlock.dayOfWeek === 1 && a.timeBlock.startTime === "07:30");
+        const hrTeacher = hrAssign?.teacher.name ?? "";
+        const roomCounts: Record<string,number> = {};
+        asgns.forEach(a => { if (a.room) roomCounts[a.room.name] = (roomCounts[a.room.name] ?? 0) + 1; });
+        const hrRoom = Object.entries(roomCounts).sort((a,b) => b[1]-a[1])[0]?.[0] ?? "";
+        const schoolLevel = ["9","10","11","12"].includes(grade.name) ? "HIGH SCHOOL" : "MIDDLE SCHOOL";
+        const gradeTitle = `GRADE ${grade.name}${grade.section ?? ""}`;
+        const subShortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
+
+        const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
+        const getSlot = (day: number, time: string) =>
+          asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
+        const blockAt = (time: string) => tbs.find(b => b.startTime === time);
+        const fmt = (t: string) => { const [h,m="00"]=t.split(":"); const hr=Number(h); return `${hr%12||12}:${m.padStart(2,"0")} ${hr>=12?"PM":"AM"}`; };
+
+        const rows = uniqueT.map(time => {
+          const blk = blockAt(time);
+          const btype = blk?.blockType ?? "CLASS";
+          const endT = blk?.endTime ?? "";
+          if (btype === "REGISTRATION") return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map(()=>`<td class="special reg">REGISTRATION</td>`).join("")}</tr>`;
+          if (btype === "BREAK")        return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map(()=>`<td class="special brk">BREAK</td>`).join("")}</tr>`;
+          if (btype === "LUNCH")        return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map((_, di) => { const isFriday = di === 4; return isFriday && aTimes.size > 0 && !getSlot(5, time).length ? `<td class="special dep">DEPARTURE</td>` : `<td class="special lnc">LUNCH</td>`; }).join("")}</tr>`;
+          if (btype === "DISMISSAL")    return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map(()=>`<td class="special dep">DEPARTURE</td>`).join("")}</tr>`;
+          return `<tr><td class="time">${fmt(time)}<br><span>${fmt(endT)}</span></td>${[1,2,3,4,5].map((_,di) => {
+            const slot = getSlot(di+1, time);
+            if (!slot.length) return `<td></td>`;
+            return `<td>${slot.map(a => `<div class="subj">${a.subject.name}</div>`).join("")}</td>`;
+          }).join("")}</tr>`;
+        }).join("");
+
+        pages.push(`
+          <div class="page">
+            <div class="header">
+              <div class="header-sub">2026 CLASS SCHEDULE</div>
+              <div class="header-title">${schoolLevel} · ${gradeTitle}</div>
+              ${hrTeacher ? `<div class="header-info">${hrTeacher}${hrRoom ? ` — ${subShortRoom(hrRoom)}` : ""}</div>` : ""}
+            </div>
+            <table>
+              <thead><tr><th>TIME</th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`);
+      }
+
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+        <style>
+          *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+          body{background:#fff;}
+          .page{page-break-after:always;padding:12px;}
+          .page:last-child{page-break-after:auto;}
+          .header{background:#1e3a5f;color:white;text-align:center;padding:12px;margin-bottom:8px;border-radius:4px;}
+          .header-sub{font-size:10px;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+          .header-title{font-size:16px;font-weight:bold;text-transform:uppercase;margin:2px 0;}
+          .header-info{font-size:11px;color:#cbd5e1;margin-top:2px;}
+          table{width:100%;border-collapse:collapse;font-size:10px;}
+          th{background:#1e3a5f;color:white;padding:6px 4px;text-align:center;font-size:9px;}
+          td{border:1px solid #d1d5db;padding:4px;text-align:center;vertical-align:middle;}
+          td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:70px;}
+          td.time span{font-weight:normal;font-size:8px;color:#64748b;}
+          .special{font-weight:bold;font-size:9px;text-transform:uppercase;}
+          .reg{color:#2563eb;background:#eff6ff;}
+          .brk{color:#1e3a5f;background:#1e3a5f;color:white;}
+          .lnc{color:#92400e;background:#fef3c7;}
+          .dep{color:white;background:#1e3a5f;}
+          .subj{font-weight:bold;text-transform:uppercase;font-size:9px;}
+          @media print{
+            .page{page-break-after:always;}
+            .page:last-child{page-break-after:auto;}
+          }
+        </style>
+      </head><body>${pages.join("")}</body></html>`;
+
+      const win = window.open("", "_blank");
+      if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 800); }
+    } finally {
+      setExportingAll(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -267,9 +391,14 @@ export default function GradeSchedulePage() {
             {t.schedule.types.grade} — {t.schedule.title}
           </h1>
         </div>
-        <Button variant="outline" size="sm" className="gap-1" onClick={() => window.print()}>
-          <Printer className="w-4 h-4" /> {t.schedule.print}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-1" onClick={() => window.print()}>
+            <Printer className="w-4 h-4" /> {t.schedule.print}
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1 border-blue-500 text-blue-700 hover:bg-blue-50" onClick={exportAllPDF} disabled={exportingAll || grades.length === 0}>
+            <Printer className="w-4 h-4" /> {exportingAll ? "Generando..." : "PDF Todos"}
+          </Button>
+        </div>
       </div>
 
       {/* Grade selector */}
