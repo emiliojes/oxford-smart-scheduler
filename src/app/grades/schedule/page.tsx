@@ -102,7 +102,7 @@ export default function GradeSchedulePage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showRoom, setShowRoom] = useState(true);
+  const [showRoom, setShowRoom] = useState(false);
 
   useEffect(() => {
     if (!user) return;
