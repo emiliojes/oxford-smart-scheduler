@@ -121,15 +121,13 @@ export default function GradeSchedulePage() {
         if (b.blockType === "LUNCH") return false;
         if (secGroup === "MIDDLE" && HIGH_ONLY.has(b.startTime)) return false;
         if (secGroup === "HIGH"   && MID_ONLY.has(b.startTime))  return false;
-        if (b.startTime === "11:45" && secGroup === "MIDDLE" && b.endTime === "12:45") return false;
-        if (b.startTime === "11:45" && secGroup === "HIGH"   && b.endTime === "12:30") return false;
         return true;
       }),
       ...[1,2,3,4,5].map(day => ({
         id: `${secGroup.toLowerCase()}-lunch-${day}`,
         dayOfWeek: day, blockType: "LUNCH", level: "SECONDARY",
-        startTime: secGroup === "MIDDLE" ? "12:30" : "13:00",
-        endTime:   secGroup === "MIDDLE" ? "13:00" : "13:30",
+        startTime: secGroup === "MIDDLE" ? "12:45" : "13:00",
+        endTime:   secGroup === "MIDDLE" ? "13:15" : "13:30",
         duration: "30",
       })),
     ] : baseTBs;
@@ -441,16 +439,13 @@ export default function GradeSchedulePage() {
           if (b.blockType === "LUNCH") return false; // replaced by virtual below
           if (secondaryGroup === "MIDDLE" && HIGH_ONLY_TIMES.has(b.startTime)) return false;
           if (secondaryGroup === "HIGH"   && MIDDLE_ONLY_TIMES.has(b.startTime)) return false;
-          // Slot 5: Middle uses 11:45-12:30, High uses 11:45-12:45
-          if (b.startTime === "11:45" && secondaryGroup === "MIDDLE" && b.endTime === "12:45") return false;
-          if (b.startTime === "11:45" && secondaryGroup === "HIGH"   && b.endTime === "12:30") return false;
           return true;
         }),
         ...[1, 2, 3, 4, 5].map(day => ({
           id: `${secondaryGroup.toLowerCase()}-lunch-${day}`,
           dayOfWeek: day,
-          startTime: secondaryGroup === "MIDDLE" ? "12:30" : "13:00",
-          endTime:   secondaryGroup === "MIDDLE" ? "13:00" : "13:30",
+          startTime: secondaryGroup === "MIDDLE" ? "12:45" : "13:00",
+          endTime:   secondaryGroup === "MIDDLE" ? "13:15" : "13:30",
           duration: "30",
           blockType: "LUNCH",
           level: "SECONDARY",
