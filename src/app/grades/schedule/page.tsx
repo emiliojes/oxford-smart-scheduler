@@ -199,8 +199,11 @@ export default function GradeSchedulePage() {
     try {
       const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
       const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
-      const tables: string[] = [];
-      for (const grade of secondaryGrades) {
+      const buildWordHtml = (table: string) =>
+        `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:0;padding:0;}</style></head><body>${table}</body></html>`;
+
+      for (let i = 0; i < secondaryGrades.length; i++) {
+        const grade = secondaryGrades[i];
         const { uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
         const shortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
         const thStyle = `style="background:#1e3a5f;color:white;padding:5pt;font-size:9pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
@@ -221,8 +224,8 @@ export default function GradeSchedulePage() {
             return `<td style="font-size:8.5pt;font-weight:bold;text-align:center;padding:7pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
           }).join("")}</tr>`;
         }).join("");
-        tables.push(`
-          <div style="page-break-after:always;padding:10pt;">
+        const table = `
+          <div style="padding:10pt;">
             <table width="100%" style="background:#1e3a5f;margin-bottom:8pt;border-radius:4pt;"><tr><td style="color:white;text-align:center;padding:10pt;">
               <div style="font-size:8pt;color:#93c5fd;font-weight:bold;letter-spacing:2pt;text-transform:uppercase;">2026 CLASS SCHEDULE</div>
               <div style="font-size:15pt;font-weight:bold;text-transform:uppercase;color:white;margin:3pt 0;">${schoolLevel} · ${gradeTitle}</div>
@@ -232,11 +235,12 @@ export default function GradeSchedulePage() {
               <thead><tr><th ${thStyle}>TIME</th>${DAYS.map(d=>`<th ${thStyle}>${d}</th>`).join("")}</tr></thead>
               <tbody>${rows}</tbody>
             </table>
-          </div>`);
+          </div>`;
+        const blob = new Blob(["\ufeff", buildWordHtml(table)], { type:"application/msword" });
+        const fileName = `horario-${grade.name}${grade.section ?? ""}-2026.doc`;
+        // Stagger downloads so browser doesn't block them
+        await new Promise<void>(resolve => setTimeout(() => { saveAs(blob, fileName); resolve(); }, i * 400));
       }
-      const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}</style></head><body>${tables.join("")}</body></html>`;
-      const blob = new Blob(["\ufeff", html], { type:"application/msword" });
-      saveAs(blob, "horarios-secundaria-2026.doc");
     } finally { setExportingWord(false); }
   };
 
