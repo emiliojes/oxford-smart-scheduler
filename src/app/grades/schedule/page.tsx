@@ -114,20 +114,22 @@ export default function GradeSchedulePage() {
     const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
     const secGroup = getSecondaryGroup(grade.name);
     const HIGH_ONLY  = new Set(["13:30","14:30"]);
-    const MID_ONLY   = new Set(["13:15","14:15"]);
+    const MID_ONLY   = new Set(["13:00","14:00"]);
     const baseTBs = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
     const tbs = secGroup ? [
       ...baseTBs.filter(b => {
         if (b.blockType === "LUNCH") return false;
         if (secGroup === "MIDDLE" && HIGH_ONLY.has(b.startTime)) return false;
         if (secGroup === "HIGH"   && MID_ONLY.has(b.startTime))  return false;
+        if (b.startTime === "11:45" && secGroup === "MIDDLE" && b.endTime === "12:45") return false;
+        if (b.startTime === "11:45" && secGroup === "HIGH"   && b.endTime === "12:30") return false;
         return true;
       }),
       ...[1,2,3,4,5].map(day => ({
         id: `${secGroup.toLowerCase()}-lunch-${day}`,
         dayOfWeek: day, blockType: "LUNCH", level: "SECONDARY",
-        startTime: secGroup === "MIDDLE" ? "12:45" : "13:00",
-        endTime:   secGroup === "MIDDLE" ? "13:15" : "13:30",
+        startTime: secGroup === "MIDDLE" ? "12:30" : "13:00",
+        endTime:   secGroup === "MIDDLE" ? "13:00" : "13:30",
         duration: "30",
       })),
     ] : baseTBs;
@@ -252,7 +254,7 @@ export default function GradeSchedulePage() {
         const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
         const secGroup = getSecondaryGroup(grade.name);
         const HIGH_ONLY  = new Set(["13:30","14:30"]);
-        const MID_ONLY   = new Set(["13:15","14:15"]);
+        const MID_ONLY   = new Set(["13:00","14:00"]);
         const baseTBs = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
         const tbs = secGroup ? [
           ...baseTBs.filter(b => {
@@ -432,20 +434,22 @@ export default function GradeSchedulePage() {
   const secondaryGroup = getSecondaryGroup(selectedGrade?.name);
   // Times exclusive to each group — filter them out for the other group
   const HIGH_ONLY_TIMES  = new Set(["13:30", "14:30"]);
-  const MIDDLE_ONLY_TIMES = new Set(["13:15", "14:15"]);
+  const MIDDLE_ONLY_TIMES = new Set(["13:00", "14:00"]);
   const relevantTBs = secondaryGroup
     ? [
         ...baseRelevantTBs.filter(b => {
           if (b.blockType === "LUNCH") return false; // replaced by virtual below
           if (secondaryGroup === "MIDDLE" && HIGH_ONLY_TIMES.has(b.startTime)) return false;
           if (secondaryGroup === "HIGH"   && MIDDLE_ONLY_TIMES.has(b.startTime)) return false;
+          if (b.startTime === "11:45" && secondaryGroup === "MIDDLE" && b.endTime === "12:45") return false;
+          if (b.startTime === "11:45" && secondaryGroup === "HIGH"   && b.endTime === "12:30") return false;
           return true;
         }),
         ...[1, 2, 3, 4, 5].map(day => ({
           id: `${secondaryGroup.toLowerCase()}-lunch-${day}`,
           dayOfWeek: day,
-          startTime: secondaryGroup === "MIDDLE" ? "12:45" : "13:00",
-          endTime:   secondaryGroup === "MIDDLE" ? "13:15" : "13:30",
+          startTime: secondaryGroup === "MIDDLE" ? "12:30" : "13:00",
+          endTime:   secondaryGroup === "MIDDLE" ? "13:00" : "13:30",
           duration: "30",
           blockType: "LUNCH",
           level: "SECONDARY",
