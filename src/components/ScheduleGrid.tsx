@@ -214,10 +214,10 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
         ...[1, 2, 3, 4, 5].flatMap(day => {
           const blocks: TimeBlock[] = [];
           if (secondaryGroups.has("MIDDLE")) {
-            blocks.push({ id: `middle-lunch-${day}`, dayOfWeek: day, startTime: "12:30", endTime: "13:00", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+            blocks.push({ id: `middle-lunch-${day}`, dayOfWeek: day, startTime: "11:30", endTime: "12:00", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
           }
           if (secondaryGroups.has("HIGH")) {
-            blocks.push({ id: `high-lunch-${day}`, dayOfWeek: day, startTime: "13:00", endTime: "13:30", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+            blocks.push({ id: `high-lunch-${day}`, dayOfWeek: day, startTime: "12:45", endTime: "13:15", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
           }
           return blocks;
         }),
