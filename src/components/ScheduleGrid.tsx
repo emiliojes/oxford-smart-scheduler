@@ -419,9 +419,16 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                         </TooltipContent>
                                       </Tooltip>
                                     )}
-                                    <div className="font-bold text-blue-900 dark:text-blue-300 truncate">{a.subject.name}</div>
+                                    <div className="font-bold text-blue-900 dark:text-blue-300 truncate">
+                                      {viewType === "teacher" && a.grade
+                                        ? `${t.schedule.types.grade} ${a.grade.name}${a.grade.section ?? ""}`
+                                        : a.subject.name}
+                                    </div>
                                     <div className="flex flex-col text-slate-600 dark:text-slate-200 print:text-slate-700">
-                                      {viewType !== "grade" && (
+                                      {viewType === "teacher" && (
+                                        <span className="truncate">{a.subject.name}</span>
+                                      )}
+                                      {viewType !== "teacher" && viewType !== "grade" && (
                                         <span className="truncate">{a.grade ? `${t.schedule.types.grade}: ${a.grade.name}${a.grade.section ?? ""}` : ""}</span>
                                       )}
                                       {a.note && (
