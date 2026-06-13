@@ -110,17 +110,6 @@ function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HI
   return null;
 }
 
-function buildRelevantTimeBlocks(timeBlocks: TimeBlock[], assignments: Assignment[], forceLevel?: "MIDDLE" | "HIGH"): TimeBlock[] {
-  const secondary = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
-  const noLunch = secondary.filter(b => b.blockType !== "LUNCH");
-  const lunchBlocks: TimeBlock[] = [1,2,3,4,5].map(day => (
-    forceLevel === "MIDDLE"
-      ? { id: `middle-lunch-${day}`, dayOfWeek: day, startTime: "11:30", endTime: "12:00", duration: "30", blockType: "LUNCH", level: "SECONDARY" }
-      : { id: `high-lunch-${day}`, dayOfWeek: day, startTime: "12:45", endTime: "13:15", duration: "30", blockType: "LUNCH", level: "SECONDARY" }
-  ));
-  return [...noLunch, ...lunchBlocks];
-}
-
 export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
   const { canManage } = useAuth();
@@ -202,47 +191,25 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   const hasLowSec    = (levelCounts["LOW_SECONDARY"] ?? 0) > 0;
   const hasSecondary = (levelCounts["SECONDARY"] ?? 0) > 0;
 
-  // Teacher with both Middle (LOW_SECONDARY) and High (SECONDARY) → split into two grids
+  // Teacher with both Middle (LOW_SECONDARY) and High (SECONDARY) → unified single table
   const isMixedSecondary = viewType === "teacher" && hasLowSec && hasSecondary;
-  if (isMixedSecondary) {
-    const middleAssignments = assignments.filter(a => ["6","7","8"].includes(a.grade?.name ?? ""));
-    const highAssignments   = assignments.filter(a => ["9","10","11","12"].includes(a.grade?.name ?? ""));
-    const middleTBs = buildRelevantTimeBlocks(timeBlocks, middleAssignments, "MIDDLE");
-    const highTBs   = buildRelevantTimeBlocks(timeBlocks, highAssignments, "HIGH");
-    return (
-      <div className="space-y-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-px flex-1 bg-lime-300" />
-            <span className="text-sm font-bold text-lime-700 uppercase tracking-widest px-2">Middle School (Grados 6–8)</span>
-            <div className="h-px flex-1 bg-lime-300" />
-          </div>
-          <ScheduleGrid assignments={middleAssignments} timeBlocks={middleTBs} viewType="teacher" onRefresh={onRefresh} />
-        </div>
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-px flex-1 bg-blue-300" />
-            <span className="text-sm font-bold text-blue-700 uppercase tracking-widest px-2">High School (Grados 9–12)</span>
-            <div className="h-px flex-1 bg-blue-300" />
-          </div>
-          <ScheduleGrid assignments={highAssignments} timeBlocks={highTBs} viewType="teacher" onRefresh={onRefresh} />
-        </div>
-      </div>
-    );
-  }
 
   const isFullyMixed = hasPrimary && (hasLowSec || hasSecondary);
-  const tbLevel = isFullyMixed
+  const tbLevel = isMixedSecondary
+    ? null                                              // include all secondary blocks (Middle + High)
+    : isFullyMixed
     ? null
     : (hasPrimary && hasLowSec)
     ? "PRIMARY"
     : dominantLevel === "LOW_SECONDARY" ? "SECONDARY"
     : dominantLevel;
-  const baseRelevantTimeBlocks = tbLevel
+  const baseRelevantTimeBlocks = isMixedSecondary
+    ? timeBlocks.filter(b => b.level === "LOW_SECONDARY" || b.level === "SECONDARY" || b.level === "BOTH")
+    : tbLevel
     ? timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
     : timeBlocks;
   const secondaryGroups = new Set(assignments.map(a => getSecondaryGroup(a.grade?.name)).filter(Boolean));
-  const shouldUseSecondaryLunchSplit = tbLevel === "SECONDARY" && secondaryGroups.size > 0;
+  const shouldUseSecondaryLunchSplit = (tbLevel === "SECONDARY" || isMixedSecondary) && secondaryGroups.size > 0;
   const relevantTimeBlocks = shouldUseSecondaryLunchSplit
     ? [
         ...baseRelevantTimeBlocks.filter(b => b.blockType !== "LUNCH"),
@@ -281,7 +248,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     // Suppress duplicate LUNCH slots: if another LUNCH slot without assignments is already in range,
     // only keep the one that matches the teacher's actual lunch time (closest to assignments)
     const blockType = blocksAtTime[0]?.blockType;
-    if (blockType === "LUNCH") {
+    if (blockType === "LUNCH" && !isMixedSecondary) {
       // Check if there's already another LUNCH slot in the visible times that also has no assignment
       const otherLunchInRange = relevantTimeBlocks
         .filter(b => b.blockType === "LUNCH" && b.startTime !== st)
@@ -454,10 +421,21 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                         </TooltipContent>
                                       </Tooltip>
                                     )}
-                                    <div className="font-bold text-blue-900 dark:text-blue-300 truncate">
-                                      {viewType === "teacher" && a.grade
-                                        ? `${t.schedule.types.grade} ${a.grade.name}${a.grade.section ?? ""}`
-                                        : a.subject.name}
+                                    <div className="font-bold text-blue-900 dark:text-blue-300 truncate flex items-center gap-1">
+                                      {isMixedSecondary && a.grade && getSecondaryGroup(a.grade.name) && (
+                                        <span className={`inline-flex items-center justify-center text-[9px] font-extrabold rounded px-1 leading-tight ${
+                                          getSecondaryGroup(a.grade.name) === "MIDDLE"
+                                            ? "bg-lime-200 text-lime-800"
+                                            : "bg-blue-200 text-blue-800"
+                                        }`}>
+                                          {getSecondaryGroup(a.grade.name) === "MIDDLE" ? "M" : "H"}
+                                        </span>
+                                      )}
+                                      <span className="truncate">
+                                        {viewType === "teacher" && a.grade
+                                          ? `${t.schedule.types.grade} ${a.grade.name}${a.grade.section ?? ""}`
+                                          : a.subject.name}
+                                      </span>
                                     </div>
                                     <div className="flex flex-col text-slate-600 dark:text-slate-200 print:text-slate-700">
                                       {viewType === "teacher" && (
