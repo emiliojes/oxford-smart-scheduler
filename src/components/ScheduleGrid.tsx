@@ -110,6 +110,17 @@ function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HI
   return null;
 }
 
+function buildRelevantTimeBlocks(timeBlocks: TimeBlock[], assignments: Assignment[], forceLevel?: "MIDDLE" | "HIGH"): TimeBlock[] {
+  const secondary = timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH");
+  const noLunch = secondary.filter(b => b.blockType !== "LUNCH");
+  const lunchBlocks: TimeBlock[] = [1,2,3,4,5].map(day => (
+    forceLevel === "MIDDLE"
+      ? { id: `middle-lunch-${day}`, dayOfWeek: day, startTime: "11:30", endTime: "12:00", duration: "30", blockType: "LUNCH", level: "SECONDARY" }
+      : { id: `high-lunch-${day}`, dayOfWeek: day, startTime: "12:45", endTime: "13:15", duration: "30", blockType: "LUNCH", level: "SECONDARY" }
+  ));
+  return [...noLunch, ...lunchBlocks];
+}
+
 export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
   const { t } = useLanguage();
   const { canManage } = useAuth();
@@ -187,22 +198,46 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     levelCounts[lvl] = (levelCounts[lvl] ?? 0) + 1;
   }
   const dominantLevel = Object.entries(levelCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
-  // If teacher has PRIMARY grades mixed with LOW_SECONDARY (e.g. Omely: 4B,5A,6B), use PRIMARY.
-  // Pure LOW_SECONDARY teachers (grades 7-8 only) use SECONDARY time blocks.
-  // Pure SECONDARY (9-12) stays SECONDARY.
   const hasPrimary   = (levelCounts["PRIMARY"] ?? 0) > 0;
   const hasLowSec    = (levelCounts["LOW_SECONDARY"] ?? 0) > 0;
   const hasSecondary = (levelCounts["SECONDARY"] ?? 0) > 0;
-  // For fully mixed teachers (PRIMARY + SECONDARY grades), include all time blocks
-  // so assignments at SECONDARY slots (14:15, etc.) are visible alongside PRIMARY ones.
+
+  // Teacher with both Middle (LOW_SECONDARY) and High (SECONDARY) → split into two grids
+  const isMixedSecondary = viewType === "teacher" && hasLowSec && hasSecondary;
+  if (isMixedSecondary) {
+    const middleAssignments = assignments.filter(a => ["6","7","8"].includes(a.grade?.name ?? ""));
+    const highAssignments   = assignments.filter(a => ["9","10","11","12"].includes(a.grade?.name ?? ""));
+    const middleTBs = buildRelevantTimeBlocks(timeBlocks, middleAssignments, "MIDDLE");
+    const highTBs   = buildRelevantTimeBlocks(timeBlocks, highAssignments, "HIGH");
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px flex-1 bg-lime-300" />
+            <span className="text-sm font-bold text-lime-700 uppercase tracking-widest px-2">Middle School (Grados 6–8)</span>
+            <div className="h-px flex-1 bg-lime-300" />
+          </div>
+          <ScheduleGrid assignments={middleAssignments} timeBlocks={middleTBs} viewType="teacher" onRefresh={onRefresh} />
+        </div>
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px flex-1 bg-blue-300" />
+            <span className="text-sm font-bold text-blue-700 uppercase tracking-widest px-2">High School (Grados 9–12)</span>
+            <div className="h-px flex-1 bg-blue-300" />
+          </div>
+          <ScheduleGrid assignments={highAssignments} timeBlocks={highTBs} viewType="teacher" onRefresh={onRefresh} />
+        </div>
+      </div>
+    );
+  }
+
   const isFullyMixed = hasPrimary && (hasLowSec || hasSecondary);
   const tbLevel = isFullyMixed
-    ? null                                              // show all time blocks
+    ? null
     : (hasPrimary && hasLowSec)
-    ? "PRIMARY"                                         // mixed PRIMARY+LOW_SEC -> PRIMARY schedule
-    : dominantLevel === "LOW_SECONDARY" ? "SECONDARY"   // pure 7-8 -> SECONDARY schedule
+    ? "PRIMARY"
+    : dominantLevel === "LOW_SECONDARY" ? "SECONDARY"
     : dominantLevel;
-  // Filter time blocks to only the relevant level (or BOTH), falling back to all if unclear
   const baseRelevantTimeBlocks = tbLevel
     ? timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
     : timeBlocks;
