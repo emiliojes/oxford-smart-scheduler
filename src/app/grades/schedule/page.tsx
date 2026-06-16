@@ -660,7 +660,7 @@ export default function GradeSchedulePage() {
           </div>
 
           {/* Grid table */}
-          <div className="overflow-x-auto rounded-lg border shadow-sm">
+          <div className="overflow-x-auto rounded-lg border shadow-sm print:overflow-visible">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="bg-blue-700 text-white">
@@ -765,8 +765,19 @@ export default function GradeSchedulePage() {
             -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           main { padding: 0 !important; margin: 0 !important; max-width: none !important; }
           header, footer, nav { display: none !important; }
-          #printable-grade-schedule table { width: 100%; font-size: 7px; border-collapse: collapse; }
-          #printable-grade-schedule th, #printable-grade-schedule td { padding: 1px 2px !important; line-height: 1.2; }
+          #printable-grade-schedule { overflow: visible !important; }
+          #printable-grade-schedule div { overflow: visible !important; }
+          #printable-grade-schedule table { width: 100%; font-size: 8px; border-collapse: collapse; table-layout: fixed; }
+          #printable-grade-schedule th { font-size: 8px; padding: 3px 2px !important; }
+          #printable-grade-schedule td { padding: 2px 3px !important; line-height: 1.3; overflow: visible !important; word-break: break-word; }
+          #printable-grade-schedule .font-bold { font-size: 8px; }
+          #printable-grade-schedule .text-xs { font-size: 8px !important; }
+          #printable-grade-schedule .text-\\[10px\\] { font-size: 7px !important; }
+          #printable-grade-schedule .text-\\[9px\\] { font-size: 7px !important; }
+          #printable-grade-schedule .flex { display: block !important; }
+          #printable-grade-schedule .gap-0\\.5 > * { margin-bottom: 1px; }
+          #printable-grade-schedule .py-1 { padding-top: 1px !important; padding-bottom: 1px !important; }
+          #printable-grade-schedule .py-1\\.5 { padding-top: 2px !important; padding-bottom: 2px !important; }
         }
       `}</style>
     </div>
