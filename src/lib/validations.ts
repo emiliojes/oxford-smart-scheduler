@@ -48,13 +48,43 @@ export async function validateAssignment(data: {
     },
   });
 
-  // Choque de Profesor
+  // Choque de Profesor (mismo timeblock exacto)
   if (existingAssignments.some((a) => a.teacherId === data.teacherId)) {
     conflicts.push({
       type: "TEACHER_DOUBLE_BOOKING",
       severity: "ERROR",
       description: "validations.teacherDoubleBooking",
     });
+  }
+
+  // Solapamiento de tiempo para profesores Mixed (Middle + High)
+  // Busca otros assignments del mismo teacher en el mismo día con timeblock diferente que se solape
+  const teacherSameDayAssignments = await prisma.assignment.findMany({
+    where: {
+      teacherId: data.teacherId,
+      id: { not: data.ignoreAssignmentId },
+      timeBlock: { dayOfWeek: timeBlock.dayOfWeek },
+    },
+    include: { timeBlock: true },
+  });
+  const timeToMins = (t: string) => {
+    const [h, m = "0"] = t.split(":");
+    return parseInt(h) * 60 + parseInt(m);
+  };
+  const newStart = timeToMins(timeBlock.startTime);
+  const newEnd   = timeToMins(timeBlock.endTime);
+  for (const a of teacherSameDayAssignments) {
+    if (a.timeBlockId === data.timeBlockId) continue; // already caught above
+    const aStart = timeToMins(a.timeBlock.startTime);
+    const aEnd   = timeToMins(a.timeBlock.endTime);
+    if (newStart < aEnd && newEnd > aStart) {
+      conflicts.push({
+        type: "TEACHER_DOUBLE_BOOKING",
+        severity: "WARNING",
+        description: "validations.teacherTimeOverlap",
+      });
+      break;
+    }
   }
 
   // Choque de Aula (solo si se asignó aula)
