@@ -113,13 +113,22 @@ export default function GradeSchedulePage() {
   const buildGradeData = async (grade: Grade) => {
     const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
     const secGroup = getSecondaryGroup(grade.name);
-    const baseTBs = secGroup === "MIDDLE"
-      ? timeBlocks.filter(b => b.level === "LOW_SECONDARY" || b.level === "BOTH")
-      : secGroup === "HIGH"
-      ? timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH")
+    const baseTBs = (secGroup === "MIDDLE" || secGroup === "HIGH")
+      ? timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "LOW_SECONDARY" || b.level === "BOTH")
       : timeBlocks;
     const tbs = secGroup ? [
-      ...baseTBs.filter(b => b.blockType !== "LUNCH"),
+      ...baseTBs.filter(b => {
+        if (b.blockType === "LUNCH") return false;
+        if (secGroup === "MIDDLE" && b.startTime === "10:45" && b.endTime === "11:45") return false;
+        if (secGroup === "MIDDLE" && b.startTime === "11:45") return false;
+        if (secGroup === "MIDDLE" && b.startTime === "13:15") return false;
+        if (secGroup === "MIDDLE" && b.startTime === "14:15") return false;
+        if (secGroup === "HIGH" && b.startTime === "10:45" && b.endTime === "11:30") return false;
+        if (secGroup === "HIGH" && b.startTime === "12:00") return false;
+        if (secGroup === "HIGH" && b.startTime === "13:00") return false;
+        if (secGroup === "HIGH" && b.startTime === "14:00") return false;
+        return true;
+      }),
       ...[1,2,3,4,5].map(day => ({
         id: `${secGroup.toLowerCase()}-lunch-${day}`,
         dayOfWeek: day, blockType: "LUNCH", level: "SECONDARY",
@@ -248,13 +257,22 @@ export default function GradeSchedulePage() {
       for (const grade of secondaryGrades) {
         const asgns: Assignment[] = await fetch(`/api/assignments?gradeId=${grade.id}`).then(r => r.json());
         const secGroup = getSecondaryGroup(grade.name);
-        const baseTBs = secGroup === "MIDDLE"
-          ? timeBlocks.filter(b => b.level === "LOW_SECONDARY" || b.level === "BOTH")
-          : secGroup === "HIGH"
-          ? timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH")
+        const baseTBs = (secGroup === "MIDDLE" || secGroup === "HIGH")
+          ? timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "LOW_SECONDARY" || b.level === "BOTH")
           : timeBlocks;
         const tbs = secGroup ? [
-          ...baseTBs.filter(b => b.blockType !== "LUNCH"),
+          ...baseTBs.filter(b => {
+            if (b.blockType === "LUNCH") return false;
+            if (secGroup === "MIDDLE" && b.startTime === "10:45" && b.endTime === "11:45") return false;
+            if (secGroup === "MIDDLE" && b.startTime === "11:45") return false;
+            if (secGroup === "MIDDLE" && b.startTime === "13:15") return false;
+            if (secGroup === "MIDDLE" && b.startTime === "14:15") return false;
+            if (secGroup === "HIGH" && b.startTime === "10:45" && b.endTime === "11:30") return false;
+            if (secGroup === "HIGH" && b.startTime === "12:00") return false;
+            if (secGroup === "HIGH" && b.startTime === "13:00") return false;
+            if (secGroup === "HIGH" && b.startTime === "14:00") return false;
+            return true;
+          }),
           ...[1,2,3,4,5].map(day => ({
             id: `${secGroup.toLowerCase()}-lunch-${day}`,
             dayOfWeek: day, blockType: "LUNCH", level: "SECONDARY",
@@ -417,15 +435,27 @@ export default function GradeSchedulePage() {
   // Build time slots — filter to relevant level
   const secondaryGroup = getSecondaryGroup(selectedGrade?.name);
   const gradeLevel = selectedGrade?.level ?? "";
-  // For MIDDLE grades use LOW_SECONDARY blocks; for HIGH use SECONDARY; for others use their level
-  const baseRelevantTBs = secondaryGroup === "MIDDLE"
-    ? timeBlocks.filter(b => b.level === "LOW_SECONDARY" || b.level === "BOTH")
-    : secondaryGroup === "HIGH"
-    ? timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "BOTH")
+  // For secondary grades: include BOTH SECONDARY and LOW_SECONDARY blocks so REGISTRATION/BREAK/DISMISSAL
+  // are always present, then remove the wrong 10:45 endTime duplicate for the specific group
+  const baseRelevantTBs = (secondaryGroup === "MIDDLE" || secondaryGroup === "HIGH")
+    ? timeBlocks.filter(b => b.level === "SECONDARY" || b.level === "LOW_SECONDARY" || b.level === "BOTH")
     : timeBlocks.filter(b => b.level === gradeLevel || b.level === "BOTH" || gradeLevel === "");
   const relevantTBs = secondaryGroup
     ? [
-        ...baseRelevantTBs.filter(b => b.blockType !== "LUNCH"),
+        ...baseRelevantTBs.filter(b => {
+          if (b.blockType === "LUNCH") return false;
+          // For MIDDLE: exclude the High-only 10:45-11:45, 11:45-12:45, 13:15-14:15, 14:15-15:15 blocks
+          if (secondaryGroup === "MIDDLE" && b.startTime === "10:45" && b.endTime === "11:45") return false;
+          if (secondaryGroup === "MIDDLE" && b.startTime === "11:45") return false;
+          if (secondaryGroup === "MIDDLE" && b.startTime === "13:15") return false;
+          if (secondaryGroup === "MIDDLE" && b.startTime === "14:15") return false;
+          // For HIGH: exclude the Middle-only 10:45-11:30, 12:00, 13:00, 14:00 blocks
+          if (secondaryGroup === "HIGH" && b.startTime === "10:45" && b.endTime === "11:30") return false;
+          if (secondaryGroup === "HIGH" && b.startTime === "12:00") return false;
+          if (secondaryGroup === "HIGH" && b.startTime === "13:00") return false;
+          if (secondaryGroup === "HIGH" && b.startTime === "14:00") return false;
+          return true;
+        }),
         ...[1, 2, 3, 4, 5].map(day => ({
           id: `${secondaryGroup.toLowerCase()}-lunch-${day}`,
           dayOfWeek: day,
