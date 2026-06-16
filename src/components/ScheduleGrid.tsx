@@ -345,8 +345,19 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
               return (
                 <TableRow key={startTime} className={`h-auto ${rowSpecial ? "print:h-6" : "print:h-auto"}`}>
                   <TableCell className="font-medium border-r bg-slate-50 dark:bg-slate-900 align-middle py-1 print:py-0.5 print:w-20">
-                    <div className="text-xs font-bold print:text-[9px] whitespace-nowrap">
+                    <div className="text-xs font-bold print:text-[9px] whitespace-nowrap flex items-center gap-1">
                       {formatTimeRange(startTime, blockInfo?.endTime)}
+                      {isMixedSecondary && (() => {
+                        const MIDDLE_EXCLUSIVE = ["10:45", "11:30", "12:00", "13:00", "14:00"];
+                        const HIGH_EXCLUSIVE   = ["11:45", "12:45", "13:15", "14:15"];
+                        if (MIDDLE_EXCLUSIVE.includes(startTime)) {
+                          return <span className="ml-1 px-1 py-0.5 rounded text-[9px] font-bold bg-lime-100 text-lime-700 border border-lime-300 print:hidden">M</span>;
+                        }
+                        if (HIGH_EXCLUSIVE.includes(startTime)) {
+                          return <span className="ml-1 px-1 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 border border-blue-300 print:hidden">H</span>;
+                        }
+                        return null;
+                      })()}
                     </div>
                   </TableCell>
                   

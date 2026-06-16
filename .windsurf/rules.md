@@ -109,3 +109,30 @@ When helping with this project:
 * Warn me if a change could break the timetable logic.
 * Before creating new tables, ask whether the existing Assignment model can solve it.
 * Prefer practical code that fits this existing structure.
+
+## Lunch Blocks by School Level
+
+The student timetable remains the source of truth.
+
+Do not modify student schedules automatically to fit teacher lunch blocks. Teacher schedules must be derived from existing assignments.
+
+Current active lunch blocks:
+
+* MIDDLE SCHOOL (LOW_SECONDARY): Lunch from 11:30 AM to 12:00 PM
+* HIGH SCHOOL (SECONDARY): Lunch from 12:40 PM to 1:15 PM
+* PRIMARY: Lunch from 12:00 PM to 12:30 PM — future reference only, do not enforce yet
+
+## Teacher Lunch Block Logic
+
+When displaying a teacher schedule, derive the teacher's school levels from their assignments.
+
+Rules:
+
+* If a teacher only teaches Middle School, show the Middle lunch block.
+* If a teacher only teaches High School, show the High lunch block.
+* If a teacher teaches both Middle and High School, show both lunch blocks.
+* If Primary appears in the data, keep it as future reference only and do not enforce it.
+
+Lunch blocks are generated display blocks, not stored assignments.
+
+If a class overlaps a lunch block, do not automatically move the class. Show a conflict or warning for admin review.
