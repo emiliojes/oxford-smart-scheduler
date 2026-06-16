@@ -112,6 +112,7 @@ export const translations = {
       computingLimit: "The Computing room has a strict limit of 30 students.",
       teacherMaxHours: "Teacher {name} would exceed their maximum load of {max} hours (current: {current}h).",
       secondaryDuration: "Secondary classes must be exactly 60 minutes long.",
+      teacherTimeOverlap: "⚠️ Time overlap: this class overlaps with another class in a different level. Needs review.",
     },
     // Teachers Page
     teachers: {
@@ -435,6 +436,7 @@ export const translations = {
       computingLimit: "El aula de Computing tiene un límite estricto de 30 estudiantes.",
       teacherMaxHours: "El profesor {name} excedería su carga máxima de {max} horas (actual: {current}h).",
       secondaryDuration: "Las clases de secundaria deben ser de 60 minutos obligatoriamente.",
+      teacherTimeOverlap: "⚠️ Solapamiento de horario: esta clase se cruza con otra clase de otro nivel. Requiere revisión.",
     },
     // Teachers Page
     teachers: {

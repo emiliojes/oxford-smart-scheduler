@@ -428,9 +428,11 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                         <TooltipContent>
                                           <div className="space-y-1">
                                             <p className="font-bold">{t.schedule.grid.conflicts}</p>
-                                            {a.conflicts.map((c, i) => (
-                                              <p key={i} className="text-xs">• {c.description}</p>
-                                            ))}
+                                            {a.conflicts.map((c, i) => {
+                                              const key = c.description.replace("validations.", "") as keyof typeof t.validations;
+                                              const msg = (t.validations as any)[key] ?? c.description;
+                                              return <p key={i} className="text-xs">• {msg}</p>;
+                                            })}
                                           </div>
                                         </TooltipContent>
                                       </Tooltip>
