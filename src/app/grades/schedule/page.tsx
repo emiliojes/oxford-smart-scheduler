@@ -105,6 +105,7 @@ export default function GradeSchedulePage() {
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [loading, setLoading] = useState(false);
   const [showRoom, setShowRoom] = useState(false);
+  const [showTeacher, setShowTeacher] = useState(false);
   const [exportingAll, setExportingAll] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
@@ -595,6 +596,16 @@ export default function GradeSchedulePage() {
           >
             {showRoom ? "Ocultar Salón" : "Mostrar Salón"}
           </button>
+          <button
+            onClick={() => setShowTeacher(v => !v)}
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+              showTeacher
+                ? "bg-emerald-600 text-white border-emerald-600"
+                : "bg-white dark:bg-slate-800 border-slate-300 text-slate-500 dark:text-slate-400"
+            }`}
+          >
+            {showTeacher ? "Ocultar Profesor" : "Mostrar Profesor"}
+          </button>
         </div>
       )}
 
@@ -728,6 +739,9 @@ export default function GradeSchedulePage() {
                                     }`}
                                   >
                                     <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
+                                    {showTeacher && a.teacher && (
+                                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
+                                    )}
                                     {showRoom && a.room && (
                                       <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 print:block">{shortRoom(a.room.name)}</div>
                                     )}
