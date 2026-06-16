@@ -206,7 +206,10 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
   const baseRelevantTimeBlocks = isMixedSecondary
     ? timeBlocks.filter(b => b.level === "LOW_SECONDARY" || b.level === "SECONDARY" || b.level === "BOTH")
     : tbLevel
-    ? timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
+    ? (tbLevel === "SECONDARY" && hasLowSec && !hasSecondary)
+      // Pure Middle teacher: include both SECONDARY (shared morning) and LOW_SECONDARY (afternoon) blocks
+      ? timeBlocks.filter(b => b.level === "LOW_SECONDARY" || b.level === "SECONDARY" || b.level === "BOTH")
+      : timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
     : timeBlocks;
   const secondaryGroups = new Set(assignments.map(a => getSecondaryGroup(a.grade?.name)).filter(Boolean));
   const shouldUseSecondaryLunchSplit = (tbLevel === "SECONDARY" || isMixedSecondary) && secondaryGroups.size > 0;
