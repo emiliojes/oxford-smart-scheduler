@@ -245,8 +245,11 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     if (hasClassBlock) return viewType === "teacher" ? assignmentStartTimes.has(st) : assignmentStartTimes.has(st);
     // Always show non-CLASS rows that have assignments (e.g. Arrival Duty at 07:15 REGISTRATION)
     if (assignmentStartTimes.has(st)) return true;
-    // For BREAK/LUNCH/REGISTRATION with no assignments: only show strictly within active range
+    // For BREAK/LUNCH/REGISTRATION with no assignments: show if within active range OR immediately before firstTime
     if (assignments.length === 0) return true;
+    // Show BREAK/LUNCH that are immediately before the first class (e.g., BREAK 09:30 before first class at 09:45)
+    const isImmediatelyBeforeFirst = st < firstTime && blocksAtTime.some(b => b.blockType === "BREAK" || b.blockType === "LUNCH");
+    if (isImmediatelyBeforeFirst) return true;
     if (!(st > firstTime && st < lastTime)) return false;
     // Suppress duplicate LUNCH slots: if another LUNCH slot without assignments is already in range,
     // only keep the one that matches the teacher's actual lunch time (closest to assignments)
