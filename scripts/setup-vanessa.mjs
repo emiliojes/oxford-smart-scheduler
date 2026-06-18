@@ -69,16 +69,14 @@ const create = async (day, startTime, gradeName, gradeSection, note = null, forc
 // THU: 9B(7:30), 11A(8:30), 8A(9:45), 7A(10:45), 9A(11:45), 8B(13:00)
 // FRI: 9B(7:30), 10A(8:30), 11B(9:45), 11A(10:45), 12A(11:45)
 
-// MON
-await create(1, "07:30", "8", "A");
+// MON - 7:30 is Homeroom 10A (not Social Science)
 await create(1, "08:30", "7", "B");
 await create(1, "09:45", "8", "A");
 await create(1, "10:45", "10", "A");
 await create(1, "13:00", "7", "A");
 
-// TUE
+// TUE - 8:30 is empty (homeroom slot for other teachers)
 await create(2, "07:30", "8", "A");
-await create(2, "08:30", "8", "B");
 await create(2, "09:45", "9", "A");
 await create(2, "10:45", "8", "B");
 await create(2, "11:45", "10", "B");
