@@ -72,9 +72,9 @@ await create(4, "13:00", "11", "B");  // XIB
 await create(4, "14:00", "12", "A");  // XIIA
 
 // FRI
-// 7:30 XB is Student Arrival Duty - skip for now (not a regular class slot)
+await create(5, "07:30", "10", "B");  // XB (7:30-8:30)
 await create(5, "09:45", "10", "A");  // XA
-await create(5, "10:45", "10", "A");  // XA (duplicate - image shows XA twice at 10:45 and in red)
+await create(5, "10:45", "10", "A");  // XA (appears in red - likely conflict/duplicate)
 
 console.log("\nDone.");
 await p.$disconnect();
