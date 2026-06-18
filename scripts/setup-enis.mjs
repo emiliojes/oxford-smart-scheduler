@@ -49,17 +49,17 @@ const create = async (day, startTime, gradeName, gradeSection, subject, note = n
   console.log(`  ✅ Day${day} ${tb.startTime} Grade ${gradeName}${gradeSection ?? ""} ${subject}${note ? " (" + note + ")" : ""}`);
 };
 
-// MON: 8B LIT(8:30), 7A LIT(9:45), 7B LIT(10:45), 8B ENG(11:45), 8B LIT(13:00), 8A ENG(14:00)
-await create(1, "08:30", "8", "B", "LIT");
+// MON: [8:30 empty], 7A LIT(9:45), 7B LIT(10:45), 8B ENG(11:45), 8B LIT(13:00), 8A ENG(14:00)
 await create(1, "09:45", "7", "A", "LIT");
 await create(1, "10:45", "7", "B", "LIT");
 await create(1, "11:45", "8", "B", "ENG");
 await create(1, "13:00", "8", "B", "LIT", "1:15");
 await create(1, "14:00", "8", "A", "ENG", "2:15");
 
-// TUE: 8B LIT(7:30), 7B LIT(8:30), 6A LIT(10:45), 6B LIT(11:45), 8A ENG(13:00), 8A ENG(14:00) - duplicate!
+// TUE: 8B LIT(7:30), 7B LIT(8:30), 8B ENG(9:45), 6A LIT(10:45), 6B LIT(11:45), 8A ENG(13:00), 8A ENG(14:00) - duplicate!
 await create(2, "07:30", "8", "B", "LIT");
 await create(2, "08:30", "7", "B", "LIT");
+await create(2, "09:45", "8", "B", "ENG");
 await create(2, "10:45", "6", "A", "LIT");
 await create(2, "11:45", "6", "B", "LIT");
 await create(2, "13:00", "8", "A", "ENG", "1:15");
