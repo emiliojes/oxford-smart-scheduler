@@ -83,7 +83,7 @@ await create(2, "11:45", "10", "B");
 await create(2, "13:00", "9", "B");
 
 // WED
-await create(3, "07:30", "7", "B");
+await create(3, "07:30", "8", "B");
 await create(3, "08:30", "10", "B");
 await create(3, "09:45", "12", "A");
 await create(3, "10:45", "7", "B");
@@ -91,7 +91,7 @@ await create(3, "11:45", "11", "B");
 await create(3, "13:00", "7", "A");
 
 // THU
-await create(4, "07:30", "9", "B");
+await create(4, "07:30", "7", "B");
 await create(4, "08:30", "11", "A");
 await create(4, "09:45", "8", "A");
 await create(4, "10:45", "7", "A");
