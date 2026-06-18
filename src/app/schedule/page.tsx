@@ -68,7 +68,12 @@ export default function ScheduleViewPage() {
   }, [viewType, isTeacherView]);
 
   useEffect(() => {
-    if (selectedId && !isTeacherView) fetchAssignments();
+    if (selectedId && !isTeacherView) {
+      // Save selected ID to localStorage
+      const storageKey = `schedule_selected_${viewType}`;
+      localStorage.setItem(storageKey, selectedId);
+      fetchAssignments();
+    }
   }, [selectedId]);
 
   const fetchOptions = async () => {
@@ -77,7 +82,18 @@ export default function ScheduleViewPage() {
       const response = await fetch(`/api/${endpoint}`);
       const data = await response.json();
       setOptions(data);
-      if (data.length > 0) setSelectedId(data[0].id);
+      
+      // Try to restore last selected ID from localStorage
+      const storageKey = `schedule_selected_${viewType}`;
+      const savedId = localStorage.getItem(storageKey);
+      
+      if (savedId && data.some((opt: any) => opt.id === savedId)) {
+        // Restore saved selection if it still exists
+        setSelectedId(savedId);
+      } else if (data.length > 0) {
+        // Otherwise select first option
+        setSelectedId(data[0].id);
+      }
     } catch (error) {
       toast.error("Error al cargar opciones");
     }
