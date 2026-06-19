@@ -1,0 +1,67 @@
+[
+  {
+    "teacher": "EDUARDO BELL                                                                                  MATHS",
+    "subject": "EDUARDO BELL                                                                                  MATHS 8 - 10      23",
+    "gradesTaught": "10A, 10B, 8A, 8B",
+    "middleClasses": 10,
+    "highClasses": 10,
+    "currentLunches": "MONDAY 12:45 - 1:15; TUESDAY 12:45 - 1:15; WEDNESDAY 12:45 - 1:15; THURSDAY 12:45 - 1:15",
+    "options": [
+      "Option 1: Middle School lunch (11:30-12:00) - if primarily teaching grades 6-8",
+      "Option 2: High School lunch (12:40-1:15) - if primarily teaching grades 9-12",
+      "Option 3: Split lunch - different times on different days based on schedule"
+    ]
+  },
+  {
+    "teacher": "EMILIO NUÑEZ                                                                                COMPUTING",
+    "subject": "EZ                                                                                COMPUTING 7 - 12   17",
+    "gradesTaught": "10 A, 10 B, 11 A, 11 B, 11B, 12, 12 A, 6 B, 6A, 7 B, 7A, 8 A, 8 B, 9 A",
+    "middleClasses": 6,
+    "highClasses": 11,
+    "currentLunches": "MONDAY 12:45 - 1:15; TUESDAY 12:45 - 1:15; WEDNESDAY 12:45 - 1:15; THURSDAY 12:45 - 1:15",
+    "options": [
+      "Option 1: Middle School lunch (11:30-12:00) - if primarily teaching grades 6-8",
+      "Option 2: High School lunch (12:40-1:15) - if primarily teaching grades 9-12",
+      "Option 3: Split lunch - different times on different days based on schedule"
+    ]
+  },
+  {
+    "teacher": "CONRADO DE LEÓN                                                                 SCIENCES",
+    "subject": "N                                                                 SCIENCES 7-8    24",
+    "gradesTaught": "7B, 8A, 8B, 9A",
+    "middleClasses": 14,
+    "highClasses": 4,
+    "currentLunches": "MONDAY 12:45 - 1:15; TUESDAY 12:45 - 1:15; WEDNESDAY 12:45 - 1:15; THURSDAY 12:45 - 1:15",
+    "options": [
+      "Option 1: Middle School lunch (11:30-12:00) - if primarily teaching grades 6-8",
+      "Option 2: High School lunch (12:40-1:15) - if primarily teaching grades 9-12",
+      "Option 3: Split lunch - different times on different days based on schedule"
+    ]
+  },
+  {
+    "teacher": "OMELY RUJANO                                                                       SPANISH",
+    "subject": "OMELY RUJANO                                                                       SPANISH 4",
+    "gradesTaught": "10, 4B, 5A, 5B, 6A, 6B",
+    "middleClasses": 10,
+    "highClasses": 20,
+    "currentLunches": "MONDAY 12:00 -12:30; TUESDAY 12:00 -12:30; WEDNESDAY 12:00 -12:30; THURSDAY 12:00 -12:30; MONDAY 12:45 - 1:15; TUESDAY 12:45 - 1:15; WEDNESDAY 12:45 - 1:15; THURSDAY 12:45 - 1:15",
+    "options": [
+      "Option 1: Middle School lunch (11:30-12:00) - if primarily teaching grades 6-8",
+      "Option 2: High School lunch (12:40-1:15) - if primarily teaching grades 9-12",
+      "Option 3: Split lunch - different times on different days based on schedule"
+    ]
+  },
+  {
+    "teacher": "MANUEL ABREGO                                                                      P",
+    "subject": "KINDER -9",
+    "gradesTaught": "1, 1A, 1B, 2, 2A, 2B, 3 A, 3A, 3B, 4A, 4B, 5A, 5B, 6B, 7A, 7B, 8A, 9",
+    "middleClasses": 4,
+    "highClasses": 2,
+    "currentLunches": "MONDAY 12:00- 12:30; TUESDAY 12:00- 12:30; WEDNESDAY 12:00- 12:30; THURSDAY 12:00- 12:30",
+    "options": [
+      "Option 1: Middle School lunch (11:30-12:00) - if primarily teaching grades 6-8",
+      "Option 2: High School lunch (12:40-1:15) - if primarily teaching grades 9-12",
+      "Option 3: Split lunch - different times on different days based on schedule"
+    ]
+  }
+]

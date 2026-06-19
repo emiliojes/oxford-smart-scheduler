@@ -1,0 +1,569 @@
+{
+  "summary": {
+    "total": 13,
+    "middleOnly": 3,
+    "highOnly": 3,
+    "mixed": 5,
+    "unknown": 2
+  },
+  "lunchTimes": {
+    "PRIMARY": "12:00-12:30",
+    "MIDDLE": "11:30-12:00",
+    "HIGH": "12:40-1:15"
+  },
+  "teachers": [
+    {
+      "name": "IRLANDA TUÑON      MATHS",
+      "subject": "ON      MATHS 9-12,",
+      "hours": 26,
+      "classification": "HIGH_ONLY",
+      "gradesTaught": [
+        "10",
+        "9"
+      ],
+      "middleSchoolClasses": 0,
+      "highSchoolClasses": 26,
+      "suggestedLunch": "12:40-1:15",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH /                         GYM SUPERVISION"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "ANDREA CONCEPCION                                                              BIOLOGY",
+      "subject": "ANDREA CONCEPCION                                                              BIOLOGY 9-12    25",
+      "hours": 25,
+      "classification": "HIGH_ONLY",
+      "gradesTaught": [
+        "10 A",
+        "10 B",
+        "10B",
+        "11 A",
+        "11 B",
+        "11A",
+        "12 A",
+        "12A",
+        "9 B"
+      ],
+      "middleSchoolClasses": 0,
+      "highSchoolClasses": 25,
+      "suggestedLunch": "12:40-1:15",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH /CAFETERIA SUPERVISION"
+        }
+      ]
+    },
+    {
+      "name": "EDUARDO BELL                                                                                  MATHS",
+      "subject": "EDUARDO BELL                                                                                  MATHS 8 - 10      23",
+      "hours": 23,
+      "classification": "MIXED",
+      "gradesTaught": [
+        "10A",
+        "10B",
+        "8A",
+        "8B"
+      ],
+      "middleSchoolClasses": 10,
+      "highSchoolClasses": 10,
+      "suggestedLunch": "CONFLICT - Manual decision required",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH /SYNTHETIC FIELD SUPERVISION"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "EMILIO NUÑEZ                                                                                COMPUTING",
+      "subject": "EZ                                                                                COMPUTING 7 - 12   17",
+      "hours": 17,
+      "classification": "MIXED",
+      "gradesTaught": [
+        "10 A",
+        "10 B",
+        "11 A",
+        "11 B",
+        "11B",
+        "12",
+        "12 A",
+        "6 B",
+        "6A",
+        "7 B",
+        "7A",
+        "8 A",
+        "8 B",
+        "9 A"
+      ],
+      "middleSchoolClasses": 6,
+      "highSchoolClasses": 11,
+      "suggestedLunch": "CONFLICT - Manual decision required",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH /SYNTHETIC FIELD SUPERVISION"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "CONRADO DE LEÓN                                                                 SCIENCES",
+      "subject": "N                                                                 SCIENCES 7-8    24",
+      "hours": 24,
+      "classification": "MIXED",
+      "gradesTaught": [
+        "7B",
+        "8A",
+        "8B",
+        "9A"
+      ],
+      "middleSchoolClasses": 14,
+      "highSchoolClasses": 4,
+      "suggestedLunch": "CONFLICT - Manual decision required",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH /SYNTHETIC FIELD SUPERVISION"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "VIELKA VEGA                                                                          ENGLISH",
+      "subject": "VIELKA VEGA                                                                          ENGLISH 6-7      23",
+      "hours": 23,
+      "classification": "MIDDLE_ONLY",
+      "gradesTaught": [
+        "6A",
+        "6B",
+        "7 B",
+        "7A",
+        "7B"
+      ],
+      "middleSchoolClasses": 20,
+      "highSchoolClasses": 0,
+      "suggestedLunch": "11:30-12:00",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH /CAFETERIA SUPERVISION"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "OMELY RUJANO                                                                       SPANISH",
+      "subject": "OMELY RUJANO                                                                       SPANISH 4",
+      "hours": 24,
+      "classification": "MIXED",
+      "gradesTaught": [
+        "10",
+        "4B",
+        "5A",
+        "5B",
+        "6A",
+        "6B"
+      ],
+      "middleSchoolClasses": 10,
+      "highSchoolClasses": 20,
+      "suggestedLunch": "CONFLICT - Manual decision required",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:00 -12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:00 -12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:00 -12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:00 -12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH/ SCHOOL BUS AREA AND SURROUNDINGS SUPERVISION"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "LEONEL VEGA                                                                           ENGLISH",
+      "subject": "LEONEL VEGA                                                                           ENGLISH 9",
+      "hours": 13,
+      "classification": "HIGH_ONLY",
+      "gradesTaught": [
+        "9A",
+        "9B"
+      ],
+      "middleSchoolClasses": 0,
+      "highSchoolClasses": 10,
+      "suggestedLunch": "12:40-1:15",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "FRIDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "ARTS                                                                                                 MIDDLE SCHOOL",
+      "subject": "ARTS                                                                                                 MIDDLE SCHOOL   6",
+      "hours": 6,
+      "classification": "MIDDLE_ONLY",
+      "gradesTaught": [
+        "6A",
+        "6B",
+        "7A",
+        "7B",
+        "8A",
+        "8B"
+      ],
+      "middleSchoolClasses": 6,
+      "highSchoolClasses": 0,
+      "suggestedLunch": "11:30-12:00",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "FRIDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "FRANCISCO MENDOZA                                                                                       MATHS",
+      "subject": "FRANCISCO MENDOZA                                                                                       MATHS   6",
+      "hours": 23,
+      "classification": "MIDDLE_ONLY",
+      "gradesTaught": [
+        "6A",
+        "6B",
+        "7A",
+        "7B"
+      ],
+      "middleSchoolClasses": 20,
+      "highSchoolClasses": 0,
+      "suggestedLunch": "11:30-12:00",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:45 - 1:15",
+          "details": "LUNCH  SYNTHETIC FIELD SUPERVISION"
+        }
+      ]
+    },
+    {
+      "name": "AVIDEL GONZALEZ                                                                   SPANISH",
+      "subject": "AVIDEL GONZALEZ                                                                   SPANISH 2",
+      "hours": 24,
+      "classification": "UNKNOWN",
+      "gradesTaught": [
+        "2",
+        "2A",
+        "2B",
+        "3A",
+        "3B"
+      ],
+      "middleSchoolClasses": 0,
+      "highSchoolClasses": 0,
+      "suggestedLunch": "N/A",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "MANUEL ABREGO                                                                      P",
+      "subject": "KINDER -9",
+      "hours": 21,
+      "classification": "MIXED",
+      "gradesTaught": [
+        "1",
+        "1A",
+        "1B",
+        "2",
+        "2A",
+        "2B",
+        "3 A",
+        "3A",
+        "3B",
+        "4A",
+        "4B",
+        "5A",
+        "5B",
+        "6B",
+        "7A",
+        "7B",
+        "8A",
+        "9"
+      ],
+      "middleSchoolClasses": 4,
+      "highSchoolClasses": 2,
+      "suggestedLunch": "CONFLICT - Manual decision required",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:00- 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:00- 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:00- 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:00- 12:30",
+          "details": "LUNCH"
+        }
+      ]
+    },
+    {
+      "name": "MADELAINE ARROYO                                                                    SOCIAL SCIENCES",
+      "subject": "MADELAINE ARROYO                                                                    SOCIAL SCIENCES 1-4",
+      "hours": 23,
+      "classification": "UNKNOWN",
+      "gradesTaught": [
+        "1",
+        "1A",
+        "1B",
+        "2",
+        "2A",
+        "2B",
+        "3A",
+        "3B",
+        "4A",
+        "4B"
+      ],
+      "middleSchoolClasses": 0,
+      "highSchoolClasses": 0,
+      "suggestedLunch": "N/A",
+      "currentLunchBlocks": [
+        {
+          "day": "MONDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "TUESDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH /                         GYM SUPERVISION"
+        },
+        {
+          "day": "WEDNESDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "THURSDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        },
+        {
+          "day": "FRIDAY",
+          "time": "12:00 - 12:30",
+          "details": "LUNCH"
+        }
+      ]
+    }
+  ]
+}
