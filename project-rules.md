@@ -136,7 +136,11 @@ Always check for teacher conflicts when creating assignments, not just time bloc
 When committing changes:
 
 * Use a single command to add, commit, and push:
-  ```
+  ```powershell
+  # PowerShell (Windows)
+  git add -A; git commit -m "message"; git push
+  
+  # Bash (Linux/Mac)
   git add -A && git commit -m "message" && git push
   ```
 * This saves time and reduces repetitive commands
