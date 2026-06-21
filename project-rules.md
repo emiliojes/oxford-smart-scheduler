@@ -131,6 +131,17 @@ If a teacher teaches BOTH Middle and High School:
 
 Always check for teacher conflicts when creating assignments, not just time block overlaps.
 
+## Git Workflow
+
+When committing changes:
+
+* Use a single command to add, commit, and push:
+  ```
+  git add -A && git commit -m "message" && git push
+  ```
+* This saves time and reduces repetitive commands
+* Only use separate commands if there's a specific reason (e.g., reviewing changes first)
+
 ## Response Style
 
 When helping with this project:
