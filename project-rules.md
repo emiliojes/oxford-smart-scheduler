@@ -101,6 +101,36 @@ Before adding protected features:
 * Do not replace it with NextAuth or another auth library unless explicitly requested.
 * Keep role checks simple and centralized.
 
+## Time Block Overlap Rules
+
+Time blocks can overlap between different levels without causing conflicts:
+
+* PRIMARY blocks can overlap with SECONDARY blocks (different student groups)
+* LOW_SECONDARY blocks can overlap with SECONDARY blocks (different student groups)
+* **This is normal and expected** - students from different levels have different schedules
+
+### Conflict Detection
+
+**Real conflicts occur when:**
+
+* A teacher has multiple assignments in overlapping time blocks on the same day
+* A room is double-booked in overlapping time blocks on the same day
+* A grade has multiple assignments in overlapping time blocks on the same day
+
+**Not a conflict:**
+
+* Different levels using overlapping time blocks (e.g., Middle School 14:00-15:15 and High School 14:15-15:15)
+* This allows different school divisions to have different schedules
+
+### Teacher Conflict Example
+
+If a teacher teaches BOTH Middle and High School:
+* Assignment 1: Grade 8A (LOW_SECONDARY) at 14:00-15:15
+* Assignment 2: Grade 12A (SECONDARY) at 14:15-15:15
+* ⚠️ **CONFLICT** - Teacher cannot be in two places at once
+
+Always check for teacher conflicts when creating assignments, not just time block overlaps.
+
 ## Response Style
 
 When helping with this project:
@@ -109,3 +139,4 @@ When helping with this project:
 * Warn me if a change could break the timetable logic.
 * Before creating new tables, ask whether the existing Assignment model can solve it.
 * Prefer practical code that fits this existing structure.
+* Remember: Time block overlaps between levels are OK, but teacher/room/grade conflicts are NOT.
