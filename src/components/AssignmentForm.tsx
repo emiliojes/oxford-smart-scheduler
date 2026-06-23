@@ -35,11 +35,12 @@ interface AssignmentFormProps {
   onSuccess: (id?: string) => void;
   trigger?: React.ReactNode;
   prefilledTimeBlock?: { dayOfWeek: number; startTime: string };
+  prefilledGradeId?: string;
 }
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeBlock }: AssignmentFormProps) {
+export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeBlock, prefilledGradeId }: AssignmentFormProps) {
   const { t } = useLanguage();
   const { pushAction } = useHistory();
   const [isOpen, setIsOpen] = useState(false);
@@ -60,6 +61,17 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
     ""
   );
   const [selectedLevel, setSelectedLevel] = useState<string>("");
+
+  // Auto-set grade and level when prefilledGradeId changes
+  useEffect(() => {
+    if (!prefilledGradeId || grades.length === 0) return;
+    const grade = grades.find(g => g.id === prefilledGradeId);
+    if (!grade) return;
+    setFormData(prev => ({ ...prev, gradeId: prefilledGradeId }));
+    // Map grade level to filter level
+    const lvl = grade.level === "LOW_SECONDARY" ? "LOW_SECONDARY" : grade.level;
+    setSelectedLevel(lvl);
+  }, [prefilledGradeId, grades]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -144,6 +156,19 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
       : [activeLevel, "BOTH"];
     return teachers.filter(t => levels.includes(t.level));
   }, [teachers, activeLevel]);
+
+  // Detect duplicate subject names to show level badge
+  const duplicateSubjectNames = useMemo(() => {
+    const nameCount: Record<string, number> = {};
+    subjects.forEach(s => { nameCount[s.name] = (nameCount[s.name] || 0) + 1; });
+    return new Set(Object.keys(nameCount).filter(n => nameCount[n] > 1));
+  }, [subjects]);
+
+  const subjectLabel = (s: Subject) => {
+    if (!duplicateSubjectNames.has(s.name)) return s.name;
+    const lvlTag = s.level === "PRIMARY" ? "(Primaria)" : s.level === "SECONDARY" ? "(Media)" : s.level === "LOW_SECONDARY" ? "(Pre-Media)" : s.level === "BOTH" ? "(Ambos)" : s.level;
+    return `${s.name} ${lvlTag}`;
+  };
 
   const filteredSubjects = useMemo(() => {
     if (!activeLevel) return subjects;
@@ -350,7 +375,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
                 <SelectTrigger><SelectValue placeholder="Seleccionar materia" /></SelectTrigger>
                 <SelectContent>
                   {filteredSubjects.sort((a,b) => a.name.localeCompare(b.name)).map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    <SelectItem key={s.id} value={s.id}>{subjectLabel(s)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

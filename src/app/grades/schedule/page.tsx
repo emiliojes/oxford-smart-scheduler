@@ -825,6 +825,7 @@ export default function GradeSchedulePage() {
                               ) : isAdmin && blockForCell ? (
                                 <AssignmentForm
                                   prefilledTimeBlock={{ dayOfWeek: day, startTime: time }}
+                                  prefilledGradeId={selectedGradeId}
                                   onSuccess={refreshAssignments}
                                   trigger={
                                     <button className="no-print w-full h-full min-h-[32px] flex items-center justify-center text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors group">
@@ -840,6 +841,7 @@ export default function GradeSchedulePage() {
                                     <AssignmentForm
                                       key={a.id + ai}
                                       initialData={{ id: a.id, teacherId: a.teacher.id, subjectId: "", gradeId: selectedGradeId, roomId: a.room?.id ?? "", timeBlockId: "", note: a.note ?? "" }}
+                                      prefilledGradeId={selectedGradeId}
                                       onSuccess={refreshAssignments}
                                       trigger={
                                         <div
