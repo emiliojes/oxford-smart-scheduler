@@ -87,21 +87,51 @@ export async function validateAssignment(data: {
     }
   }
 
-  // Choque de Aula (solo si se asignó aula)
-  if (data.roomId && existingAssignments.some((a) => a.roomId === data.roomId)) {
+  // Choque de Aula (solo si se asignó aula) - con información detallada
+  const roomConflict = existingAssignments.find((a) => a.roomId === data.roomId);
+  if (data.roomId && roomConflict) {
+    // Obtener información del conflicto
+    const conflictAssignment = await prisma.assignment.findUnique({
+      where: { id: roomConflict.id },
+      include: {
+        teacher: true,
+        subject: true,
+        grade: true
+      }
+    });
+    
+    const conflictInfo = conflictAssignment 
+      ? ` (${conflictAssignment.teacher.name} - ${conflictAssignment.grade ? conflictAssignment.grade.name + (conflictAssignment.grade.section || '') : 'N/A'})`
+      : '';
+    
     conflicts.push({
       type: "ROOM_DOUBLE_BOOKING",
       severity: "ERROR",
-      description: "validations.roomDoubleBooking",
+      description: `validations.roomDoubleBooking${conflictInfo}`,
     });
   }
 
-  // Choque de Grado
-  if (existingAssignments.some((a) => a.gradeId === data.gradeId)) {
+  // Choque de Grado - con información detallada
+  const gradeConflict = existingAssignments.find((a) => a.gradeId === data.gradeId);
+  if (gradeConflict) {
+    // Obtener información del conflicto
+    const conflictAssignment = await prisma.assignment.findUnique({
+      where: { id: gradeConflict.id },
+      include: {
+        teacher: true,
+        subject: true,
+        grade: true
+      }
+    });
+    
+    const conflictInfo = conflictAssignment 
+      ? ` (${conflictAssignment.teacher.name} - ${conflictAssignment.subject.name})`
+      : '';
+    
     conflicts.push({
       type: "GRADE_DOUBLE_BOOKING",
       severity: "ERROR",
-      description: "validations.gradeDoubleBooking",
+      description: `validations.gradeDoubleBooking${conflictInfo}`,
     });
   }
 
