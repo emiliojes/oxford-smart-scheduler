@@ -33,11 +33,12 @@ interface AssignmentFormProps {
   initialData?: any;
   onSuccess: (id?: string) => void;
   trigger?: React.ReactNode;
+  prefilledTimeBlock?: { dayOfWeek: number; startTime: string };
 }
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFormProps) {
+export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeBlock }: AssignmentFormProps) {
   const { t } = useLanguage();
   const { pushAction } = useHistory();
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +53,11 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
   const [existingAssignments, setExistingAssignments] = useState<Assignment[]>([]);
 
   // Filter state
-  const [selectedDay, setSelectedDay] = useState<string>(initialData?.timeBlock?.dayOfWeek?.toString() || "");
+  const [selectedDay, setSelectedDay] = useState<string>(
+    prefilledTimeBlock?.dayOfWeek?.toString() || 
+    initialData?.timeBlock?.dayOfWeek?.toString() || 
+    ""
+  );
   const [selectedLevel, setSelectedLevel] = useState<string>("");
 
   // Form state
@@ -67,6 +72,20 @@ export function AssignmentForm({ initialData, onSuccess, trigger }: AssignmentFo
   useEffect(() => {
     if (isOpen) fetchData();
   }, [isOpen]);
+
+  // Auto-select timeBlock when prefilledTimeBlock is provided
+  useEffect(() => {
+    if (prefilledTimeBlock && timeBlocks.length > 0 && !formData.timeBlockId) {
+      const matchingBlock = timeBlocks.find(
+        tb => tb.dayOfWeek === prefilledTimeBlock.dayOfWeek && 
+              tb.startTime === prefilledTimeBlock.startTime &&
+              tb.blockType === "CLASS"
+      );
+      if (matchingBlock) {
+        setFormData(prev => ({ ...prev, timeBlockId: matchingBlock.id }));
+      }
+    }
+  }, [prefilledTimeBlock, timeBlocks]);
 
   const fetchData = async () => {
     try {

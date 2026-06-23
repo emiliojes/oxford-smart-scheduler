@@ -397,6 +397,21 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                               {t.timeBlocks.types[blockInfo?.blockType as keyof typeof t.timeBlocks.types] || blockInfo?.blockType}
                             </span>
                           </div>
+                        ) : slotAssignments.length === 0 && blockInfo?.blockType === "CLASS" ? (
+                          // Empty CLASS slot - show + button for teachers
+                          <div className="flex items-center justify-center h-16 print:hidden">
+                            {viewType === "teacher" && (
+                              <AssignmentForm
+                                prefilledTimeBlock={{ dayOfWeek: dayValue, startTime }}
+                                onSuccess={() => onRefresh ? onRefresh() : window.location.reload()}
+                                trigger={
+                                  <button className="w-8 h-8 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 hover:text-blue-700 flex items-center justify-center transition-colors border border-blue-300 hover:border-blue-400">
+                                    <span className="text-xl font-bold">+</span>
+                                  </button>
+                                }
+                              />
+                            )}
+                          </div>
                         ) : (
                           <div className="flex flex-col gap-1 print:gap-0">
                             {slotAssignments.map((a) => (
