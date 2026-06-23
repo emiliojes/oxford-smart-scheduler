@@ -213,11 +213,11 @@ export default function ScheduleViewPage() {
             <Printer className="w-4 h-4" />
             {t.schedule.print}
           </Button>
-          <Button variant="outline" onClick={handleExportPDF} className="gap-2">
+          <Button variant="outline" onClick={handleExportPDF} className="gap-2" disabled>
             <Download className="w-4 h-4" />
             {t.schedule.pdf}
           </Button>
-          <Button variant="outline" onClick={handleExportWord} className="gap-2">
+          <Button variant="outline" onClick={handleExportWord} className="gap-2" disabled>
             <Download className="w-4 h-4" />
             {t.schedule.word}
           </Button>
