@@ -212,7 +212,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
       : timeBlocks.filter(b => b.level === tbLevel || b.level === "BOTH")
     : timeBlocks;
   const secondaryGroups = new Set(assignments.map(a => getSecondaryGroup(a.grade?.name)).filter(Boolean));
-  const shouldUseSecondaryLunchSplit = (tbLevel === "SECONDARY" || isMixedSecondary) && secondaryGroups.size > 0;
+  const shouldUseSecondaryLunchSplit = (tbLevel === "SECONDARY" || isMixedSecondary) && secondaryGroups.size > 0 && viewType === "teacher";
   const relevantTimeBlocks = shouldUseSecondaryLunchSplit
     ? [
         ...baseRelevantTimeBlocks.filter(b => b.blockType !== "LUNCH"),
