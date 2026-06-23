@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Printer, Download, Sparkles } from "lucide-react";
+import { Loader2, Printer, Download, Sparkles, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -199,6 +199,14 @@ export default function ScheduleViewPage() {
             </Button>
           )}
           {canManage && <AssignmentForm onSuccess={() => fetchAssignments()} />}
+          {canManage && (
+            <Link href="/conflicts">
+              <Button variant="outline" className="gap-2 border-red-300 text-red-700 hover:bg-red-50">
+                <AlertTriangle className="w-4 h-4" />
+                Ver Conflictos
+              </Button>
+            </Link>
+          )}
           <Button variant="outline" onClick={handlePrint} className="gap-2">
             <Printer className="w-4 h-4" />
             {t.schedule.print}

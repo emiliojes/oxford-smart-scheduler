@@ -48,6 +48,9 @@ export default function ConflictsPage() {
     }
   };
 
+  const [showSuggestions, setShowSuggestions] = useState<string | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+
   const deleteAssignment = async (assignmentId: string) => {
     if (!confirm('¿Estás seguro de eliminar esta asignación?')) return;
 
@@ -65,6 +68,40 @@ export default function ConflictsPage() {
     } catch (error) {
       console.error('Error deleting assignment:', error);
       alert('Error al eliminar la asignación');
+    }
+  };
+
+  const findAvailableSlots = async (teacherId: string, day: number) => {
+    try {
+      const response = await fetch(`/api/teachers/${teacherId}/available-slots?day=${day}`);
+      const data = await response.json();
+      setAvailableSlots(data.slots || []);
+    } catch (error) {
+      console.error('Error fetching available slots:', error);
+      setAvailableSlots([]);
+    }
+  };
+
+  const moveAssignment = async (assignmentId: string, newTimeBlockId: string) => {
+    if (!confirm('¿Mover esta asignación al nuevo horario?')) return;
+
+    try {
+      const response = await fetch(`/api/assignments/${assignmentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeBlockId: newTimeBlockId }),
+      });
+
+      if (response.ok) {
+        alert('Asignación movida correctamente');
+        setShowSuggestions(null);
+        fetchConflicts();
+      } else {
+        alert('Error al mover la asignación');
+      }
+    } catch (error) {
+      console.error('Error moving assignment:', error);
+      alert('Error al mover la asignación');
     }
   };
 
@@ -198,19 +235,60 @@ export default function ConflictsPage() {
                             <span className="text-sm font-semibold text-orange-900">
                               {conflict.assignment1.startTime} - {conflict.assignment1.endTime}
                             </span>
-                            <button
-                              onClick={() => deleteAssignment(conflict.assignment1.id)}
-                              className="text-red-600 hover:text-red-800 text-sm font-medium"
-                            >
-                              Eliminar
-                            </button>
                           </div>
-                          <div className="text-lg font-bold text-gray-900">
+                          <div className="text-lg font-bold text-gray-900 mb-3">
                             {conflict.assignment1.grade} {conflict.assignment1.subject}
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => deleteAssignment(conflict.assignment1.id)}
+                              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md font-medium"
+                            >
+                              🗑️ Eliminar
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowSuggestions(conflict.assignment1.id);
+                                findAvailableSlots(conflict.teacherId, conflict.day);
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md font-medium"
+                            >
+                              🔄 Mover
+                            </button>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-2">
                             ID: {conflict.assignment1.id.substring(0, 8)}
                           </div>
+                          
+                          {/* Suggestions */}
+                          {showSuggestions === conflict.assignment1.id && (
+                            <div className="mt-3 p-3 bg-white rounded border border-blue-200">
+                              <div className="text-sm font-semibold text-gray-700 mb-2">
+                                Horarios disponibles ({conflict.dayName}):
+                              </div>
+                              {availableSlots.length === 0 ? (
+                                <div className="text-xs text-gray-500">Cargando...</div>
+                              ) : (
+                                <div className="space-y-1">
+                                  {availableSlots.map((slot: any) => (
+                                    <button
+                                      key={slot.id}
+                                      onClick={() => moveAssignment(conflict.assignment1.id, slot.id)}
+                                      className="w-full text-left px-2 py-1 text-xs bg-green-50 hover:bg-green-100 rounded border border-green-200"
+                                    >
+                                      ✅ {slot.startTime} - {slot.endTime}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              <button
+                                onClick={() => setShowSuggestions(null)}
+                                className="mt-2 text-xs text-gray-600 hover:text-gray-800"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         {/* Assignment 2 */}
@@ -219,19 +297,60 @@ export default function ConflictsPage() {
                             <span className="text-sm font-semibold text-orange-900">
                               {conflict.assignment2.startTime} - {conflict.assignment2.endTime}
                             </span>
-                            <button
-                              onClick={() => deleteAssignment(conflict.assignment2.id)}
-                              className="text-red-600 hover:text-red-800 text-sm font-medium"
-                            >
-                              Eliminar
-                            </button>
                           </div>
-                          <div className="text-lg font-bold text-gray-900">
+                          <div className="text-lg font-bold text-gray-900 mb-3">
                             {conflict.assignment2.grade} {conflict.assignment2.subject}
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => deleteAssignment(conflict.assignment2.id)}
+                              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md font-medium"
+                            >
+                              🗑️ Eliminar
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowSuggestions(conflict.assignment2.id);
+                                findAvailableSlots(conflict.teacherId, conflict.day);
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md font-medium"
+                            >
+                              🔄 Mover
+                            </button>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-2">
                             ID: {conflict.assignment2.id.substring(0, 8)}
                           </div>
+                          
+                          {/* Suggestions */}
+                          {showSuggestions === conflict.assignment2.id && (
+                            <div className="mt-3 p-3 bg-white rounded border border-blue-200">
+                              <div className="text-sm font-semibold text-gray-700 mb-2">
+                                Horarios disponibles ({conflict.dayName}):
+                              </div>
+                              {availableSlots.length === 0 ? (
+                                <div className="text-xs text-gray-500">Cargando...</div>
+                              ) : (
+                                <div className="space-y-1">
+                                  {availableSlots.map((slot: any) => (
+                                    <button
+                                      key={slot.id}
+                                      onClick={() => moveAssignment(conflict.assignment2.id, slot.id)}
+                                      className="w-full text-left px-2 py-1 text-xs bg-green-50 hover:bg-green-100 rounded border border-green-200"
+                                    >
+                                      ✅ {slot.startTime} - {slot.endTime}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              <button
+                                onClick={() => setShowSuggestions(null)}
+                                className="mt-2 text-xs text-gray-600 hover:text-gray-800"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
