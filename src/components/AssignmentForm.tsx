@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useHistory } from "@/context/HistoryContext";
@@ -67,6 +68,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
     gradeId: initialData?.gradeId || "",
     roomId: initialData?.roomId || "",   // optional
     timeBlockId: initialData?.timeBlockId || "",
+    note: initialData?.note || "",       // optional
   });
 
   useEffect(() => {
@@ -396,6 +398,19 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
                 })}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Note field */}
+          <div className="space-y-1.5">
+            <Label>Nota (opcional)</Label>
+            <Input
+              type="text"
+              placeholder="Ej: 12:30-1:30"
+              value={formData.note || ""}
+              onChange={(e) => set("note", e.target.value)}
+              className="text-sm"
+            />
+            <p className="text-xs text-slate-500">Texto adicional que aparecerá en el horario</p>
           </div>
 
           {/* Conflict summary */}
