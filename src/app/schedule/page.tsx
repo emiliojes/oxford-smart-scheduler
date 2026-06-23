@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { exportToPDF, exportToWord, exportToImage } from "@/lib/export-utils";
 import { AssignmentForm } from "@/components/AssignmentForm";
+import { TransferTeacherDialog } from "@/components/TransferTeacherDialog";
 
 export default function ScheduleViewPage() {
   const { t, language } = useLanguage();
@@ -199,6 +200,7 @@ export default function ScheduleViewPage() {
             </Button>
           )}
           {canManage && <AssignmentForm onSuccess={() => fetchAssignments()} />}
+          {canManage && <TransferTeacherDialog />}
           {canManage && (
             <Link href="/conflicts">
               <Button variant="outline" className="gap-2 border-red-300 text-red-700 hover:bg-red-50">
