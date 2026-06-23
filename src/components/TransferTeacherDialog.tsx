@@ -129,6 +129,11 @@ export function TransferTeacherDialog() {
                 className="pl-8"
               />
             </div>
+            {fromSearch && (
+              <p className="text-xs text-slate-500">
+                {teachers.filter(t => t.name.toLowerCase().includes(fromSearch.toLowerCase())).length} resultados encontrados
+              </p>
+            )}
             <Select value={fromTeacherId} onValueChange={setFromTeacherId}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar teacher origen" />
@@ -160,6 +165,11 @@ export function TransferTeacherDialog() {
                 className="pl-8"
               />
             </div>
+            {toSearch && (
+              <p className="text-xs text-slate-500">
+                {teachers.filter(t => t.id !== fromTeacherId && t.name.toLowerCase().includes(toSearch.toLowerCase())).length} resultados encontrados
+              </p>
+            )}
             <Select value={toTeacherId} onValueChange={setToTeacherId}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar teacher destino" />
