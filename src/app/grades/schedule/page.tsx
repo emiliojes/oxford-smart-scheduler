@@ -6,7 +6,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet } from "lucide-react";
+import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus } from "lucide-react";
+import { AssignmentForm } from "@/components/AssignmentForm";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
@@ -22,7 +23,7 @@ interface Assignment {
   teacher: { id: string; name: string };
   subject: { name: string };
   grade: { name: string; section: string | null } | null;
-  room: { name: string } | null;
+  room: { id: string; name: string } | null;
   timeBlock: {
     dayOfWeek: number;
     startTime: string;
@@ -109,6 +110,20 @@ export default function GradeSchedulePage() {
   const [exportingAll, setExportingAll] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
+  const [editFormOpen, setEditFormOpen] = useState(false);
+
+  const isAdmin = user?.role === "ADMIN" || user?.role === "DIRECTOR";
+
+  const refreshAssignments = () => {
+    if (!selectedGradeId) return;
+    setLoading(true);
+    fetch(`/api/assignments?gradeId=${selectedGradeId}`)
+      .then(r => r.json())
+      .then(setAssignments)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
 
   // ── Shared helper: build per-grade data for export ────────────
   const buildGradeData = async (grade: Grade) => {
@@ -739,6 +754,7 @@ export default function GradeSchedulePage() {
                       {[1,2,3,4,5].map(day => {
                         const slot = getSlot(day, time);
                         const isLastDay = day === 5;
+                        const blockForCell = relevantTBs.find(b => b.dayOfWeek === day && b.startTime === time && b.blockType === "CLASS");
                         return (
                           <td key={day} className={`px-1.5 py-1.5 border-r last:border-r-0 text-center align-middle print:px-1 ${
                             isBreak || isDismissal ? "text-white" : ""
@@ -754,27 +770,61 @@ export default function GradeSchedulePage() {
                                 <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">REGISTRATION</span>
                               ) : isDismissal ? (
                                 <span className="text-xs font-bold tracking-widest uppercase">DEPARTURE</span>
+                              ) : isAdmin && blockForCell ? (
+                                <AssignmentForm
+                                  prefilledTimeBlock={{ dayOfWeek: day, startTime: time }}
+                                  onSuccess={refreshAssignments}
+                                  trigger={
+                                    <button className="no-print w-full h-full min-h-[32px] flex items-center justify-center text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors group">
+                                      <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    </button>
+                                  }
+                                />
                               ) : null
                             ) : (
                               <div className="flex flex-col gap-0.5">
                                 {slot.map((a, ai) => (
-                                  <div
-                                    key={a.id + ai}
-                                    className={`py-1 text-xs leading-tight ${
-                                      a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
-                                    }`}
-                                  >
-                                    <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
-                                    {showTeacher && a.teacher && (
-                                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
-                                    )}
-                                    {showRoom && a.room && (
-                                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 print:block">{shortRoom(a.room.name)}</div>
-                                    )}
-                                    {a.note && (
-                                      <div className="text-[9px] opacity-60">({a.note})</div>
-                                    )}
-                                  </div>
+                                  isAdmin ? (
+                                    <AssignmentForm
+                                      key={a.id + ai}
+                                      initialData={{ id: a.id, teacherId: a.teacher.id, subjectId: "", gradeId: selectedGradeId, roomId: a.room?.id ?? "", timeBlockId: "", note: a.note ?? "" }}
+                                      onSuccess={refreshAssignments}
+                                      trigger={
+                                        <div
+                                          className={`py-1 text-xs leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 transition-colors no-print ${
+                                            a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
+                                          }`}
+                                        >
+                                          <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
+                                          {showTeacher && a.teacher && (
+                                            <div className="text-[10px] text-slate-500 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
+                                          )}
+                                          {showRoom && a.room && (
+                                            <div className="text-[10px] text-slate-500 font-medium mt-0.5">{shortRoom(a.room.name)}</div>
+                                          )}
+                                          {a.note && <div className="text-[9px] opacity-60">({a.note})</div>}
+                                        </div>
+                                      }
+                                    />
+                                  ) : (
+                                    <div
+                                      key={a.id + ai}
+                                      className={`py-1 text-xs leading-tight ${
+                                        a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
+                                      }`}
+                                    >
+                                      <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
+                                      {showTeacher && a.teacher && (
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
+                                      )}
+                                      {showRoom && a.room && (
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 print:block">{shortRoom(a.room.name)}</div>
+                                      )}
+                                      {a.note && (
+                                        <div className="text-[9px] opacity-60">({a.note})</div>
+                                      )}
+                                    </div>
+                                  )
                                 ))}
                               </div>
                             )}
