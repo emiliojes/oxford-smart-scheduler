@@ -473,6 +473,16 @@ export default function GradeSchedulePage() {
     const isClass      = blocks.some(b => b.blockType === "CLASS");
     const isRegistration = blocks.some(b => b.blockType === "REGISTRATION");
     const isDismissalB   = blocks.some(b => b.blockType === "DISMISSAL");
+    
+    // Check if this time slot overlaps with any existing assignment
+    const stNum = parseInt(st.replace(":", ""));
+    const isOverlapping = assignments.some(a => {
+      const aStart = parseInt(a.timeBlock.startTime.replace(":", ""));
+      const aEnd = parseInt(a.timeBlock.endTime.replace(":", ""));
+      return stNum > aStart && stNum < aEnd;
+    });
+    if (isOverlapping) return false; // Don't show blocks that are in the middle of a class
+    
     if (isClass) return assignmentTimes.has(st);
     if (assignmentTimes.has(st)) return true;
     if (!firstTime) return false;
