@@ -6,7 +6,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus } from "lucide-react";
+import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus, Pencil } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 import { AssignmentForm } from "@/components/AssignmentForm";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
@@ -112,8 +117,42 @@ export default function GradeSchedulePage() {
   const [exportingExcel, setExportingExcel] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
+  const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
+  const [blockDialogOpen, setBlockDialogOpen] = useState(false);
+  const [blockSaving, setBlockSaving] = useState(false);
 
   const isAdmin = user?.role === "ADMIN" || user?.role === "DIRECTOR";
+
+  const saveBlock = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingBlock) return;
+    const fd = new FormData(e.currentTarget);
+    setBlockSaving(true);
+    try {
+      const res = await fetch("/api/time-blocks", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingBlock.id,
+          dayOfWeek: editingBlock.dayOfWeek,
+          startTime: fd.get("startTime"),
+          endTime: fd.get("endTime"),
+          blockType: fd.get("blockType"),
+          level: editingBlock.level,
+          duration: editingBlock.duration,
+        }),
+      });
+      if (res.ok) {
+        toast.success("Bloque actualizado");
+        setBlockDialogOpen(false);
+        // Refresh time blocks
+        fetch("/api/time-blocks").then(r => r.json()).then(setTimeBlocks);
+      } else {
+        toast.error("Error al actualizar bloque");
+      }
+    } catch { toast.error("Error"); }
+    finally { setBlockSaving(false); }
+  };
 
   const refreshAssignments = () => {
     if (!selectedGradeId) return;
@@ -745,11 +784,24 @@ export default function GradeSchedulePage() {
 
                   return (
                     <tr key={time} className={`border-t ${rowBg}`}>
-                      <td className={`px-3 py-1.5 font-mono text-xs font-bold border-r whitespace-nowrap print:px-1 ${
+                      <td className={`px-3 py-1.5 font-mono text-xs font-bold border-r whitespace-nowrap print:px-1 group/time ${
                         isBreak ? "text-white" : "text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900"
                       }`}>
-                        {formatTime12h(time)}<br />
-                        <span className="opacity-60 font-normal">{block?.endTime ? formatTime12h(block.endTime) : ""}</span>
+                        <div className="flex items-center gap-1">
+                          <div>
+                            {formatTime12h(time)}<br />
+                            <span className="opacity-60 font-normal">{block?.endTime ? formatTime12h(block.endTime) : ""}</span>
+                          </div>
+                          {isAdmin && block && !block.id.includes("lunch") && (
+                            <button
+                              className="no-print ml-1 opacity-0 group-hover/time:opacity-100 transition-opacity text-slate-400 hover:text-blue-500"
+                              onClick={() => { setEditingBlock(block as TimeBlock); setBlockDialogOpen(true); }}
+                              title="Editar bloque"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                       {[1,2,3,4,5].map(day => {
                         const slot = getSlot(day, time);
@@ -846,6 +898,55 @@ export default function GradeSchedulePage() {
           </div>
         </div>
       )}
+
+      {/* Time Block Edit Dialog */}
+      <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="w-4 h-4 text-blue-500" /> Editar Bloque de Tiempo
+            </DialogTitle>
+          </DialogHeader>
+          {editingBlock && (
+            <form onSubmit={saveBlock} className="space-y-4 pt-2">
+              <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded p-2">
+                ⚠️ Este cambio afecta todos los grados que usen este bloque.
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Hora inicio</Label>
+                  <Input name="startTime" type="time" defaultValue={editingBlock.startTime} required />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Hora fin</Label>
+                  <Input name="endTime" type="time" defaultValue={editingBlock.endTime} required />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Tipo de bloque</Label>
+                <Select name="blockType" defaultValue={editingBlock.blockType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CLASS">Clase</SelectItem>
+                    <SelectItem value="REGISTRATION">Registro</SelectItem>
+                    <SelectItem value="BREAK">Break</SelectItem>
+                    <SelectItem value="LUNCH">Almuerzo</SelectItem>
+                    <SelectItem value="DISMISSAL">Salida</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setBlockDialogOpen(false)}>Cancelar</Button>
+                <Button type="submit" size="sm" disabled={blockSaving}>
+                  {blockSaving ? "Guardando..." : "Guardar"}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <style jsx global>{`
         @media print {
