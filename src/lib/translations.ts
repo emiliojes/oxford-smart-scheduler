@@ -282,6 +282,8 @@ export const translations = {
     schedule: {
       title: "Schedule Viewer",
       subtitle: "Consult and export final schedules by different views.",
+      viewConflicts: "View Conflicts",
+      transferClasses: "Transfer Classes",
       print: "Print",
       pdf: "PDF",
       word: "Word",
@@ -323,6 +325,23 @@ export const translations = {
         error: "Could not generate schedule",
         errorLevel: "Please select an educational level",
         errorConnection: "Error connecting to the server",
+      },
+      transfer: {
+        title: "Transfer All Classes",
+        description: "Transfer all assignments from one teacher to another in bulk.",
+        from: "From (Source Teacher)",
+        to: "To (Destination Teacher)",
+        searchPlaceholder: "Search teacher...",
+        resultsFound: "{count} results found",
+        selectSource: "Select source teacher",
+        selectDestination: "Select destination teacher",
+        button: "Transfer All",
+        transferring: "Transferring...",
+        confirmMessage: "Transfer ALL classes from \"{from}\" to \"{to}\"?\n\nThis action cannot be undone.",
+        sameTeacher: "Cannot transfer to the same teacher",
+        success: "Classes transferred successfully",
+        error: "Error transferring",
+        connectionError: "Connection error",
       }
     }
   },
@@ -609,6 +628,8 @@ export const translations = {
     schedule: {
       title: "Visualizador de Horarios",
       subtitle: "Consulta y exporta los horarios finales por diferentes vistas.",
+      viewConflicts: "Ver Conflictos",
+      transferClasses: "Transferir Clases",
       print: "Imprimir",
       pdf: "PDF",
       word: "Word",
@@ -650,6 +671,23 @@ export const translations = {
         error: "No se pudo generar el horario",
         errorLevel: "Por favor selecciona un nivel educativo",
         errorConnection: "Error en la conexión con el servidor",
+      },
+      transfer: {
+        title: "Transferir Todas las Clases",
+        description: "Transfiere todas las asignaciones de un teacher a otro de forma masiva.",
+        from: "Desde (Teacher Origen)",
+        to: "Hacia (Teacher Destino)",
+        searchPlaceholder: "Buscar teacher...",
+        resultsFound: "{count} resultados encontrados",
+        selectSource: "Seleccionar teacher origen",
+        selectDestination: "Seleccionar teacher destino",
+        button: "Transferir Todo",
+        transferring: "Transfiriendo...",
+        confirmMessage: "¿Transferir TODAS las clases de \"{from}\" a \"{to}\"?\n\nEsta acción no se puede deshacer.",
+        sameTeacher: "No puedes transferir al mismo teacher",
+        success: "Clases transferidas correctamente",
+        error: "Error al transferir",
+        connectionError: "Error de conexión",
       }
     }
   }

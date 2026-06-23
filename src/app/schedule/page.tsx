@@ -205,7 +205,7 @@ export default function ScheduleViewPage() {
             <Link href="/conflicts">
               <Button variant="outline" className="gap-2 border-red-300 text-red-700 hover:bg-red-50">
                 <AlertTriangle className="w-4 h-4" />
-                Ver Conflictos
+                {t.schedule.viewConflicts}
               </Button>
             </Link>
           )}

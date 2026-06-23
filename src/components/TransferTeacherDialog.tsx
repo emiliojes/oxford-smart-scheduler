@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ArrowRightLeft, Loader2, Search } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Teacher {
   id: string;
@@ -29,6 +30,7 @@ interface Teacher {
 }
 
 export function TransferTeacherDialog() {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -60,14 +62,14 @@ export function TransferTeacherDialog() {
     }
 
     if (fromTeacherId === toTeacherId) {
-      toast.error("No puedes transferir al mismo teacher");
+      toast.error(t.schedule.transfer.sameTeacher);
       return;
     }
 
     const fromTeacher = teachers.find(t => t.id === fromTeacherId);
     const toTeacher = teachers.find(t => t.id === toTeacherId);
 
-    if (!confirm(`¿Transferir TODAS las clases de "${fromTeacher?.name}" a "${toTeacher?.name}"?\n\nEsta acción no se puede deshacer.`)) {
+    if (!confirm(t.schedule.transfer.confirmMessage.replace("{from}", fromTeacher?.name || "").replace("{to}", toTeacher?.name || ""))) {
       return;
     }
 
@@ -92,10 +94,10 @@ export function TransferTeacherDialog() {
         // Recargar la página para ver los cambios
         setTimeout(() => window.location.reload(), 1000);
       } else {
-        toast.error(result.error || "Error al transferir");
+        toast.error(result.error || t.schedule.transfer.error);
       }
     } catch {
-      toast.error("Error de conexión");
+      toast.error(t.schedule.transfer.connectionError);
     } finally {
       setIsLoading(false);
     }
@@ -106,24 +108,24 @@ export function TransferTeacherDialog() {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <ArrowRightLeft className="w-4 h-4" />
-          Transferir Clases
+          {t.schedule.transferClasses}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Transferir Todas las Clases</DialogTitle>
+          <DialogTitle>{t.schedule.transfer.title}</DialogTitle>
           <DialogDescription>
-            Transfiere todas las asignaciones de un teacher a otro de forma masiva.
+            {t.schedule.transfer.description}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Desde (Teacher Origen)</Label>
+            <Label>{t.schedule.transfer.from}</Label>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Buscar teacher..."
+                placeholder={t.schedule.transfer.searchPlaceholder}
                 value={fromSearch}
                 onChange={(e) => setFromSearch(e.target.value)}
                 className="pl-8"
@@ -131,12 +133,12 @@ export function TransferTeacherDialog() {
             </div>
             {fromSearch && (
               <p className="text-xs text-slate-500">
-                {teachers.filter(t => t.name.toLowerCase().includes(fromSearch.toLowerCase())).length} resultados encontrados
+                {t.schedule.transfer.resultsFound.replace("{count}", String(teachers.filter(t => t.name.toLowerCase().includes(fromSearch.toLowerCase())).length))}
               </p>
             )}
             <Select value={fromTeacherId} onValueChange={setFromTeacherId}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar teacher origen" />
+                <SelectValue placeholder={t.schedule.transfer.selectSource} />
               </SelectTrigger>
               <SelectContent className="max-h-[300px] overflow-y-auto">
                 {teachers
@@ -155,11 +157,11 @@ export function TransferTeacherDialog() {
           </div>
 
           <div className="space-y-2">
-            <Label>Hacia (Teacher Destino)</Label>
+            <Label>{t.schedule.transfer.to}</Label>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Buscar teacher..."
+                placeholder={t.schedule.transfer.searchPlaceholder}
                 value={toSearch}
                 onChange={(e) => setToSearch(e.target.value)}
                 className="pl-8"
@@ -167,12 +169,12 @@ export function TransferTeacherDialog() {
             </div>
             {toSearch && (
               <p className="text-xs text-slate-500">
-                {teachers.filter(t => t.id !== fromTeacherId && t.name.toLowerCase().includes(toSearch.toLowerCase())).length} resultados encontrados
+                {t.schedule.transfer.resultsFound.replace("{count}", String(teachers.filter(t => t.id !== fromTeacherId && t.name.toLowerCase().includes(toSearch.toLowerCase())).length))}
               </p>
             )}
             <Select value={toTeacherId} onValueChange={setToTeacherId}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar teacher destino" />
+                <SelectValue placeholder={t.schedule.transfer.selectDestination} />
               </SelectTrigger>
               <SelectContent className="max-h-[300px] overflow-y-auto">
                 {teachers
@@ -199,7 +201,7 @@ export function TransferTeacherDialog() {
 
         <div className="flex gap-2 justify-end">
           <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
-            Cancelar
+            {t.actions.cancel}
           </Button>
           <Button 
             onClick={handleTransfer} 
@@ -208,10 +210,10 @@ export function TransferTeacherDialog() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Transfiriendo...
+                {t.schedule.transfer.transferring}
               </>
             ) : (
-              "Transferir Todo"
+              t.schedule.transfer.button
             )}
           </Button>
         </div>
