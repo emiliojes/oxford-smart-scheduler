@@ -307,7 +307,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
               <Label>{t.nav.grades}</Label>
               <Select value={formData.gradeId} onValueChange={(v) => set("gradeId", v)}>
                 <SelectTrigger className={conflicts.grade ? "border-red-400" : ""}><SelectValue placeholder="Seleccionar grado" /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[300px] overflow-y-auto">
                   {filteredGrades.sort((a,b) => a.name.localeCompare(b.name)).map(g => (
                     <SelectItem key={g.id} value={g.id}>{g.name}{g.section ? ` ${g.section}` : ""}</SelectItem>
                   ))}
@@ -319,7 +319,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
               <Label>{t.nav.teachers}</Label>
               <Select value={formData.teacherId} onValueChange={(v) => set("teacherId", v)}>
                 <SelectTrigger className={conflicts.teacher ? "border-red-400" : ""}><SelectValue placeholder="Seleccionar profesor" /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[300px] overflow-y-auto">
                   {filteredTeachers.sort((a,b) => a.name.localeCompare(b.name)).map(te => (
                     <SelectItem key={te.id} value={te.id}>{te.name}</SelectItem>
                   ))}
