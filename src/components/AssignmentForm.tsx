@@ -342,24 +342,25 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label className="flex items-center gap-1">
-                {t.nav.rooms}
-                <span className="text-xs text-slate-400 font-normal">(opcional)</span>
-              </Label>
-              <Select value={formData.roomId} onValueChange={(v) => set("roomId", v === "__none__" ? "" : v)}>
-                <SelectTrigger className={conflicts.room ? "border-red-400" : ""}>
-                  <SelectValue placeholder="Sin aula asignada" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— Sin aula —</SelectItem>
-                  {rooms.sort((a,b) => a.name.localeCompare(b.name)).map(r => (
-                    <SelectItem key={r.id} value={r.id}>{r.name}{r.isSpecialized ? " ★" : ""}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {conflicts.room && <p className="text-xs text-red-500 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Aula ya está ocupada en este bloque</p>}
-            </div>
+            <details className="space-y-1.5">
+              <summary className="cursor-pointer text-sm text-slate-600 hover:text-slate-900 flex items-center gap-1">
+                <span>➕ Agregar aula (opcional)</span>
+              </summary>
+              <div className="mt-2 space-y-1.5">
+                <Select value={formData.roomId} onValueChange={(v) => set("roomId", v === "__none__" ? "" : v)}>
+                  <SelectTrigger className={conflicts.room ? "border-red-400" : ""}>
+                    <SelectValue placeholder="Sin aula asignada" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">— Sin aula —</SelectItem>
+                    {rooms.sort((a,b) => a.name.localeCompare(b.name)).map(r => (
+                      <SelectItem key={r.id} value={r.id}>{r.name}{r.isSpecialized ? " ★" : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {conflicts.room && <p className="text-xs text-red-500 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Aula ya está ocupada en este bloque</p>}
+              </div>
+            </details>
           </div>
 
           {/* Time block */}
