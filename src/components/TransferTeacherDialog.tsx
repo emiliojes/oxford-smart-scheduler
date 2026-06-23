@@ -18,8 +18,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowRightLeft, Loader2 } from "lucide-react";
+import { ArrowRightLeft, Loader2, Search } from "lucide-react";
 
 interface Teacher {
   id: string;
@@ -33,6 +34,8 @@ export function TransferTeacherDialog() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [fromTeacherId, setFromTeacherId] = useState("");
   const [toTeacherId, setToTeacherId] = useState("");
+  const [fromSearch, setFromSearch] = useState("");
+  const [toSearch, setToSearch] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -117,16 +120,27 @@ export function TransferTeacherDialog() {
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label>Desde (Teacher Origen)</Label>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Buscar teacher..."
+                value={fromSearch}
+                onChange={(e) => setFromSearch(e.target.value)}
+                className="pl-8"
+              />
+            </div>
             <Select value={fromTeacherId} onValueChange={setFromTeacherId}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar teacher origen" />
               </SelectTrigger>
-              <SelectContent>
-                {teachers.map(t => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name} ({t.level})
-                  </SelectItem>
-                ))}
+              <SelectContent className="max-h-[300px] overflow-y-auto">
+                {teachers
+                  .filter(t => t.name.toLowerCase().includes(fromSearch.toLowerCase()))
+                  .map(t => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name} ({t.level})
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -137,13 +151,22 @@ export function TransferTeacherDialog() {
 
           <div className="space-y-2">
             <Label>Hacia (Teacher Destino)</Label>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Buscar teacher..."
+                value={toSearch}
+                onChange={(e) => setToSearch(e.target.value)}
+                className="pl-8"
+              />
+            </div>
             <Select value={toTeacherId} onValueChange={setToTeacherId}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar teacher destino" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px] overflow-y-auto">
                 {teachers
-                  .filter(t => t.id !== fromTeacherId)
+                  .filter(t => t.id !== fromTeacherId && t.name.toLowerCase().includes(toSearch.toLowerCase()))
                   .map(t => (
                     <SelectItem key={t.id} value={t.id}>
                       {t.name} ({t.level})
