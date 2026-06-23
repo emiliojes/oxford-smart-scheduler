@@ -149,14 +149,20 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
     return subjects.filter(s => s.level === tlevel || s.level === "BOTH");
   }, [subjects, activeLevel]);
 
-  // Conflict detection
+  // Conflict detection with details
   const conflicts = useMemo(() => {
-    if (!formData.timeBlockId) return { teacher: false, grade: false, room: false };
+    if (!formData.timeBlockId) return { teacher: false, grade: false, room: false, gradeDetails: null, roomDetails: null };
     const others = existingAssignments.filter(a => a.id !== initialData?.id);
+    
+    const gradeConflict = formData.gradeId ? others.find(a => a.gradeId === formData.gradeId && a.timeBlockId === formData.timeBlockId) : null;
+    const roomConflict = formData.roomId ? others.find(a => a.roomId === formData.roomId && a.timeBlockId === formData.timeBlockId) : null;
+    
     return {
       teacher: formData.teacherId ? others.some(a => a.teacherId === formData.teacherId && a.timeBlockId === formData.timeBlockId) : false,
-      grade:   formData.gradeId   ? others.some(a => a.gradeId   === formData.gradeId   && a.timeBlockId === formData.timeBlockId) : false,
-      room:    formData.roomId    ? others.some(a => a.roomId     === formData.roomId    && a.timeBlockId === formData.timeBlockId) : false,
+      grade: !!gradeConflict,
+      room: !!roomConflict,
+      gradeDetails: gradeConflict,
+      roomDetails: roomConflict,
     };
   }, [formData, existingAssignments, initialData]);
 
@@ -313,7 +319,12 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
                   ))}
                 </SelectContent>
               </Select>
-              {conflicts.grade && <p className="text-xs text-red-500 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Grado ya tiene clase en este bloque</p>}
+              {conflicts.grade && conflicts.gradeDetails && (
+                <p className="text-xs text-red-500 flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" /> 
+                  Grado ya tiene clase en este bloque ({(conflicts.gradeDetails as any).teacher?.name} - {(conflicts.gradeDetails as any).subject?.name})
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>{t.nav.teachers}</Label>
@@ -405,13 +416,21 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
                       <li>{t.validations.teacherDoubleBooking.replace("{name}",
                         teachers.find(tc => tc.id === formData.teacherId)?.name ?? "?")}</li>
                     )}
-                    {conflicts.grade && (
-                      <li>{t.validations.gradeDoubleBooking.replace("{name}",
-                        (() => { const g = grades.find(g => g.id === formData.gradeId); return g ? `${g.name}${g.section ?? ""}` : "?"; })())}</li>
+                    {conflicts.grade && conflicts.gradeDetails && (
+                      <li>
+                        Grade {(() => { const g = grades.find(g => g.id === formData.gradeId); return g ? `${g.name}${g.section ?? ""}` : "?"; })()} already has a class assigned in this time block.
+                        {(conflicts.gradeDetails as any).teacher && (conflicts.gradeDetails as any).subject && (
+                          <span className="font-semibold"> ({(conflicts.gradeDetails as any).teacher.name} - {(conflicts.gradeDetails as any).subject.name})</span>
+                        )}
+                      </li>
                     )}
-                    {conflicts.room && (
-                      <li>{t.validations.roomDoubleBooking.replace("{name}",
-                        rooms.find(r => r.id === formData.roomId)?.name ?? "?")}</li>
+                    {conflicts.room && conflicts.roomDetails && (
+                      <li>
+                        {t.validations.roomDoubleBooking.replace("{name}", rooms.find(r => r.id === formData.roomId)?.name ?? "?")}
+                        {(conflicts.roomDetails as any).teacher && (conflicts.roomDetails as any).grade && (
+                          <span className="font-semibold"> ({(conflicts.roomDetails as any).teacher.name} - {(conflicts.roomDetails as any).grade.name}{(conflicts.roomDetails as any).grade.section || ''})</span>
+                        )}
+                      </li>
                     )}
                   </ul>
                   <p className="text-xs opacity-70 pt-0.5">{t.messages.assignmentConflictDesc}</p>
