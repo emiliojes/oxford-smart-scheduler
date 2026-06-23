@@ -402,15 +402,15 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
 
           {/* Note field */}
           <div className="space-y-1.5">
-            <Label>Nota (opcional)</Label>
+            <Label>{t.timeBlocks.note}</Label>
             <Input
               type="text"
-              placeholder="Ej: 12:30-1:30"
+              placeholder={t.timeBlocks.notePlaceholder}
               value={formData.note || ""}
               onChange={(e) => set("note", e.target.value)}
               className="text-sm"
             />
-            <p className="text-xs text-slate-500">Texto adicional que aparecerá en el horario</p>
+            <p className="text-xs text-slate-500">{t.timeBlocks.noteDescription}</p>
           </div>
 
           {/* Conflict summary */}

@@ -202,6 +202,9 @@ export const translations = {
       duration: "Duration",
       level: "Level",
       type: "Block Type",
+      note: "Note (optional)",
+      notePlaceholder: "E.g: 12:30-1:30",
+      noteDescription: "Additional text that will appear in the schedule",
       types: {
         CLASS: "Regular Class",
         REGISTRATION: "Registration",
@@ -526,6 +529,9 @@ export const translations = {
       duration: "Duración",
       level: "Nivel",
       type: "Tipo de Bloque",
+      note: "Nota (opcional)",
+      notePlaceholder: "Ej: 12:30-1:30",
+      noteDescription: "Texto adicional que aparecerá en el horario",
       types: {
         CLASS: "Clase Regular",
         REGISTRATION: "Registro",
