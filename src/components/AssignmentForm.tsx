@@ -312,7 +312,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
           {/* Grade + Teacher */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>{t.nav.grades}</Label>
+              <Label>{t.nav.grades} <span className="text-red-500">*</span></Label>
               <Select value={formData.gradeId} onValueChange={(v) => set("gradeId", v)}>
                 <SelectTrigger className={conflicts.grade ? "border-red-400" : ""}><SelectValue placeholder="Seleccionar grado" /></SelectTrigger>
                 <SelectContent className="max-h-[300px] overflow-y-auto">
@@ -329,7 +329,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>{t.nav.teachers}</Label>
+              <Label>{t.nav.teachers} <span className="text-red-500">*</span></Label>
               <Select value={formData.teacherId} onValueChange={(v) => set("teacherId", v)}>
                 <SelectTrigger className={conflicts.teacher ? "border-red-400" : ""}><SelectValue placeholder="Seleccionar profesor" /></SelectTrigger>
                 <SelectContent className="max-h-[300px] overflow-y-auto">
@@ -345,7 +345,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
           {/* Subject + Room */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>{t.nav.subjects}</Label>
+              <Label>{t.nav.subjects} <span className="text-red-500">*</span></Label>
               <Select value={formData.subjectId} onValueChange={(v) => set("subjectId", v)}>
                 <SelectTrigger><SelectValue placeholder="Seleccionar materia" /></SelectTrigger>
                 <SelectContent>
@@ -378,7 +378,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
 
           {/* Time block */}
           <div className="space-y-1.5">
-            <Label>{t.timeBlocks.title}</Label>
+            <Label>{t.timeBlocks.title} <span className="text-red-500">*</span></Label>
             <Select value={formData.timeBlockId} onValueChange={(v) => set("timeBlockId", v)}>
               <SelectTrigger><SelectValue placeholder="Seleccionar día y hora" /></SelectTrigger>
               <SelectContent>
