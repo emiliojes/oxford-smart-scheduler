@@ -468,6 +468,9 @@ export default function GradeSchedulePage() {
   const firstTime = [...assignmentTimes].sort()[0] ?? "";
   const lastTime  = [...assignmentTimes].sort().reverse()[0] ?? "";
 
+  // For Middle School (LOW_SECONDARY), always show standard time blocks
+  const standardMiddleBlocks = ["07:15", "07:30", "08:30", "09:30", "09:45", "10:45", "11:30", "12:00", "13:00", "14:00", "15:15"];
+  
   const uniqueTimes = Array.from(new Set(relevantTBs.map(b => b.startTime))).sort().filter(st => {
     const blocks = relevantTBs.filter(b => b.startTime === st);
     const isClass      = blocks.some(b => b.blockType === "CLASS");
@@ -476,23 +479,26 @@ export default function GradeSchedulePage() {
     const isLunch      = blocks.some(b => b.blockType === "LUNCH");
     const isBreak      = blocks.some(b => b.blockType === "BREAK");
     
-    // For CLASS blocks: only show if at least ONE day has a class at this time
+    // For Middle School grades, always show standard blocks
+    if (secondaryGroup === "MIDDLE" && standardMiddleBlocks.includes(st)) {
+      return true;
+    }
+    
+    // For CLASS blocks: check if overlaps with another class
     if (isClass) {
-      const hasAnyAssignment = [1, 2, 3, 4, 5].some(day => 
-        assignments.some(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === st)
-      );
-      if (!hasAnyAssignment) return false; // Don't show empty rows
-      
-      // Also check for overlapping blocks - don't show if overlaps with another class
       const stNum = parseInt(st.replace(":", ""));
       const isOverlapping = assignments.some(a => {
         const aStart = parseInt(a.timeBlock.startTime.replace(":", ""));
         const aEnd = parseInt(a.timeBlock.endTime.replace(":", ""));
         return stNum > aStart && stNum < aEnd;
       });
-      if (isOverlapping && !hasAnyAssignment) return false;
+      if (isOverlapping) return false; // Don't show if overlaps
       
-      return true;
+      // Show if has any assignment
+      const hasAnyAssignment = [1, 2, 3, 4, 5].some(day => 
+        assignments.some(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === st)
+      );
+      return hasAnyAssignment;
     }
     
     // Always show special blocks if there are any assignments in the schedule
@@ -503,7 +509,7 @@ export default function GradeSchedulePage() {
       if (isBreak) return true;
     }
     
-    return false; // Don't show anything else
+    return false;
   });
 
   const DAYS = t.timeBlocks.days as string[];
