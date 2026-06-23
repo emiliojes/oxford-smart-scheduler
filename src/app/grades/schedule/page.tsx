@@ -474,6 +474,7 @@ export default function GradeSchedulePage() {
     const isRegistration = blocks.some(b => b.blockType === "REGISTRATION");
     const isDismissalB   = blocks.some(b => b.blockType === "DISMISSAL");
     const isLunch      = blocks.some(b => b.blockType === "LUNCH");
+    const isBreak      = blocks.some(b => b.blockType === "BREAK");
     
     // Check if this time slot overlaps with any existing assignment (only for CLASS blocks)
     if (isClass && !assignmentTimes.has(st)) {
@@ -486,13 +487,18 @@ export default function GradeSchedulePage() {
       if (isOverlapping) return false; // Don't show empty CLASS blocks that are in the middle of a class
     }
     
+    // Only show CLASS blocks if they have assignments
     if (isClass) return assignmentTimes.has(st);
-    if (assignmentTimes.has(st)) return true;
-    if (!firstTime) return false;
-    if (isRegistration && assignments.length > 0) return true;
-    if (isDismissalB   && assignments.length > 0) return true;
-    if (isLunch && assignments.length > 0) return true; // Always show LUNCH if there are assignments
-    return st >= firstTime && st <= lastTime;
+    
+    // Always show special blocks if there are any assignments in the schedule
+    if (assignments.length > 0) {
+      if (isRegistration) return true;
+      if (isDismissalB) return true;
+      if (isLunch) return true;
+      if (isBreak) return true;
+    }
+    
+    return false; // Don't show anything else
   });
 
   const DAYS = t.timeBlocks.days as string[];
