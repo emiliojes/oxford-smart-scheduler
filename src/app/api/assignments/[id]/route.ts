@@ -14,7 +14,7 @@ export async function PUT(
   try {
     const { id } = await context.params;
     const body = await request.json();
-    const { teacherId, subjectId, gradeId, roomId, timeBlockId } = body;
+    const { teacherId, subjectId, gradeId, roomId, timeBlockId, note } = body;
 
     // 1. Validar conflictos ignorando la asignación actual
     const conflicts = await validateAssignment({
@@ -38,6 +38,7 @@ export async function PUT(
         gradeId,
         roomId: roomId || null,
         timeBlockId,
+        note: note || null,
         status,
         conflicts: {
           deleteMany: {},

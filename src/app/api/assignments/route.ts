@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const { teacherId, subjectId, gradeId, roomId, timeBlockId } = body;
+    const { teacherId, subjectId, gradeId, roomId, timeBlockId, note } = body;
 
     // 1. Validar conflictos
     const conflicts = await validateAssignment({
@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
         gradeId,
         roomId: roomId || null,
         timeBlockId,
+        note: note || null,
         status,
         conflicts: {
           create: conflicts.map((c) => ({
