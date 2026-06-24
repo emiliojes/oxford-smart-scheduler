@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus, Pencil } from "lucide-react";
@@ -104,6 +104,7 @@ export default function GradeSchedulePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [grades, setGrades] = useState<Grade[]>([]);
   const [selectedGradeId, setSelectedGradeId] = useState<string>("");
@@ -439,8 +440,10 @@ export default function GradeSchedulePage() {
       const sorted = sortGrades(g);
       setGrades(sorted);
       setTimeBlocks(tb);
+      const urlGradeId = searchParams.get("gradeId");
+      const fromUrl = urlGradeId && sorted.find(gr => gr.id === urlGradeId);
       const firstSecondary = sorted.find(gr => gr.level === "SECONDARY" || gr.level === "LOW_SECONDARY");
-      setSelectedGradeId((firstSecondary ?? sorted[0])?.id ?? "");
+      setSelectedGradeId(fromUrl ? urlGradeId : (firstSecondary ?? sorted[0])?.id ?? "");
     }).catch(() => {});
   }, [user]);
 
@@ -457,8 +460,13 @@ export default function GradeSchedulePage() {
   const selectedGrade = grades.find(g => g.id === selectedGradeId);
   const selectedIdx = grades.findIndex(g => g.id === selectedGradeId);
 
-  const goNext = () => { if (selectedIdx < grades.length - 1) setSelectedGradeId(grades[selectedIdx + 1].id); };
-  const goPrev = () => { if (selectedIdx > 0) setSelectedGradeId(grades[selectedIdx - 1].id); };
+  const changeGrade = (id: string) => {
+    setSelectedGradeId(id);
+    router.replace(`?gradeId=${id}`, { scroll: false });
+  };
+
+  const goNext = () => { if (selectedIdx < grades.length - 1) changeGrade(grades[selectedIdx + 1].id); };
+  const goPrev = () => { if (selectedIdx > 0) changeGrade(grades[selectedIdx - 1].id); };
 
   // Get the homeroom teacher (most assignments)
   const teacherCount: Record<string, { name: string; count: number }> = {};
@@ -648,7 +656,7 @@ export default function GradeSchedulePage() {
               {levelGroups[level].map(g => (
                 <button
                   key={g.id}
-                  onClick={() => setSelectedGradeId(g.id)}
+                  onClick={() => changeGrade(g.id)}
                   className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
                     g.id === selectedGradeId
                       ? "bg-blue-600 text-white border-blue-600"
