@@ -62,17 +62,6 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
   );
   const [selectedLevel, setSelectedLevel] = useState<string>("");
 
-  // Auto-set grade and level when prefilledGradeId changes
-  useEffect(() => {
-    if (!prefilledGradeId || grades.length === 0) return;
-    const grade = grades.find(g => g.id === prefilledGradeId);
-    if (!grade) return;
-    setFormData(prev => ({ ...prev, gradeId: prefilledGradeId }));
-    // Map grade level to filter level
-    const lvl = grade.level === "LOW_SECONDARY" ? "LOW_SECONDARY" : grade.level;
-    setSelectedLevel(lvl);
-  }, [prefilledGradeId, grades]);
-
   // Form state
   const [formData, setFormData] = useState({
     teacherId: initialData?.teacherId || "",
@@ -87,19 +76,40 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
     if (isOpen) fetchData();
   }, [isOpen]);
 
-  // Auto-select timeBlock when prefilledTimeBlock is provided
+  // Once data is loaded, auto-set grade + level + preferred time block
   useEffect(() => {
-    if (prefilledTimeBlock && timeBlocks.length > 0 && !formData.timeBlockId) {
-      const matchingBlock = timeBlocks.find(
-        tb => tb.dayOfWeek === prefilledTimeBlock.dayOfWeek && 
+    if (grades.length === 0 || timeBlocks.length === 0) return;
+
+    const updates: Partial<typeof formData> = {};
+    let preferredLevel = "";
+
+    if (prefilledGradeId) {
+      const grade = grades.find(g => g.id === prefilledGradeId);
+      if (grade) {
+        updates.gradeId = prefilledGradeId;
+        preferredLevel = grade.level;
+        setSelectedLevel(preferredLevel);
+      }
+    }
+
+    if (prefilledTimeBlock) {
+      const candidates = timeBlocks.filter(
+        tb => tb.dayOfWeek === prefilledTimeBlock.dayOfWeek &&
               tb.startTime === prefilledTimeBlock.startTime &&
               tb.blockType === "CLASS"
       );
-      if (matchingBlock) {
-        setFormData(prev => ({ ...prev, timeBlockId: matchingBlock.id }));
-      }
+      // Prefer block matching grade level, then BOTH, then any
+      const best =
+        candidates.find(b => b.level === preferredLevel) ??
+        candidates.find(b => b.level === "BOTH") ??
+        candidates[0];
+      if (best) updates.timeBlockId = best.id;
     }
-  }, [prefilledTimeBlock, timeBlocks]);
+
+    if (Object.keys(updates).length > 0) {
+      setFormData(prev => ({ ...prev, ...updates }));
+    }
+  }, [grades, timeBlocks]);
 
   const fetchData = async () => {
     try {
@@ -134,10 +144,14 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
     let tb = timeBlocks;
     if (activeDay) tb = tb.filter(b => b.dayOfWeek === parseInt(activeDay));
     if (activeLevel) {
-      const tlevel = activeLevel === "LOW_SECONDARY" ? "SECONDARY" : activeLevel;
-      tb = tb.filter(b => b.level === tlevel || b.level === "BOTH");
+      // LOW_SECONDARY grades use LOW_SECONDARY blocks specifically
+      const levels =
+        activeLevel === "LOW_SECONDARY" ? ["LOW_SECONDARY", "BOTH"] :
+        activeLevel === "SECONDARY"     ? ["SECONDARY", "BOTH"] :
+        [activeLevel, "BOTH"];
+      tb = tb.filter(b => levels.includes(b.level));
     } else {
-      // Deduplicate by dayOfWeek+startTime to avoid showing PRIMARY and SECONDARY duplicates
+      // Deduplicate by dayOfWeek+startTime to avoid showing duplicates
       const seen = new Set<string>();
       tb = tb.filter(b => {
         const key = `${b.dayOfWeek}-${b.startTime}`;
@@ -172,8 +186,10 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
 
   const filteredSubjects = useMemo(() => {
     if (!activeLevel) return subjects;
-    const tlevel = activeLevel === "LOW_SECONDARY" ? "SECONDARY" : activeLevel;
-    return subjects.filter(s => s.level === tlevel || s.level === "BOTH");
+    const levels =
+      activeLevel === "LOW_SECONDARY" ? ["LOW_SECONDARY", "SECONDARY", "BOTH"] :
+      [activeLevel, "BOTH"];
+    return subjects.filter(s => levels.includes(s.level));
   }, [subjects, activeLevel]);
 
   // Conflict detection with details
