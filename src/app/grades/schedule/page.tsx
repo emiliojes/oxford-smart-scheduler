@@ -611,7 +611,12 @@ export default function GradeSchedulePage() {
       );
       if (hasAnyAssignment) return true;
 
-      // Only suppress empty rows that fall inside another block's time range
+      // For empty rows: only show if there's a block matching THIS grade's level
+      // Prevents LOW_SECONDARY 13:00 block from appearing in High School (SECONDARY) grid
+      const hasCorrectLevelBlock = blocks.some(b => b.level === gradeLevel || b.level === "BOTH");
+      if (!hasCorrectLevelBlock) return false;
+
+      // Suppress empty correct-level rows that fall inside another block's time range
       const stNum = parseInt(st.replace(":", ""));
       const isOverlapping = assignments.some(a => {
         const aStart = parseInt(a.timeBlock.startTime.replace(":", ""));
