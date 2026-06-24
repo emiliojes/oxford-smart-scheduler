@@ -28,7 +28,7 @@ interface Subject { id: string; name: string; level: string; }
 interface Grade { id: string; name: string; section: string | null; level: string; }
 interface Room { id: string; name: string; isSpecialized: boolean; }
 interface TimeBlock { id: string; dayOfWeek: number; startTime: string; endTime: string; blockType: string; level: string; }
-interface Assignment { id: string; teacherId: string; gradeId: string; roomId: string; timeBlockId: string; }
+interface Assignment { id: string; teacherId: string; subjectId: string; gradeId: string; roomId: string; timeBlockId: string; }
 
 interface AssignmentFormProps {
   initialData?: any;
@@ -201,7 +201,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
     const roomConflict = formData.roomId ? others.find(a => a.roomId === formData.roomId && a.timeBlockId === formData.timeBlockId) : null;
     
     return {
-      teacher: formData.teacherId ? others.some(a => a.teacherId === formData.teacherId && a.timeBlockId === formData.timeBlockId) : false,
+      teacher: formData.teacherId ? others.some(a => a.teacherId === formData.teacherId && a.timeBlockId === formData.timeBlockId && a.subjectId !== formData.subjectId) : false,
       grade: !!gradeConflict,
       room: !!roomConflict,
       gradeDetails: gradeConflict,

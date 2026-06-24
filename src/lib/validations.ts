@@ -49,7 +49,8 @@ export async function validateAssignment(data: {
   });
 
   // Choque de Profesor (mismo timeblock exacto)
-  if (existingAssignments.some((a) => a.teacherId === data.teacherId)) {
+  // Joint classes (same teacher + same subject + different grade) are NOT a conflict
+  if (existingAssignments.some((a) => a.teacherId === data.teacherId && a.subjectId !== data.subjectId)) {
     conflicts.push({
       type: "TEACHER_DOUBLE_BOOKING",
       severity: "ERROR",
@@ -75,6 +76,7 @@ export async function validateAssignment(data: {
   const newEnd   = timeToMins(timeBlock.endTime);
   for (const a of teacherSameDayAssignments) {
     if (a.timeBlockId === data.timeBlockId) continue; // already caught above
+    if (a.subjectId === data.subjectId) continue; // joint class — same subject, different grade, allowed
     const aStart = timeToMins(a.timeBlock.startTime);
     const aEnd   = timeToMins(a.timeBlock.endTime);
     if (newStart < aEnd && newEnd > aStart) {

@@ -81,6 +81,8 @@ export async function GET(request: Request) {
             const a2 = dayAssignments[j];
             
             if (blocksOverlap(a1.timeBlock, a2.timeBlock)) {
+              // Skip joint classes: same teacher + same subject at same time = intentional (e.g. P.E.)
+              if (a1.subject.id === a2.subject.id) continue;
               allConflicts.push({
                 teacherId: teacher.id,
                 teacherName: teacher.name,
