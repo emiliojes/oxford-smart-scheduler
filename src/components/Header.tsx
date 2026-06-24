@@ -32,35 +32,35 @@ export function Header({ user }: HeaderProps) {
       pathname === href ? "bg-slate-700 text-white" : "text-slate-300 hover:bg-slate-700 hover:text-white"
     } ${extra}`;
 
-  const navLinks = (
+  const adminNavLinks = (
     <>
-      {canManage && (
-        <>
-          <Link href="/teachers" className={linkClass("/teachers")} onClick={() => setMenuOpen(false)}>{t.nav.teachers}</Link>
-          <Link href="/subjects" className={linkClass("/subjects")} onClick={() => setMenuOpen(false)}>{t.nav.subjects}</Link>
-          <Link href="/grades" className={linkClass("/grades")} onClick={() => setMenuOpen(false)}>{t.nav.grades}</Link>
-          <Link href="/rooms" className={linkClass("/rooms")} onClick={() => setMenuOpen(false)}>{t.nav.rooms}</Link>
-          {canSeeAdmin && (
-            <Link href="/settings/time-blocks" className={linkClass("/settings/time-blocks")} onClick={() => setMenuOpen(false)}>{t.nav.timeBlocks}</Link>
-          )}
-          <Link href="/bell" className={linkClass("/bell")} onClick={() => setMenuOpen(false)}>{t.nav.bell}</Link>
-        </>
-      )}
-      {canSeeAdmin && (
-        <Link href="/users" className={linkClass("/users", "text-yellow-300 hover:text-yellow-200")} onClick={() => setMenuOpen(false)}>Users</Link>
-      )}
-      {isCoordinatorOnly && (
-        <Link href="/approvals" className={linkClass("/approvals", "text-amber-300 hover:text-amber-200")} onClick={() => setMenuOpen(false)}>Aprobaciones</Link>
-      )}
-      {canManage && (
-        <Link href="/compare" className={`${linkClass("/compare")} !bg-violet-600 hover:!bg-violet-700 !text-white`} onClick={() => setMenuOpen(false)}>Comparar</Link>
-      )}
-      {canManage && (
-        <Link href="/grades/schedule" className={`${linkClass("/grades/schedule")} !bg-teal-600 hover:!bg-teal-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.schedule.types.grade}</Link>
-      )}
-      {canManage && (
-        <Link href="/master" className={`${linkClass("/master")} !bg-slate-600 hover:!bg-slate-700 !text-white`} onClick={() => setMenuOpen(false)}>Master</Link>
-      )}
+      <Link href="/teachers" className={linkClass("/teachers")} onClick={() => setMenuOpen(false)}>{t.nav.teachers}</Link>
+      <Link href="/subjects" className={linkClass("/subjects")} onClick={() => setMenuOpen(false)}>{t.nav.subjects}</Link>
+      <Link href="/grades" className={linkClass("/grades")} onClick={() => setMenuOpen(false)}>{t.nav.grades}</Link>
+      <Link href="/rooms" className={linkClass("/rooms")} onClick={() => setMenuOpen(false)}>{t.nav.rooms}</Link>
+      <Link href="/settings/time-blocks" className={linkClass("/settings/time-blocks")} onClick={() => setMenuOpen(false)}>{t.nav.timeBlocks}</Link>
+      <Link href="/bell" className={linkClass("/bell")} onClick={() => setMenuOpen(false)}>{t.nav.bell}</Link>
+      <Link href="/users" className={linkClass("/users", "text-yellow-300 hover:text-yellow-200")} onClick={() => setMenuOpen(false)}>Users</Link>
+      <Link href="/compare" className={`${linkClass("/compare")} !bg-violet-600 hover:!bg-violet-700 !text-white`} onClick={() => setMenuOpen(false)}>Comparar</Link>
+      <Link href="/grades/schedule" className={`${linkClass("/grades/schedule")} !bg-teal-600 hover:!bg-teal-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.schedule.types.grade}</Link>
+      <Link href="/master" className={`${linkClass("/master")} !bg-slate-600 hover:!bg-slate-700 !text-white`} onClick={() => setMenuOpen(false)}>Master</Link>
+      <Link href="/attendance" className={`${linkClass("/attendance")} !bg-green-600 hover:!bg-green-700 !text-white`} onClick={() => setMenuOpen(false)}>Attendance</Link>
+      <Link href="/schedule" className={`${linkClass("/schedule")} !bg-blue-600 hover:!bg-blue-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.nav.schedule}</Link>
+    </>
+  );
+
+  const coordinatorNavLinks = (
+    <>
+      <Link href="/grades/schedule" className={`${linkClass("/grades/schedule")} !bg-teal-600 hover:!bg-teal-700 !text-white`} onClick={() => setMenuOpen(false)}>Horario Estudiantes</Link>
+      <Link href="/schedule" className={`${linkClass("/schedule")} !bg-blue-600 hover:!bg-blue-700 !text-white`} onClick={() => setMenuOpen(false)}>Horario Profesores</Link>
+      <Link href="/compare" className={`${linkClass("/compare")} !bg-violet-600 hover:!bg-violet-700 !text-white`} onClick={() => setMenuOpen(false)}>Comparar</Link>
+      <Link href="/attendance" className={`${linkClass("/attendance")} !bg-green-600 hover:!bg-green-700 !text-white`} onClick={() => setMenuOpen(false)}>Asistencia</Link>
+      <Link href="/approvals" className={linkClass("/approvals", "text-amber-300 hover:text-amber-200")} onClick={() => setMenuOpen(false)}>Aprobaciones</Link>
+    </>
+  );
+
+  const navLinks = isCoordinatorOnly ? coordinatorNavLinks : canSeeAdmin ? adminNavLinks : (
+    <>
       <Link href="/attendance" className={`${linkClass("/attendance")} !bg-green-600 hover:!bg-green-700 !text-white`} onClick={() => setMenuOpen(false)}>Attendance</Link>
       <Link href="/schedule" className={`${linkClass("/schedule")} !bg-blue-600 hover:!bg-blue-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.nav.schedule}</Link>
     </>
