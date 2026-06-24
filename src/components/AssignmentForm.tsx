@@ -489,7 +489,7 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
                       </li>
                     )}
                   </ul>
-                  <p className="text-xs opacity-70 pt-0.5">{t.messages.assignmentConflictDesc}</p>
+                  <p className="text-xs opacity-70 pt-0.5">Puedes guardar de todas formas y resolver el conflicto después.</p>
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5 font-medium">
@@ -508,9 +508,11 @@ export function AssignmentForm({ initialData, onSuccess, trigger, prefilledTimeB
             ) : <div />}
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t.actions.cancel}</Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} variant={hasConflict ? "outline" : "default"} className={hasConflict ? "border-amber-400 text-amber-700 hover:bg-amber-50" : ""}>
                 {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {initialData?.id ? t.actions.update : t.actions.save}
+                {hasConflict
+                  ? (initialData?.id ? "Actualizar con conflicto" : "Guardar con conflicto")
+                  : (initialData?.id ? t.actions.update : t.actions.save)}
               </Button>
             </div>
           </div>
