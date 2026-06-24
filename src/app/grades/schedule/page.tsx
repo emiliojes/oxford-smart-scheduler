@@ -26,10 +26,11 @@ interface Grade {
 interface Assignment {
   id: string;
   teacher: { id: string; name: string };
-  subject: { name: string };
-  grade: { name: string; section: string | null } | null;
+  subject: { id: string; name: string };
+  grade: { id: string; name: string; section: string | null } | null;
   room: { id: string; name: string } | null;
   timeBlock: {
+    id: string;
     dayOfWeek: number;
     startTime: string;
     endTime: string;
@@ -122,6 +123,10 @@ export default function GradeSchedulePage() {
   const [blockDialogOpen, setBlockDialogOpen] = useState(false);
   const [blockSaving, setBlockSaving] = useState(false);
 
+  // Drag & drop
+  const [dragging, setDragging] = useState<Assignment | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null); // "day-startTime"
+
   const isAdmin = user?.role === "ADMIN" || user?.role === "DIRECTOR";
 
   const saveBlock = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -163,6 +168,53 @@ export default function GradeSchedulePage() {
       .then(setAssignments)
       .catch(() => {})
       .finally(() => setLoading(false));
+  };
+
+  const handleDrop = async (targetDay: number, targetStartTime: string) => {
+    if (!dragging || !selectedGrade) { setDragging(null); setDragOver(null); return; }
+    // Same cell → no-op
+    if (dragging.timeBlock.dayOfWeek === targetDay && dragging.timeBlock.startTime === targetStartTime) {
+      setDragging(null); setDragOver(null); return;
+    }
+    const targetBlock = timeBlocks.find(b =>
+      b.dayOfWeek === targetDay && b.startTime === targetStartTime &&
+      b.blockType === "CLASS" && b.level === selectedGrade.level
+    );
+    if (!targetBlock) { toast.error("No hay bloque disponible"); setDragging(null); setDragOver(null); return; }
+
+    // Optimistic UI update
+    const snapshot = assignments;
+    setAssignments(prev => prev.map(a =>
+      a.id === dragging.id
+        ? { ...a, timeBlock: { ...a.timeBlock, id: targetBlock.id, dayOfWeek: targetDay, startTime: targetStartTime, endTime: targetBlock.endTime } }
+        : a
+    ));
+    setDragging(null); setDragOver(null);
+
+    try {
+      const res = await fetch(`/api/assignments/${dragging.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          teacherId: dragging.teacher.id,
+          subjectId: dragging.subject.id,
+          gradeId: selectedGradeId,
+          timeBlockId: targetBlock.id,
+          roomId: dragging.room?.id ?? "",
+          note: dragging.note ?? "",
+        }),
+      });
+      if (res.ok) {
+        toast.success(`${dragging.subject.name} movido`);
+        refreshAssignments();
+      } else {
+        toast.error("Error al mover");
+        setAssignments(snapshot);
+      }
+    } catch {
+      toast.error("Error de conexión");
+      setAssignments(snapshot);
+    }
   };
 
   // ── Shared helper: build per-grade data for export ────────────
@@ -816,9 +868,21 @@ export default function GradeSchedulePage() {
                         const isLastDay = day === 5;
                         const blockForCell = relevantTBs.find(b => b.dayOfWeek === day && b.startTime === time && b.blockType === "CLASS");
                         return (
-                          <td key={day} className={`px-1.5 py-1.5 border-r last:border-r-0 text-center align-middle print:px-1 ${
-                            isBreak || isDismissal ? "text-white" : ""
-                          }`}>
+                          <td
+                            key={day}
+                            className={`px-1.5 py-1.5 border-r last:border-r-0 text-center align-middle print:px-1 transition-colors ${
+                              isBreak || isDismissal ? "text-white" : ""
+                            } ${
+                              isAdmin && dragging && !isBreak && !isLunch && !isReg && !isDismissal && blockForCell
+                                ? dragOver === `${day}-${time}`
+                                  ? "bg-blue-100 ring-2 ring-inset ring-blue-400"
+                                  : "bg-slate-50/80"
+                                : ""
+                            }`}
+                            onDragOver={isAdmin && !isBreak && !isLunch && !isReg && !isDismissal && blockForCell ? (e) => { e.preventDefault(); setDragOver(`${day}-${time}`); } : undefined}
+                            onDragLeave={isAdmin ? () => setDragOver(v => v === `${day}-${time}` ? null : v) : undefined}
+                            onDrop={isAdmin && !isBreak && !isLunch && !isReg && !isDismissal && blockForCell ? (e) => { e.preventDefault(); handleDrop(day, time); } : undefined}
+                          >
                             {slot.length === 0 ? (
                               isBreak ? (
                                 <span className="text-xs font-bold tracking-widest uppercase">BREAK</span>
@@ -846,28 +910,35 @@ export default function GradeSchedulePage() {
                               <div className="flex flex-col gap-0.5">
                                 {slot.map((a, ai) => (
                                   isAdmin ? (
-                                    <AssignmentForm
+                                    <div
                                       key={a.id + ai}
-                                      initialData={{ id: a.id, teacherId: a.teacher.id, subjectId: "", gradeId: selectedGradeId, roomId: a.room?.id ?? "", timeBlockId: "", note: a.note ?? "" }}
-                                      prefilledGradeId={selectedGradeId}
-                                      onSuccess={refreshAssignments}
-                                      trigger={
-                                        <div
-                                          className={`py-1 text-xs leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 transition-colors no-print ${
-                                            a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
-                                          }`}
-                                        >
-                                          <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
-                                          {showTeacher && a.teacher && (
-                                            <div className="text-[10px] text-slate-500 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
-                                          )}
-                                          {showRoom && a.room && (
-                                            <div className="text-[10px] text-slate-500 font-medium mt-0.5">{shortRoom(a.room.name)}</div>
-                                          )}
-                                          {a.note && <div className="text-[9px] opacity-60">({a.note})</div>}
-                                        </div>
-                                      }
-                                    />
+                                      draggable
+                                      onDragStart={(e) => { e.stopPropagation(); setDragging(a); }}
+                                      onDragEnd={() => { setDragging(null); setDragOver(null); }}
+                                      className={`transition-opacity ${dragging?.id === a.id ? "opacity-30 cursor-grabbing" : "cursor-grab"}`}
+                                    >
+                                      <AssignmentForm
+                                        initialData={{ id: a.id, teacherId: a.teacher.id, subjectId: "", gradeId: selectedGradeId, roomId: a.room?.id ?? "", timeBlockId: "", note: a.note ?? "" }}
+                                        prefilledGradeId={selectedGradeId}
+                                        onSuccess={refreshAssignments}
+                                        trigger={
+                                          <div
+                                            className={`py-1 text-xs leading-tight hover:bg-blue-50 rounded px-1 transition-colors no-print ${
+                                              a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
+                                            }`}
+                                          >
+                                            <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
+                                            {showTeacher && a.teacher && (
+                                              <div className="text-[10px] text-slate-500 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
+                                            )}
+                                            {showRoom && a.room && (
+                                              <div className="text-[10px] text-slate-500 font-medium mt-0.5">{shortRoom(a.room.name)}</div>
+                                            )}
+                                            {a.note && <div className="text-[9px] opacity-60">({a.note})</div>}
+                                          </div>
+                                        }
+                                      />
+                                    </div>
                                   ) : (
                                     <div
                                       key={a.id + ai}
