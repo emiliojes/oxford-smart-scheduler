@@ -605,19 +605,20 @@ export default function GradeSchedulePage() {
     
     // For CLASS blocks: check if overlaps with another class
     if (isClass) {
+      // Always show if there are actual assignments at this time (even if another block overlaps)
+      const hasAnyAssignment = [1, 2, 3, 4, 5].some(day =>
+        assignments.some(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === st)
+      );
+      if (hasAnyAssignment) return true;
+
+      // Only suppress empty rows that fall inside another block's time range
       const stNum = parseInt(st.replace(":", ""));
       const isOverlapping = assignments.some(a => {
         const aStart = parseInt(a.timeBlock.startTime.replace(":", ""));
         const aEnd = parseInt(a.timeBlock.endTime.replace(":", ""));
         return stNum > aStart && stNum < aEnd;
       });
-      if (isOverlapping) return false; // Don't show if overlaps
-      
-      // Show if has any assignment
-      const hasAnyAssignment = [1, 2, 3, 4, 5].some(day => 
-        assignments.some(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === st)
-      );
-      return hasAnyAssignment;
+      return !isOverlapping;
     }
     
     // Always show special blocks if there are any assignments in the schedule
