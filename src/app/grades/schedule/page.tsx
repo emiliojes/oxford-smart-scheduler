@@ -52,6 +52,11 @@ interface TimeBlock {
 }
 
 const LEVEL_ORDER = ["PRIMARY", "LOW_SECONDARY", "SECONDARY", "BOTH"];
+
+// Strip trailing grade numbers for display: "Math 7" → "Math"
+function displaySubjectName(name: string): string {
+  return name.replace(/\s+\d+\s*$/, "").trim();
+}
 const GRADE_ORDER = ["K", "PK", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
 function sortGrades(grades: Grade[]) {
@@ -291,7 +296,7 @@ export default function GradeSchedulePage() {
           if (btype === "BREAK")        return [timeLabel, "BREAK","BREAK","BREAK","BREAK","BREAK"];
           if (btype === "LUNCH")        return [timeLabel, "LUNCH","LUNCH","LUNCH","LUNCH","DEPARTURE"];
           if (btype === "DISMISSAL")    return [timeLabel, "DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE"];
-          return [timeLabel, ...DAYS.map((_,di) => getSlotA(di+1, time).map(a => a.subject.name).join(" / ") || "")];
+          return [timeLabel, ...DAYS.map((_,di) => getSlotA(di+1, time).map(a => displaySubjectName(a.subject.name)).join(" / ") || "")];
         });
         const ws = XLSX.utils.aoa_to_sheet([header1, header2, ...dataRows]);
         ws["!merges"] = [{ s:{r:0,c:0}, e:{r:0,c:5} }];
@@ -331,7 +336,7 @@ export default function GradeSchedulePage() {
           if (btype === "DISMISSAL")    return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("DEPARTURE","#1e3a5f","white")).join("")}</tr>`;
           return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>{
             const slot = getSlotA(di+1, time);
-            const txt = slot.map(a=>a.subject.name.toUpperCase()).join(" / ") || "";
+            const txt = slot.map(a=>displaySubjectName(a.subject.name).toUpperCase()).join(" / ") || "";
             return `<td style="font-size:8.5pt;font-weight:bold;text-align:center;padding:7pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
           }).join("")}</tr>`;
         }).join("");
@@ -429,7 +434,7 @@ export default function GradeSchedulePage() {
           return `<tr>${tc}${[1,2,3,4,5].map((_,di) => {
             const slot = getSlot(di+1, time);
             if (!slot.length) return `<td></td>`;
-            return `<td>${slot.map(a => `<div class="subj">${a.subject.name}</div>`).join("")}</td>`;
+            return `<td>${slot.map(a => `<div class="subj">${displaySubjectName(a.subject.name)}</div>`).join("")}</td>`;
           }).join("")}</tr>`;
         }).join("");
 
@@ -937,7 +942,7 @@ export default function GradeSchedulePage() {
                                               a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
                                             }`}
                                           >
-                                            <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
+                                            <div className="font-bold uppercase tracking-wide">{displaySubjectName(a.subject.name)}</div>
                                             {showTeacher && a.teacher && (
                                               <div className="text-[10px] text-slate-500 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
                                             )}
@@ -956,7 +961,7 @@ export default function GradeSchedulePage() {
                                         a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
                                       }`}
                                     >
-                                      <div className="font-bold uppercase tracking-wide">{a.subject.name}</div>
+                                      <div className="font-bold uppercase tracking-wide">{displaySubjectName(a.subject.name)}</div>
                                       {showTeacher && a.teacher && (
                                         <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 leading-tight">{a.teacher.name}</div>
                                       )}
