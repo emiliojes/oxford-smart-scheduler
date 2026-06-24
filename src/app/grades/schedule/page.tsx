@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus, Pencil } from "lucide-react";
+import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus, Pencil, GripVertical } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -912,18 +912,28 @@ export default function GradeSchedulePage() {
                                   isAdmin ? (
                                     <div
                                       key={a.id + ai}
-                                      draggable
-                                      onDragStart={(e) => { e.stopPropagation(); setDragging(a); }}
-                                      onDragEnd={() => { setDragging(null); setDragOver(null); }}
-                                      className={`transition-opacity ${dragging?.id === a.id ? "opacity-30 cursor-grabbing" : "cursor-grab"}`}
+                                      className={`flex items-stretch group/card rounded transition-opacity ${
+                                        dragging?.id === a.id ? "opacity-30" : ""
+                                      }`}
                                     >
+                                      {/* Drag handle – separate from click target */}
+                                      <div
+                                        draggable
+                                        onDragStart={(e) => { e.stopPropagation(); setDragging(a); }}
+                                        onDragEnd={() => { setDragging(null); setDragOver(null); }}
+                                        className="no-print flex items-center px-0.5 cursor-grab active:cursor-grabbing opacity-0 group-hover/card:opacity-40 hover:!opacity-100 text-slate-400 hover:text-blue-500 transition-opacity shrink-0"
+                                        title="Arrastrar"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <GripVertical className="w-3 h-3" />
+                                      </div>
                                       <AssignmentForm
                                         initialData={{ id: a.id, teacherId: a.teacher.id, subjectId: "", gradeId: selectedGradeId, roomId: a.room?.id ?? "", timeBlockId: "", note: a.note ?? "" }}
                                         prefilledGradeId={selectedGradeId}
                                         onSuccess={refreshAssignments}
                                         trigger={
                                           <div
-                                            className={`py-1 text-xs leading-tight hover:bg-blue-50 rounded px-1 transition-colors no-print ${
+                                            className={`py-1 text-xs leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 transition-colors no-print flex-1 ${
                                               a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
                                             }`}
                                           >
