@@ -369,7 +369,7 @@ export default function ScheduleViewPage() {
           }
           #printable-schedule table {
             width: 100%;
-            font-size: 10px;
+            font-size: 11px;
             border-collapse: collapse;
           }
           #printable-schedule thead th {

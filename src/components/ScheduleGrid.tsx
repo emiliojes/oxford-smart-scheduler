@@ -350,7 +350,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
 
               return (
                 <TableRow key={startTime} className={`h-auto ${rowSpecial ? "print:h-6" : "print:h-auto"}`}>
-                  <TableCell className="font-medium border-r bg-slate-50 dark:bg-slate-900 align-middle py-1 print:py-0.5 print:w-20">
+                  <TableCell className="font-medium border-r bg-slate-50 dark:bg-slate-900 align-middle py-1 print:py-[2px] print:w-24">
                     <div className="text-xs font-bold print:text-[11px] whitespace-nowrap flex items-center gap-1">
                       {formatTimeRange(startTime, blockInfo?.endTime)}
                       {isMixedSecondary && (() => {
@@ -413,7 +413,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                             )}
                           </div>
                         ) : (
-                          <div className="flex flex-col gap-1 print:gap-0">
+                          <div className="flex flex-col gap-1 print:gap-[1px]">
                             {slotAssignments.map((a) => (
                               <AssignmentForm
                                 key={a.id}
@@ -424,7 +424,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                     draggable={canManage && viewType === "teacher"}
                                     onDragStart={canManage && viewType === "teacher" ? (e) => { dragAssignmentId.current = a.id; setIsDragging(true); e.dataTransfer.effectAllowed = "move"; } : undefined}
                                     onDragEnd={canManage && viewType === "teacher" ? () => { setIsDragging(false); setDropTarget(null); } : undefined}
-                                    className={`p-2 print:p-1 text-xs print:text-[10px] border shadow-none relative group transition-colors ${
+                                    className={`p-2 print:p-[2px] text-xs print:text-[12px] border shadow-none relative group transition-colors ${
                                       canManage && viewType === "teacher" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                                     } ${
                                       a.status === "CONFLICT"
