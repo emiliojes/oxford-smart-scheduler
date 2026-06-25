@@ -41,7 +41,8 @@ export function Header({ user }: HeaderProps) {
       <Link href="/settings/time-blocks" className={linkClass("/settings/time-blocks")} onClick={() => setMenuOpen(false)}>{t.nav.timeBlocks}</Link>
       <Link href="/bell" className={linkClass("/bell")} onClick={() => setMenuOpen(false)}>{t.nav.bell}</Link>
       <Link href="/users" className={linkClass("/users", "text-yellow-300 hover:text-yellow-200")} onClick={() => setMenuOpen(false)}>Users</Link>
-      <Link href="/compare" className={`${linkClass("/compare")} !bg-violet-600 hover:!bg-violet-700 !text-white`} onClick={() => setMenuOpen(false)}>Comparar</Link>
+      <Link href="/compare" className={`${linkClass("/compare")} !bg-violet-600 hover:!bg-violet-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.nav.compare}</Link>
+      <Link href="/conflicts" className={`${linkClass("/conflicts")} !bg-red-600 hover:!bg-red-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.nav.conflicts}</Link>
       <Link href="/grades/schedule" className={`${linkClass("/grades/schedule")} !bg-teal-600 hover:!bg-teal-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.schedule.types.grade}</Link>
       <Link href="/master" className={`${linkClass("/master")} !bg-slate-600 hover:!bg-slate-700 !text-white`} onClick={() => setMenuOpen(false)}>Master</Link>
       <Link href="/attendance" className={`${linkClass("/attendance")} !bg-green-600 hover:!bg-green-700 !text-white`} onClick={() => setMenuOpen(false)}>{t.nav.attendance}</Link>

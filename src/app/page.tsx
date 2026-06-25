@@ -128,7 +128,7 @@ export default function Home() {
             <AlertTriangle className="text-red-500 w-6 h-6" />
             <div>
               <p className="text-red-800 font-bold">{t.home.stats.conflicts.replace('{count}', stats.conflicts.toString())}</p>
-              <Link href="/schedule" className="text-red-600 text-sm font-medium hover:underline">{t.home.stats.reviewNow}</Link>
+              <Link href="/conflicts" className="text-red-600 text-sm font-medium hover:underline">{t.home.stats.reviewNow}</Link>
             </div>
           </div>
         </div>
