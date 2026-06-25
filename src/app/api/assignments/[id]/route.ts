@@ -66,7 +66,7 @@ export async function PUT(
   }
 }
 
-// PATCH /api/assignments/[id] — move to a different timeBlock (drag & drop)
+// PATCH /api/assignments/[id] — move to a different timeBlock (drag & drop) OR resolve conflict
 export async function PATCH(
   request: NextRequest,
   context: any
@@ -75,7 +75,20 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const { id } = await context.params;
-    const { timeBlockId } = await request.json();
+    const body = await request.json();
+
+    // Action: resolve conflict — mark as CONFIRMED and clear stored conflict records
+    if (body.action === "resolve") {
+      await prisma.conflict.deleteMany({ where: { assignmentId: id } });
+      const assignment = await prisma.assignment.update({
+        where: { id },
+        data: { status: "CONFIRMED" },
+        include: { teacher: true, subject: true, grade: true, timeBlock: true },
+      });
+      return NextResponse.json(assignment);
+    }
+
+    const { timeBlockId } = body;
     if (!timeBlockId) return NextResponse.json({ error: "timeBlockId required" }, { status: 400 });
 
     const current = await prisma.assignment.findUnique({ where: { id } });
