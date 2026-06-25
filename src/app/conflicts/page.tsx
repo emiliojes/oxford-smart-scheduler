@@ -29,7 +29,7 @@ export default function ConflictsPage() {
   const [detected, setDetected] = useState<DetectedConflict[]>([]);
   const [stored, setStored] = useState<StoredConflict[]>([]);
   const [loading, setLoading] = useState(true);
-  const [levelFilter, setLevelFilter] = useState<"all" | "secondary" | "primary">("all");
+  const [levelFilter, setLevelFilter] = useState<"all" | "secondary" | "primary">("secondary");
   const [resolving, setResolving] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null);
