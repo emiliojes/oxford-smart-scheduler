@@ -387,6 +387,11 @@ export default function ScheduleViewPage() {
             height: auto !important;
             min-height: 0 !important;
           }
+          #printable-schedule td > div,
+          #printable-schedule td div,
+          #printable-schedule td span {
+            line-height: 1.1 !important;
+          }
         }
       `}</style>
     </div>

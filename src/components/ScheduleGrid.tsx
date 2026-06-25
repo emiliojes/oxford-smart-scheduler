@@ -424,7 +424,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                     draggable={canManage && viewType === "teacher"}
                                     onDragStart={canManage && viewType === "teacher" ? (e) => { dragAssignmentId.current = a.id; setIsDragging(true); e.dataTransfer.effectAllowed = "move"; } : undefined}
                                     onDragEnd={canManage && viewType === "teacher" ? () => { setIsDragging(false); setDropTarget(null); } : undefined}
-                                    className={`p-2 print:p-[2px] text-xs print:text-[12px] border shadow-none relative group transition-colors ${
+                                    className={`p-2 print:p-[2px] print:leading-none text-xs print:text-[12px] border shadow-none relative group transition-colors ${
                                       canManage && viewType === "teacher" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                                     } ${
                                       a.status === "CONFLICT"
@@ -455,7 +455,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                         </TooltipContent>
                                       </Tooltip>
                                     )}
-                                    <div className="font-bold text-blue-900 dark:text-blue-300 truncate flex items-center gap-1">
+                                    <div className="font-bold text-blue-900 dark:text-blue-300 truncate flex items-center gap-1 print:leading-none">
                                       {isMixedSecondary && a.grade && getSecondaryGroup(a.grade.name) && (
                                         <span className={`inline-flex items-center justify-center text-[9px] font-extrabold rounded px-1 leading-tight ${
                                           getSecondaryGroup(a.grade.name) === "MIDDLE"
@@ -471,7 +471,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                           : a.subject.name}
                                       </span>
                                     </div>
-                                    <div className="flex flex-col text-slate-600 dark:text-slate-200 print:text-slate-700">
+                                    <div className="flex flex-col text-slate-600 dark:text-slate-200 print:text-slate-700 print:leading-none print:mt-[1px]">
                                       {viewType === "teacher" && (
                                         <span className="truncate">{a.subject.name}</span>
                                       )}
