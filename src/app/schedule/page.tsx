@@ -378,10 +378,13 @@ export default function ScheduleViewPage() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          #printable-schedule th,
+          #printable-schedule th {
+            padding: 4px 4px !important;
+            line-height: 1.2;
+          }
           #printable-schedule td {
-            padding: 3px 4px !important;
-            line-height: 1.3;
+            padding: 1px 3px !important;
+            line-height: 1;
           }
           #printable-schedule tr {
             height: auto !important;
@@ -391,10 +394,13 @@ export default function ScheduleViewPage() {
           #printable-schedule td .card-wrap > * {
             page-break-inside: avoid !important;
           }
-          #printable-schedule td > div,
-          #printable-schedule td div,
-          #printable-schedule td span {
+          #printable-schedule td * {
             line-height: 1.1 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+          }
+          #printable-schedule td [class*="rounded"] {
+            padding: 2px 3px !important;
           }
         }
       `}</style>

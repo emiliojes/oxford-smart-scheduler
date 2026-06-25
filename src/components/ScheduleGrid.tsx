@@ -349,7 +349,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
               const rowSpecial = isRowSpecial(startTime);
 
               return (
-                <TableRow key={startTime} className={`h-auto ${rowSpecial ? "print:h-6" : "print:h-auto"}`}>
+                <TableRow key={startTime} className={`h-auto ${rowSpecial ? "print:h-4" : "print:h-auto"}`}>
                   <TableCell className="font-medium border-r bg-slate-50 dark:bg-slate-900 align-middle py-1 print:py-[2px] print:w-24">
                     <div className="text-xs font-bold print:text-[11px] whitespace-nowrap flex items-center gap-1">
                       {formatTimeRange(startTime, blockInfo?.endTime)}
