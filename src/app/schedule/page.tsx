@@ -315,9 +315,9 @@ export default function ScheduleViewPage() {
         </div>
       ) : (
         <div id="printable-schedule" className="print:m-0">
-          <div className="hidden print:block mb-8 text-center border-b pb-4">
-            <h2 className="text-2xl font-bold uppercase">{t.schedule.export.school}</h2>
-            <h3 className="text-xl font-medium mt-2">
+          <div className="hidden print:block mb-3 text-center border-b pb-2">
+            <h2 className="text-xl font-bold uppercase">{t.schedule.export.school}</h2>
+            <h3 className="text-base font-medium mt-1">
               {isTeacherView
                 ? `HORARIO: ${teacherName || currentUser?.username}`
                 : `${t.nav.schedule.toUpperCase()}: ${options.find(o => o.id === selectedId)?.name ?? ""}${viewType === "grade" ? " " + (options.find(o => o.id === selectedId)?.section ?? "") : ""}`
@@ -344,7 +344,7 @@ export default function ScheduleViewPage() {
         @media print {
           @page {
             size: A4 landscape;
-            margin: 8mm 6mm;
+            margin: 5mm 5mm;
           }
           .no-print {
             display: none !important;
@@ -386,6 +386,10 @@ export default function ScheduleViewPage() {
           #printable-schedule tr {
             height: auto !important;
             min-height: 0 !important;
+            page-break-inside: avoid !important;
+          }
+          #printable-schedule td .card-wrap > * {
+            page-break-inside: avoid !important;
           }
           #printable-schedule td > div,
           #printable-schedule td div,
