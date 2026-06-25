@@ -61,7 +61,7 @@ export default async function RootLayout({
                   <main className="flex-1 container mx-auto py-4 md:py-8 px-3 md:px-4">
                     {children}
                   </main>
-                  <footer className="border-t p-4 text-center text-gray-500 text-sm">
+                  <footer className="border-t p-4 text-center text-gray-500 text-sm print:hidden">
                     2026 Oxford School Schedule Manager
                   </footer>
                 </div>

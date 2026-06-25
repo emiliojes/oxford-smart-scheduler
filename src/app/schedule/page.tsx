@@ -323,10 +323,7 @@ export default function ScheduleViewPage() {
                 : `${t.nav.schedule.toUpperCase()}: ${options.find(o => o.id === selectedId)?.name ?? ""}${viewType === "grade" ? " " + (options.find(o => o.id === selectedId)?.section ?? "") : ""}`
               }
             </h3>
-            {hoursLabel && (
-              <p className="text-base font-bold text-blue-700 mt-1">&#128336; Total semanal de clases: {hoursLabel}</p>
-            )}
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.schedule.export.subtitle.split('|')[1]}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{t.schedule.export.subtitle.split('|')[1]}</p>
           </div>
           
           <ScheduleGrid 
@@ -336,7 +333,7 @@ export default function ScheduleViewPage() {
             onRefresh={() => fetchAssignments()}
           />
           
-          <div className="hidden print:flex justify-between mt-12 px-8">
+          <div className="hidden print:flex justify-between mt-4 px-8" style={{pageBreakInside: 'avoid'}}>
             <div className="border-t border-slate-400 w-48 text-center pt-2 text-xs font-bold">{t.schedule.export.coordination}</div>
             <div className="border-t border-slate-400 w-48 text-center pt-2 text-xs font-bold">{t.schedule.export.direction}</div>
           </div>
@@ -374,6 +371,12 @@ export default function ScheduleViewPage() {
             width: 100%;
             font-size: 8px;
             border-collapse: collapse;
+          }
+          #printable-schedule thead th {
+            background-color: #1e3a5f !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
           #printable-schedule th,
           #printable-schedule td {
