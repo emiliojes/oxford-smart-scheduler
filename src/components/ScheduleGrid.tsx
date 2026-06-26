@@ -242,7 +242,12 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
     // Always show 07:15 REGISTRATION row if teacher has any assignments
     const isRegistration0715 = st === "07:15" && blocksAtTime.some(b => b.blockType === "REGISTRATION");
     if (isRegistration0715 && assignments.length > 0) return true;
-    if (hasClassBlock) return viewType === "teacher" ? assignmentStartTimes.has(st) : assignmentStartTimes.has(st);
+    if (hasClassBlock) {
+      if (assignmentStartTimes.has(st)) return true;
+      // Teacher view: show empty CLASS rows from start of day up to last class (so free slots are visible)
+      if (viewType === "teacher" && assignments.length > 0 && lastTime && st <= lastTime) return true;
+      return false;
+    }
     // Always show non-CLASS rows that have assignments (e.g. Arrival Duty at 07:15 REGISTRATION)
     if (assignmentStartTimes.has(st)) return true;
     // For BREAK/LUNCH/REGISTRATION with no assignments: show if within active range OR immediately before firstTime
