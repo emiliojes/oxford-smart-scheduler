@@ -223,9 +223,17 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
 
 const PRINT_CSS = `
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff;}
-.page{page-break-after:always;padding:10px 12px;}
-.page:last-child{page-break-after:auto;}
+html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#f1f5f9;}
+@page{size:A4 landscape;margin:8mm;}
+.page{
+  page-break-after:always;
+  break-after:page;
+  padding:10px 12px;
+  background:white;
+  margin-bottom:24px;
+  border-bottom:4px dashed #94a3b8;
+}
+.page:last-child{page-break-after:auto;break-after:auto;border-bottom:none;margin-bottom:0;}
 .hdr{background:#1e3a5f!important;color:white!important;text-align:center;padding:10px;margin-bottom:8px;border-radius:4px;}
 .hdr-sub{font-size:9px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
 .hdr-name{font-size:17px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white!important;}
@@ -245,7 +253,12 @@ td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin
 .subj{font-size:9px;color:#374151;}
 .sigs{display:flex;justify-content:space-between;padding:0 30px;margin-top:14px;}
 .sig{border-top:1px solid #94a3b8;width:160px;text-align:center;padding-top:4px;font-size:9px;font-weight:bold;color:#374151;}
-@media print{html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{page-break-after:always;}.page:last-child{page-break-after:auto;}@page{size:A4 landscape;margin:8mm;}}
+@media print{
+  html,body{background:white!important;}
+  .page{border-bottom:none!important;margin-bottom:0!important;background:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .page{page-break-after:always;break-after:page;}
+  .page:last-child{page-break-after:auto;break-after:auto;}
+}
 `;
 
 export default function TeacherSchedulePage() {
