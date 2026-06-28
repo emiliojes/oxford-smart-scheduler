@@ -1,0 +1,362 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ScheduleGrid } from "@/components/ScheduleGrid";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { Loader2, Printer } from "lucide-react";
+import { toast } from "sonner";
+
+interface Teacher { id: string; name: string; level: string; }
+interface Assignment {
+  id: string;
+  teacher: { name: string };
+  subject: { name: string };
+  grade: { name: string; section: string | null; level: string } | null;
+  room: { name: string } | null;
+  timeBlock: { dayOfWeek: number; startTime: string; endTime: string; duration: string; blockType: string; };
+  note: string | null;
+  status: string;
+  conflicts: Array<{ description: string }>;
+}
+interface TimeBlock { id: string; dayOfWeek: number; startTime: string; endTime: string; duration: string; blockType: string; level: string; }
+
+const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+const DUTY = ["Duty", "Resource Room Support", "Homeroom"];
+
+function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HIGH" | null {
+  const g = Number(gradeName);
+  if ([6, 7, 8].includes(g)) return "MIDDLE";
+  if ([9, 10, 11, 12].includes(g)) return "HIGH";
+  return null;
+}
+
+function getTeacherGroup(asgns: Assignment[]): "MIDDLE" | "HIGH" | "MIXED" | "OTHER" {
+  const hasLow = asgns.some(a => a.grade?.level === "LOW_SECONDARY");
+  const hasSec = asgns.some(a => a.grade?.level === "SECONDARY");
+  if (hasLow && hasSec) return "MIXED";
+  if (hasLow) return "MIDDLE";
+  if (hasSec) return "HIGH";
+  return "OTHER";
+}
+
+function fmt(t: string) {
+  const [h, m = "00"] = t.split(":");
+  const hr = Number(h);
+  return `${hr % 12 || 12}:${m.padStart(2, "0")} ${hr >= 12 ? "PM" : "AM"}`;
+}
+
+function displaySubj(name: string): string {
+  return name.replace("Physical Education", "P.E.").replace("Language Arts", "L.Arts");
+}
+
+function buildTeacherSchedule(asgns: Assignment[], allTBs: TimeBlock[]) {
+  const hasLow = asgns.some(a => a.grade?.level === "LOW_SECONDARY");
+  const hasSec = asgns.some(a => a.grade?.level === "SECONDARY");
+  const isMixed = hasLow && hasSec;
+
+  let baseTBs = isMixed || hasLow
+    ? allTBs.filter(b => b.level === "LOW_SECONDARY" || b.level === "SECONDARY" || b.level === "BOTH")
+    : hasSec
+      ? allTBs.filter(b => b.level === "SECONDARY" || b.level === "BOTH")
+      : allTBs.filter(b => b.level === "PRIMARY" || b.level === "BOTH");
+
+  const secGroups = new Set(asgns.map(a => getSecondaryGroup(a.grade?.name)).filter(Boolean));
+
+  const filteredTBs = baseTBs.filter(b => {
+    if (b.blockType === "LUNCH") return false;
+    if (!isMixed && hasLow && b.startTime === "10:45" && b.endTime === "11:45") return false;
+    if (!isMixed && hasLow && b.startTime === "11:45") return false;
+    if (!isMixed && hasSec && !hasLow && b.startTime === "10:45" && b.endTime === "11:30") return false;
+    return true;
+  });
+
+  const withLunch: TimeBlock[] = [...filteredTBs];
+  if (secGroups.has("MIDDLE")) {
+    for (let d = 1; d <= 5; d++)
+      withLunch.push({ id: `ml-${d}`, dayOfWeek: d, startTime: "11:30", endTime: "12:00", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+  }
+  if (secGroups.has("HIGH")) {
+    for (let d = 1; d <= 5; d++)
+      withLunch.push({ id: `hl-${d}`, dayOfWeek: d, startTime: "12:45", endTime: "13:15", duration: "30", blockType: "LUNCH", level: "SECONDARY" });
+  }
+
+  const aTimes = new Set(asgns.map(a => a.timeBlock.startTime));
+  const sorted = [...aTimes].sort();
+  const firstT = sorted[0] ?? "";
+  const lastT = sorted[sorted.length - 1] ?? "";
+
+  const uniqueT = [...new Set(withLunch.map(b => b.startTime))].sort().filter(st => {
+    const blocks = withLunch.filter(b => b.startTime === st);
+    const isCls = blocks.some(b => b.blockType === "CLASS");
+    if (isCls) {
+      if (aTimes.has(st)) return true;
+      if (asgns.length > 0 && lastT && st <= lastT) return true;
+      return false;
+    }
+    if (aTimes.has(st)) return true;
+    if (!firstT) return false;
+    if (blocks.some(b => b.blockType === "REGISTRATION") && st === "07:15") return true;
+    if (blocks.some(b => b.blockType === "DISMISSAL") && asgns.length > 0) return true;
+    const isImmBefore = st < firstT && blocks.some(b => b.blockType === "BREAK" || b.blockType === "LUNCH");
+    if (isImmBefore) return true;
+    if (!(st >= firstT && st <= lastT)) return false;
+    return true;
+  });
+
+  return { uniqueT, withLunch, aTimes };
+}
+
+function hoursLabel(asgns: Assignment[]): string {
+  const teaching = asgns.filter(a => a.timeBlock.blockType === "CLASS" && !DUTY.some(k => a.subject.name.includes(k)));
+  const unique = Array.from(new Map(teaching.map(a => [`${a.timeBlock.dayOfWeek}-${a.timeBlock.startTime}`, a])).values());
+  const mins = unique.reduce((s, a) => s + parseFloat(String(a.timeBlock.duration ?? 0)), 0);
+  if (!mins) return "";
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return m > 0 ? `${h}h ${m}min` : `${h}h`;
+}
+
+function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[]): string {
+  const { uniqueT, withLunch, aTimes } = buildTeacherSchedule(asgns, allTBs);
+  const group = getTeacherGroup(asgns);
+  const groupLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : group === "MIXED" ? "MIDDLE & HIGH SCHOOL" : "SECONDARY";
+  const hrs = hoursLabel(asgns);
+
+  const getSlot = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
+  const blockAt = (time: string) => withLunch.find(b => b.startTime === time);
+
+  const rows = uniqueT.map(time => {
+    const blk = blockAt(time);
+    const btype = blk?.blockType ?? "CLASS";
+    const endT = blk?.endTime ?? "";
+    const tc = `<td class="time">${fmt(time)}<br><span>- ${fmt(endT)}</span></td>`;
+
+    if (btype === "REGISTRATION") return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp reg">REGISTRATION</td>`).join("")}</tr>`;
+    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp brk">BREAK</td>`).join("")}</tr>`;
+    if (btype === "DISMISSAL")    return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp dep">DEPARTURE</td>`).join("")}</tr>`;
+    if (btype === "LUNCH") {
+      const hasFriAfter = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
+      return `<tr>${tc}${[1,2,3,4,5].map((_, di) =>
+        di === 4 && aTimes.size > 0 && !hasFriAfter ? `<td class="sp dep">DEPARTURE</td>` : `<td class="sp lnc">LUNCH</td>`
+      ).join("")}</tr>`;
+    }
+
+    return `<tr>${tc}${[1,2,3,4,5].map((_, di) => {
+      const slot = getSlot(di + 1, time);
+      if (!slot.length) return `<td></td>`;
+      return `<td>${slot.map(a => {
+        const gName = a.grade ? `${a.grade.name}${a.grade.section ?? ""}` : "";
+        return `<div class="entry"><div class="grade">${gName}</div><div class="subj">${displaySubj(a.subject.name)}</div></div>`;
+      }).join("")}</td>`;
+    }).join("")}</tr>`;
+  }).join("");
+
+  return `<div class="page">
+    <div class="hdr">
+      <div class="hdr-sub">2026 · ${groupLabel} TEACHER SCHEDULE</div>
+      <div class="hdr-name">${teacher.name.toUpperCase()}</div>
+      ${hrs ? `<div class="hdr-info">Weekly Teaching Hours: ${hrs}</div>` : ""}
+    </div>
+    <table>
+      <thead><tr><th>TIME</th>${DAYS.map(d => `<th>${d}</th>`).join("")}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="sigs">
+      <div class="sig">Academic Coordination</div>
+      <div class="sig">General Direction</div>
+    </div>
+  </div>`;
+}
+
+const PRINT_CSS = `
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff;}
+.page{page-break-after:always;padding:10px 12px;}
+.page:last-child{page-break-after:auto;}
+.hdr{background:#1e3a5f!important;color:white!important;text-align:center;padding:10px;margin-bottom:8px;border-radius:4px;}
+.hdr-sub{font-size:9px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+.hdr-name{font-size:17px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white!important;}
+.hdr-info{font-size:10px;color:#cbd5e1!important;margin-top:3px;}
+table{width:100%;border-collapse:collapse;font-size:10px;}
+th{background:#1e3a5f!important;color:white!important;padding:6px 4px;text-align:center;font-size:9px;font-weight:bold;letter-spacing:0.5px;}
+td{border:1px solid #d1d5db;padding:5px 4px;text-align:center;vertical-align:middle;min-height:28px;}
+td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:72px;background:#f8fafc;text-align:left;padding-left:6px;}
+td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin-top:1px;}
+.sp{font-weight:bold;font-size:9px;text-transform:uppercase;padding:2px;}
+.reg{color:#2563eb!important;background:#eff6ff!important;}
+.brk{color:white!important;background:#1e3a5f!important;}
+.lnc{color:#92400e!important;background:#fef3c7!important;}
+.dep{color:white!important;background:#1e3a5f!important;}
+.entry{margin:1px 0;}
+.grade{font-weight:bold;font-size:9px;color:#1e3a5f;}
+.subj{font-size:9px;color:#374151;}
+.sigs{display:flex;justify-content:space-between;padding:0 30px;margin-top:14px;}
+.sig{border-top:1px solid #94a3b8;width:160px;text-align:center;padding-top:4px;font-size:9px;font-weight:bold;color:#374151;}
+@media print{html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{page-break-after:always;}.page:last-child{page-break-after:auto;}@page{size:A4 landscape;margin:8mm;}}
+`;
+
+export default function TeacherSchedulePage() {
+  const { canManage } = useAuth();
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [teacherGroups, setTeacherGroups] = useState<Record<string, "MIDDLE" | "HIGH" | "MIXED" | "OTHER">>({});
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    fetch("/api/teachers")
+      .then(r => r.json())
+      .then((data: Teacher[]) => {
+        const sec = data.filter(t => t.level === "SECONDARY" || t.level === "BOTH").sort((a, b) => a.name.localeCompare(b.name));
+        setTeachers(sec);
+        if (sec.length > 0) setSelectedId(sec[0].id);
+      })
+      .catch(() => toast.error("Error loading teachers"));
+    fetch("/api/time-blocks").then(r => r.json()).then(setTimeBlocks).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    setLoading(true);
+    fetch(`/api/assignments?teacherId=${selectedId}`)
+      .then(r => r.json())
+      .then((data: Assignment[]) => {
+        setAssignments(data);
+        setTeacherGroups(prev => ({ ...prev, [selectedId]: getTeacherGroup(data) }));
+      })
+      .catch(() => toast.error("Error loading schedule"))
+      .finally(() => setLoading(false));
+  }, [selectedId]);
+
+  const exportAll = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
+    setExporting(true);
+    try {
+      const pages: string[] = [];
+      await Promise.all(
+        teachers.map(async (teacher) => {
+          const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
+          if (!asgns.length) return;
+          const group = getTeacherGroup(asgns);
+          if (group === "OTHER") return;
+          if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") return;
+          if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") return;
+          pages.push({ teacher, asgns, group } as any);
+        })
+      );
+
+      const sortedPages = (pages as any[]).sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
+      const htmlPages = sortedPages.map(({ teacher, asgns }) => buildTeacherPage(teacher, asgns, timeBlocks));
+
+      if (!htmlPages.length) { toast.error("No teachers found for that filter."); return; }
+
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PRINT_CSS}</style></head><body>${htmlPages.join("")}</body></html>`;
+      const win = window.open("", "_blank");
+      if (win) {
+        win.document.write(html);
+        win.document.close();
+        setTimeout(() => win.print(), 800);
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const printSingle = () => {
+    if (!selectedId) return;
+    const teacher = teachers.find(t => t.id === selectedId);
+    if (!teacher) return;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PRINT_CSS}</style></head><body>${buildTeacherPage(teacher, assignments, timeBlocks)}</body></html>`;
+    const win = window.open("", "_blank");
+    if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 800); }
+  };
+
+  const selectedTeacher = teachers.find(t => t.id === selectedId);
+  const group = selectedId ? teacherGroups[selectedId] : undefined;
+  const groupLabel = group === "MIDDLE" ? "Middle School" : group === "HIGH" ? "High School" : group === "MIXED" ? "Middle & High" : group === "OTHER" ? "Other" : "";
+
+  const filtered = teachers.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Teacher Schedules</h1>
+          <p className="text-muted-foreground">View and export secondary teacher schedules</p>
+        </div>
+        {canManage && (
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => exportAll("MIDDLE")} disabled={exporting} variant="outline" className="gap-2 border-lime-500 text-lime-700 hover:bg-lime-50">
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+              Print All Middle
+            </Button>
+            <Button onClick={() => exportAll("HIGH")} disabled={exporting} variant="outline" className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50">
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+              Print All High
+            </Button>
+            <Button onClick={() => exportAll("ALL")} disabled={exporting} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+              Print All Secondary
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-4">
+        <div className="w-52 shrink-0 space-y-2">
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search teacher..."
+            className="w-full text-sm border rounded px-2 py-1.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white dark:bg-slate-800"
+          />
+          <div className="flex flex-col gap-0.5 max-h-[70vh] overflow-y-auto pr-1">
+            {filtered.map(teacher => {
+              const grp = teacherGroups[teacher.id];
+              const badge = grp === "MIDDLE" ? "M" : grp === "HIGH" ? "H" : grp === "MIXED" ? "M+H" : null;
+              const isSelected = teacher.id === selectedId;
+              return (
+                <button
+                  key={teacher.id}
+                  onClick={() => setSelectedId(teacher.id)}
+                  className={`text-left px-2 py-1.5 rounded text-sm transition-colors flex items-center justify-between gap-1 ${isSelected ? "bg-blue-600 text-white" : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"}`}
+                >
+                  <span className="font-medium truncate">{teacher.name}</span>
+                  {badge && (
+                    <span className={`shrink-0 text-[10px] px-1 rounded font-bold ${isSelected ? "bg-blue-400 text-white" : "bg-slate-200 text-slate-600"}`}>{badge}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {loading ? (
+            <div className="h-64 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+          ) : selectedTeacher ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold">{selectedTeacher.name}</h2>
+                  {groupLabel && <span className="text-sm text-slate-500">{groupLabel}</span>}
+                </div>
+                <Button variant="outline" size="sm" onClick={printSingle} className="gap-1.5">
+                  <Printer className="w-3.5 h-3.5" />
+                  Print this teacher
+                </Button>
+              </div>
+              <ScheduleGrid assignments={assignments} timeBlocks={timeBlocks} viewType="teacher" />
+            </div>
+          ) : (
+            <div className="h-64 flex items-center justify-center text-slate-400">Select a teacher</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
