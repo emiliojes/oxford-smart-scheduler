@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ScheduleGrid } from "@/components/ScheduleGrid";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Printer } from "lucide-react";
+import { Loader2, Printer, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface Teacher { id: string; name: string; level: string; }
@@ -168,6 +168,59 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
   </div>`;
 }
 
+function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[]): string {
+  const { uniqueT, withLunch, aTimes } = buildTeacherSchedule(asgns, allTBs);
+  const group = getTeacherGroup(asgns);
+  const groupLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : group === "MIXED" ? "MIDDLE & HIGH SCHOOL" : "SECONDARY";
+  const hrs = hoursLabel(asgns);
+  const getSlot = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
+  const blockAt = (time: string) => withLunch.find(b => b.startTime === time);
+  const mkCell = (txt: string, bg: string, clr: string) =>
+    `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
+  const rows = uniqueT.map(time => {
+    const blk = blockAt(time);
+    const btype = blk?.blockType ?? "CLASS";
+    const endT = blk?.endTime ?? "";
+    const tc = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:5pt;border:1px solid #d1d5db;width:70pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">- ${fmt(endT)}</span></td>`;
+    if (btype === "REGISTRATION") return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
+    if (btype === "BREAK")        return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("BREAK","#1e3a5f","white")).join("")}</tr>`;
+    if (btype === "DISMISSAL")    return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("DEPARTURE","#1e3a5f","white")).join("")}</tr>`;
+    if (btype === "LUNCH") {
+      const hasFriAfter = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
+      return `<tr>${tc}${[0,1,2,3,4].map((_,di) => di===4 && aTimes.size>0 && !hasFriAfter ? mkCell("DEPARTURE","#1e3a5f","white") : mkCell("LUNCH","#fef3c7","#92400e")).join("")}</tr>`;
+    }
+    return `<tr>${tc}${[0,1,2,3,4].map((_,di) => {
+      const slot = getSlot(di+1, time);
+      if (!slot.length) return `<td style="border:1px solid #d1d5db;padding:5pt;"></td>`;
+      return `<td style="border:1px solid #d1d5db;padding:4pt;text-align:center;">${slot.map(a => {
+        const gName = a.grade ? `${a.grade.name}${a.grade.section??""}`  : "";
+        return `<div style="font-size:8pt;"><b>${gName}</b><br>${displaySubj(a.subject.name)}</div>`;
+      }).join("")}</td>`;
+    }).join("")}</tr>`;
+  }).join("");
+  const th = `style="background:#1e3a5f;color:white;padding:5pt;font-size:8pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
+  return `<div style="page-break-after:always;padding:10pt;">
+    <table width="100%" style="background:#1e3a5f;margin-bottom:8pt;"><tr>
+      <td style="color:white;text-align:center;padding:10pt;">
+        <div style="font-size:9pt;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;">2026 · ${groupLabel} TEACHER SCHEDULE</div>
+        <div style="font-size:17pt;font-weight:bold;text-transform:uppercase;margin:6pt 0;color:white;">${teacher.name.toUpperCase()}</div>
+        ${hrs ? `<div style="font-size:9pt;color:#cbd5e1;">Weekly Teaching Hours: ${hrs}</div>` : ""}
+      </td>
+    </tr></table>
+    <table width="100%" style="border-collapse:collapse;">
+      <thead><tr><th ${th}>TIME</th>${DAYS.map(d=>`<th ${th}>${d}</th>`).join("")}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <table width="100%" style="margin-top:14pt;"><tr>
+      <td style="width:20%;"></td>
+      <td style="border-top:1pt solid #94a3b8;text-align:center;padding-top:4pt;font-size:9pt;font-weight:bold;">Academic Coordination</td>
+      <td style="width:20%;"></td>
+      <td style="border-top:1pt solid #94a3b8;text-align:center;padding-top:4pt;font-size:9pt;font-weight:bold;">General Direction</td>
+      <td style="width:20%;"></td>
+    </tr></table>
+  </div>`;
+}
+
 const PRINT_CSS = `
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff;}
@@ -203,6 +256,7 @@ export default function TeacherSchedulePage() {
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingWord, setExportingWord] = useState(false);
   const [teacherGroups, setTeacherGroups] = useState<Record<string, "MIDDLE" | "HIGH" | "MIXED" | "OTHER">>({});
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -264,6 +318,50 @@ export default function TeacherSchedulePage() {
     }
   };
 
+  const exportWord = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
+    setExportingWord(true);
+    try {
+      const pages: any[] = [];
+      await Promise.all(teachers.map(async (teacher) => {
+        const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
+        if (!asgns.length) return;
+        const group = getTeacherGroup(asgns);
+        if (group === "OTHER") return;
+        if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") return;
+        if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") return;
+        pages.push({ teacher, asgns });
+      }));
+      if (!pages.length) { toast.error("No teachers found."); return; }
+      const sorted = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
+      const body = sorted.map(({ teacher, asgns }) => buildWordPage(teacher, asgns, timeBlocks)).join("");
+      const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}@page Section1{size:842pt 595pt;mso-page-orientation:landscape;}div.Section1{page:Section1;}</style></head><body><div class="Section1">${body}</div></body></html>`;
+      const blob = new Blob([html], { type: "application/msword" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Teacher_Schedules_${filter === "MIDDLE" ? "Middle" : filter === "HIGH" ? "High" : "Secondary"}_2026.doc`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportingWord(false);
+    }
+  };
+
+  const exportWordSingle = () => {
+    if (!selectedId) return;
+    const teacher = teachers.find(t => t.id === selectedId);
+    if (!teacher) return;
+    const body = buildWordPage(teacher, assignments, timeBlocks);
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}@page Section1{size:842pt 595pt;mso-page-orientation:landscape;}div.Section1{page:Section1;}</style></head><body><div class="Section1">${body}</div></body></html>`;
+    const blob = new Blob([html], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${teacher.name.replace(/\s+/g,"_")}_Schedule_2026.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const printSingle = () => {
     if (!selectedId) return;
     const teacher = teachers.find(t => t.id === selectedId);
@@ -287,19 +385,37 @@ export default function TeacherSchedulePage() {
           <p className="text-muted-foreground">View and export secondary teacher schedules</p>
         </div>
         {canManage && (
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => exportAll("MIDDLE")} disabled={exporting} variant="outline" className="gap-2 border-lime-500 text-lime-700 hover:bg-lime-50">
-              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-              Print All Middle
-            </Button>
-            <Button onClick={() => exportAll("HIGH")} disabled={exporting} variant="outline" className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50">
-              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-              Print All High
-            </Button>
-            <Button onClick={() => exportAll("ALL")} disabled={exporting} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
-              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-              Print All Secondary
-            </Button>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs font-semibold text-slate-400 self-center">PRINT:</span>
+              <Button onClick={() => exportAll("MIDDLE")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-lime-500 text-lime-700 hover:bg-lime-50">
+                {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                Middle
+              </Button>
+              <Button onClick={() => exportAll("HIGH")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50">
+                {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                High
+              </Button>
+              <Button onClick={() => exportAll("ALL")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
+                {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                All Secondary
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs font-semibold text-slate-400 self-center">WORD:</span>
+              <Button onClick={() => exportWord("MIDDLE")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-lime-500 text-lime-700 hover:bg-lime-50">
+                {exportingWord ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                Middle
+              </Button>
+              <Button onClick={() => exportWord("HIGH")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50">
+                {exportingWord ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                High
+              </Button>
+              <Button onClick={() => exportWord("ALL")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
+                {exportingWord ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                All Secondary
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -345,10 +461,16 @@ export default function TeacherSchedulePage() {
                   <h2 className="text-lg font-bold">{selectedTeacher.name}</h2>
                   {groupLabel && <span className="text-sm text-slate-500">{groupLabel}</span>}
                 </div>
-                <Button variant="outline" size="sm" onClick={printSingle} className="gap-1.5">
-                  <Printer className="w-3.5 h-3.5" />
-                  Print this teacher
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={printSingle} className="gap-1.5">
+                    <Printer className="w-3.5 h-3.5" />
+                    Print
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={exportWordSingle} className="gap-1.5 border-emerald-500 text-emerald-700 hover:bg-emerald-50">
+                    <Download className="w-3.5 h-3.5" />
+                    Word
+                  </Button>
+                </div>
               </div>
               <ScheduleGrid assignments={assignments} timeBlocks={timeBlocks} viewType="teacher" />
             </div>
