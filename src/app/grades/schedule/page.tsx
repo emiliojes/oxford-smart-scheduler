@@ -283,7 +283,7 @@ export default function GradeSchedulePage() {
       const wb = XLSX.utils.book_new();
       const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
       for (const grade of secondaryGrades) {
-        const { uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
+        const { asgns, uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
         const shortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
         const header1 = [`2026 CLASS SCHEDULE — ${schoolLevel} · ${gradeTitle}${hrTeacher ? ` | ${hrTeacher}${hrRoom ? ` — ${shortRoom(hrRoom)}` : ""}` : ""}`, "","","","",""];
         const header2 = ["TIME", ...DAYS];
@@ -294,7 +294,8 @@ export default function GradeSchedulePage() {
           const timeLabel = `${fmt(time)} - ${fmt(endT)}`;
           if (btype === "REGISTRATION") return [timeLabel, "REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION"];
           if (btype === "BREAK")        return [timeLabel, "BREAK","BREAK","BREAK","BREAK","BREAK"];
-          if (btype === "LUNCH")        return [timeLabel, "LUNCH","LUNCH","LUNCH","LUNCH","DEPARTURE"];
+          const hasFriClassAfterExcel = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
+          if (btype === "LUNCH")        return [timeLabel, "LUNCH","LUNCH","LUNCH","LUNCH", hasFriClassAfterExcel ? "LUNCH" : "DEPARTURE"];
           if (btype === "DISMISSAL")    return [timeLabel, "DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE"];
           return [timeLabel, ...DAYS.map((_,di) => getSlotA(di+1, time).map(a => displaySubjectName(a.subject.name)).join(" / ") || "")];
         });
@@ -320,7 +321,7 @@ export default function GradeSchedulePage() {
 
       for (let i = 0; i < secondaryGrades.length; i++) {
         const grade = secondaryGrades[i];
-        const { uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
+        const { asgns, uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
         const shortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
         const thStyle = `style="background:#1e3a5f;color:white;padding:5pt;font-size:9pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
         const rows = uniqueT.map(time => {
@@ -332,7 +333,8 @@ export default function GradeSchedulePage() {
             `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:7pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
           if (btype === "REGISTRATION") return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
           if (btype === "BREAK")        return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("BREAK","#1e3a5f","white")).join("")}</tr>`;
-          if (btype === "LUNCH")        return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>mkCell(di===4?"DEPARTURE":"LUNCH",di===4?"#1e3a5f":"#fef3c7",di===4?"white":"#92400e")).join("")}</tr>`;
+          const hasFriClassAfterWord = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
+          if (btype === "LUNCH")        return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>mkCell(di===4 && !hasFriClassAfterWord?"DEPARTURE":"LUNCH",di===4 && !hasFriClassAfterWord?"#1e3a5f":"#fef3c7",di===4 && !hasFriClassAfterWord?"white":"#92400e")).join("")}</tr>`;
           if (btype === "DISMISSAL")    return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("DEPARTURE","#1e3a5f","white")).join("")}</tr>`;
           return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>{
             const slot = getSlotA(di+1, time);
@@ -429,7 +431,8 @@ export default function GradeSchedulePage() {
           const tc = `<td class="time">${fmt(time)}<br><span>- ${fmt(endT)}</span></td>`;
           if (btype === "REGISTRATION") return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special reg">REGISTRATION</td>`).join("")}</tr>`;
           if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special brk">BREAK</td>`).join("")}</tr>`;
-          if (btype === "LUNCH")        return `<tr>${tc}${[1,2,3,4,5].map((_, di) => { const isFriday = di === 4; return isFriday && aTimes.size > 0 && !getSlot(5, time).length ? `<td class="special dep">DEPARTURE</td>` : `<td class="special lnc">LUNCH</td>`; }).join("")}</tr>`;
+          const hasFriClassAfterImg = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
+          if (btype === "LUNCH")        return `<tr>${tc}${[1,2,3,4,5].map((_, di) => { const isFriday = di === 4; return isFriday && aTimes.size > 0 && !hasFriClassAfterImg ? `<td class="special dep">DEPARTURE</td>` : `<td class="special lnc">LUNCH</td>`; }).join("")}</tr>`;
           if (btype === "DISMISSAL")    return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special dep">DEPARTURE</td>`).join("")}</tr>`;
           return `<tr>${tc}${[1,2,3,4,5].map((_,di) => {
             const slot = getSlot(di+1, time);
@@ -898,7 +901,7 @@ export default function GradeSchedulePage() {
                               isBreak ? (
                                 <span className="text-xs font-bold tracking-widest uppercase">BREAK</span>
                               ) : isLunch ? (
-                                isLastDay
+                                isLastDay && !assignments.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time)
                                   ? <span className="text-xs font-bold text-blue-700 tracking-widest uppercase">DEPARTURE</span>
                                   : <span className="text-xs font-bold text-amber-600 tracking-widest uppercase">LUNCH</span>
                               ) : isReg ? (
