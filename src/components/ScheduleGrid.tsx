@@ -57,6 +57,7 @@ interface ScheduleGridProps {
   timeBlocks: TimeBlock[];
   viewType: "teacher" | "grade" | "room";
   onRefresh?: () => void;
+  showSubject?: boolean;
 }
 
 // Color palette per grade — same grade same color, different grades different colors
@@ -110,7 +111,7 @@ function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HI
   return null;
 }
 
-export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: ScheduleGridProps) {
+export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, showSubject }: ScheduleGridProps) {
   const { t } = useLanguage();
   const { canManage } = useAuth();
   const { pushAction } = useHistory();
@@ -472,12 +473,12 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh }: S
                                       )}
                                       <span className="truncate">
                                         {viewType === "teacher" && a.grade
-                                          ? `${t.schedule.types.grade} ${a.grade.name}${a.grade.section ?? ""}`
+                                          ? `${a.grade.name}${a.grade.section ?? ""}`
                                           : a.subject.name}
                                       </span>
                                     </div>
                                     <div className="flex flex-col text-slate-600 dark:text-slate-200 print:text-slate-700 print:leading-none print:mt-[1px]">
-                                      {viewType === "teacher" && (
+                                      {viewType === "teacher" && showSubject !== false && (
                                         <span className="truncate">{a.subject.name}</span>
                                       )}
                                       {viewType !== "teacher" && viewType !== "grade" && (

@@ -116,7 +116,7 @@ function hoursLabel(asgns: Assignment[]): string {
   return m > 0 ? `${h}h ${m}min` : `${h}h`;
 }
 
-function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[]): string {
+function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[], showSubject = false): string {
   const { uniqueT, withLunch, aTimes } = buildTeacherSchedule(asgns, allTBs);
   const group = getTeacherGroup(asgns);
   const groupLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : group === "MIXED" ? "MIDDLE & HIGH SCHOOL" : "SECONDARY";
@@ -146,7 +146,7 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
       if (!slot.length) return `<td></td>`;
       return `<td>${slot.map(a => {
         const gName = a.grade ? `${a.grade.name}${a.grade.section ?? ""}` : "";
-        return `<div class="entry"><div class="grade">${gName}</div><div class="subj">${displaySubj(a.subject.name)}</div></div>`;
+        return `<div class="entry"><div class="grade">${gName}</div>${showSubject ? `<div class="subj">${displaySubj(a.subject.name)}</div>` : ""}</div>`;
       }).join("")}</td>`;
     }).join("")}</tr>`;
   }).join("");
@@ -168,7 +168,7 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
   </div>`;
 }
 
-function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[]): string {
+function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[], showSubject = false): string {
   const { uniqueT, withLunch, aTimes } = buildTeacherSchedule(asgns, allTBs);
   const group = getTeacherGroup(asgns);
   const groupLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : group === "MIXED" ? "MIDDLE & HIGH SCHOOL" : "SECONDARY";
@@ -194,7 +194,7 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
       if (!slot.length) return `<td style="border:1px solid #d1d5db;padding:5pt;"></td>`;
       return `<td style="border:1px solid #d1d5db;padding:4pt;text-align:center;">${slot.map(a => {
         const gName = a.grade ? `${a.grade.name}${a.grade.section??""}`  : "";
-        return `<div style="font-size:8pt;"><b>${gName}</b><br>${displaySubj(a.subject.name)}</div>`;
+        return `<div style="font-size:8pt;"><b>${gName}</b>${showSubject ? `<br>${displaySubj(a.subject.name)}` : ""}</div>`;
       }).join("")}</td>`;
     }).join("")}</tr>`;
   }).join("");
@@ -259,6 +259,7 @@ export default function TeacherSchedulePage() {
   const [exportingWord, setExportingWord] = useState(false);
   const [teacherGroups, setTeacherGroups] = useState<Record<string, "MIDDLE" | "HIGH" | "MIXED" | "OTHER">>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSubject, setShowSubject] = useState(false);
 
   useEffect(() => {
     fetch("/api/teachers")
@@ -302,7 +303,7 @@ export default function TeacherSchedulePage() {
       );
 
       const sortedPages = (pages as any[]).sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
-      const htmlPages = sortedPages.map(({ teacher, asgns }) => buildTeacherPage(teacher, asgns, timeBlocks));
+      const htmlPages = sortedPages.map(({ teacher, asgns }) => buildTeacherPage(teacher, asgns, timeBlocks, showSubject));
 
       if (!htmlPages.length) { toast.error("No teachers found for that filter."); return; }
 
@@ -333,7 +334,7 @@ export default function TeacherSchedulePage() {
       }));
       if (!pages.length) { toast.error("No teachers found."); return; }
       const sorted = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
-      const body = sorted.map(({ teacher, asgns }) => buildWordPage(teacher, asgns, timeBlocks)).join("");
+      const body = sorted.map(({ teacher, asgns }) => buildWordPage(teacher, asgns, timeBlocks, showSubject)).join("");
       const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}@page Section1{size:842pt 595pt;mso-page-orientation:landscape;}div.Section1{page:Section1;}</style></head><body><div class="Section1">${body}</div></body></html>`;
       const blob = new Blob([html], { type: "application/msword" });
       const url = URL.createObjectURL(blob);
@@ -351,7 +352,7 @@ export default function TeacherSchedulePage() {
     if (!selectedId) return;
     const teacher = teachers.find(t => t.id === selectedId);
     if (!teacher) return;
-    const body = buildWordPage(teacher, assignments, timeBlocks);
+    const body = buildWordPage(teacher, assignments, timeBlocks, showSubject);
     const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}@page Section1{size:842pt 595pt;mso-page-orientation:landscape;}div.Section1{page:Section1;}</style></head><body><div class="Section1">${body}</div></body></html>`;
     const blob = new Blob([html], { type: "application/msword" });
     const url = URL.createObjectURL(blob);
@@ -366,7 +367,7 @@ export default function TeacherSchedulePage() {
     if (!selectedId) return;
     const teacher = teachers.find(t => t.id === selectedId);
     if (!teacher) return;
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PRINT_CSS}</style></head><body>${buildTeacherPage(teacher, assignments, timeBlocks)}</body></html>`;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PRINT_CSS}</style></head><body>${buildTeacherPage(teacher, assignments, timeBlocks, showSubject)}</body></html>`;
     const win = window.open("", "_blank");
     if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 800); }
   };
@@ -461,7 +462,11 @@ export default function TeacherSchedulePage() {
                   <h2 className="text-lg font-bold">{selectedTeacher.name}</h2>
                   {groupLabel && <span className="text-sm text-slate-500">{groupLabel}</span>}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
+                    <input type="checkbox" checked={showSubject} onChange={e => setShowSubject(e.target.checked)} className="rounded" />
+                    Show subject
+                  </label>
                   <Button variant="outline" size="sm" onClick={printSingle} className="gap-1.5">
                     <Printer className="w-3.5 h-3.5" />
                     Print
@@ -472,7 +477,7 @@ export default function TeacherSchedulePage() {
                   </Button>
                 </div>
               </div>
-              <ScheduleGrid assignments={assignments} timeBlocks={timeBlocks} viewType="teacher" />
+              <ScheduleGrid assignments={assignments} timeBlocks={timeBlocks} viewType="teacher" showSubject={showSubject} />
             </div>
           ) : (
             <div className="h-64 flex items-center justify-center text-slate-400">Select a teacher</div>
