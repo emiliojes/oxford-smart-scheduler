@@ -232,8 +232,8 @@ export default function GradeSchedulePage() {
     const tbs = secGroup ? [
       ...baseTBs.filter(b => {
         if (b.blockType === "LUNCH") return false;
-        // Don't filter out blocks that have assignments
-        const hasAssignments = asgns.some(a => a.timeBlock.startTime === b.startTime && a.timeBlock.dayOfWeek === b.dayOfWeek);
+        // Don't filter out blocks that have assignments linked to THIS specific block (match startTime + endTime)
+        const hasAssignments = asgns.some(a => a.timeBlock.startTime === b.startTime && a.timeBlock.dayOfWeek === b.dayOfWeek && a.timeBlock.endTime === b.endTime);
         if (hasAssignments) return true;
         // Filter out overlapping blocks only if they don't have assignments
         if (secGroup === "MIDDLE" && b.startTime === "10:45" && b.endTime === "11:45") return false;
@@ -562,8 +562,8 @@ export default function GradeSchedulePage() {
     ? [
         ...baseRelevantTBs.filter(b => {
           if (b.blockType === "LUNCH") return false;
-          // Don't filter out blocks that have assignments
-          const hasAssignments = assignments.some(a => a.timeBlock.startTime === b.startTime && a.timeBlock.dayOfWeek === b.dayOfWeek);
+          // Don't filter out blocks that have assignments linked to THIS specific block (match startTime + endTime)
+          const hasAssignments = assignments.some(a => a.timeBlock.startTime === b.startTime && a.timeBlock.dayOfWeek === b.dayOfWeek && a.timeBlock.endTime === b.endTime);
           if (hasAssignments) return true;
           // Filter out overlapping blocks only if they don't have assignments
           if (secondaryGroup === "MIDDLE" && b.startTime === "10:45" && b.endTime === "11:45") return false;
