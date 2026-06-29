@@ -254,6 +254,8 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
     new Set(relevantTimeBlocks.map((b) => b.startTime))
   ).sort().filter(st => {
     const blocksAtTime = relevantTimeBlocks.filter(b => b.startTime === st);
+    // Skip malformed blocks with zero duration (endTime === startTime, e.g. "7:00-7:00")
+    if (blocksAtTime.every(b => b.endTime === b.startTime)) return false;
     const hasClassBlock = blocksAtTime.some(b => b.blockType === "CLASS");
     // Always show 07:15 REGISTRATION row if teacher has any assignments
     const isRegistration0715 = st === "07:15" && blocksAtTime.some(b => b.blockType === "REGISTRATION");
