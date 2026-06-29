@@ -216,7 +216,22 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
   const shouldUseSecondaryLunchSplit = (tbLevel === "SECONDARY" || isMixedSecondary) && secondaryGroups.size > 0 && viewType === "teacher";
   const relevantTimeBlocks = shouldUseSecondaryLunchSplit
     ? [
-        ...baseRelevantTimeBlocks.filter(b => b.blockType !== "LUNCH"),
+        ...baseRelevantTimeBlocks.filter(b => {
+          if (b.blockType === "LUNCH") return false;
+          // For pure Middle teachers (no SECONDARY grades): remove SECONDARY CLASS blocks
+          // that share the same startTime as a LOW_SECONDARY CLASS block
+          // e.g. removes 10:45–11:45 (HIGH) when 10:45–11:30 (MIDDLE) exists
+          if (hasLowSec && !hasSecondary && b.blockType === "CLASS" && b.level === "SECONDARY") {
+            const hasLowSecConflict = baseRelevantTimeBlocks.some(
+              x => x.level === "LOW_SECONDARY" && x.blockType === "CLASS" && x.startTime === b.startTime
+            );
+            if (hasLowSecConflict) return false;
+            // Also remove SECONDARY CLASS blocks that fall inside the Middle lunch window (11:30–12:00)
+            // e.g. removes the 11:45 HIGH-only block that shouldn't appear for Middle teachers
+            if (b.startTime >= "11:30" && b.startTime < "12:00") return false;
+          }
+          return true;
+        }),
         ...[1, 2, 3, 4, 5].flatMap(day => {
           const blocks: TimeBlock[] = [];
           if (secondaryGroups.has("MIDDLE")) {
