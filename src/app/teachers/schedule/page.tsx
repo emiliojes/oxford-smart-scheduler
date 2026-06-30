@@ -264,7 +264,9 @@ td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin
 export default function TeacherSchedulePage() {
   const { canManage } = useAuth();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [selectedId, setSelectedId] = useState<string>("");
+  const [selectedId, setSelectedId] = useState<string>(
+    () => (typeof window !== "undefined" ? localStorage.getItem("teacherSchedule_selectedId") ?? "" : "")
+  );
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [loading, setLoading] = useState(false);
@@ -275,12 +277,18 @@ export default function TeacherSchedulePage() {
   const [showSubject, setShowSubject] = useState(false);
 
   useEffect(() => {
+    if (selectedId) localStorage.setItem("teacherSchedule_selectedId", selectedId);
+  }, [selectedId]);
+
+  useEffect(() => {
     fetch("/api/teachers")
       .then(r => r.json())
       .then((data: Teacher[]) => {
         const sec = data.filter(t => t.level === "SECONDARY" || t.level === "BOTH").sort((a, b) => a.name.localeCompare(b.name));
         setTeachers(sec);
-        if (sec.length > 0) setSelectedId(sec[0].id);
+        const saved = typeof window !== "undefined" ? localStorage.getItem("teacherSchedule_selectedId") : null;
+        const valid = saved && sec.some(t => t.id === saved);
+        if (!valid && sec.length > 0) setSelectedId(sec[0].id);
       })
       .catch(() => toast.error("Error loading teachers"));
     fetch("/api/time-blocks").then(r => r.json()).then(setTimeBlocks).catch(() => {});
