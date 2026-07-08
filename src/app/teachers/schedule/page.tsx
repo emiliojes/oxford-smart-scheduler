@@ -8,6 +8,31 @@ import { Loader2, Printer, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface Teacher { id: string; name: string; level: string; }
+interface SupervisionDuty {
+  id: string;
+  area: string;
+  startTime: string;
+  endTime: string;
+  dayPattern: string;
+  isClosed: boolean;
+}
+
+const DAY_PATTERN_DAYS: Record<string, number[]> = {
+  EVERYDAY:    [1,2,3,4,5],
+  MON_TO_FRI:  [1,2,3,4,5],
+  MON_TO_THU:  [1,2,3,4],
+  TUE_AND_THU: [2,4],
+  MON:[1], TUE:[2], WED:[3], THU:[4], FRI:[5],
+};
+
+const DAY_NAMES = ["","Mon","Tue","Wed","Thu","Fri"];
+
+function fmtTime(t: string) {
+  if (!t) return "";
+  const [h, m] = t.split(":").map(Number);
+  const suf = h >= 12 ? "p.m." : "a.m.";
+  return `${h % 12 || 12}:${String(m).padStart(2,"0")} ${suf}`;
+}
 interface Assignment {
   id: string;
   teacher: { name: string };
@@ -275,6 +300,7 @@ export default function TeacherSchedulePage() {
   const [teacherGroups, setTeacherGroups] = useState<Record<string, "MIDDLE" | "HIGH" | "MIXED" | "OTHER">>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSubject, setShowSubject] = useState(false);
+  const [supervisionDuties, setSupervisionDuties] = useState<SupervisionDuty[]>([]);
 
   useEffect(() => {
     if (selectedId) localStorage.setItem("teacherSchedule_selectedId", selectedId);
@@ -305,6 +331,10 @@ export default function TeacherSchedulePage() {
       })
       .catch(() => toast.error("Error loading schedule"))
       .finally(() => setLoading(false));
+    fetch(`/api/supervision-duties?teacherId=${selectedId}`)
+      .then(r => r.json())
+      .then(setSupervisionDuties)
+      .catch(() => {});
   }, [selectedId]);
 
   const exportAll = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
@@ -499,6 +529,33 @@ export default function TeacherSchedulePage() {
                 </div>
               </div>
               <ScheduleGrid assignments={assignments} timeBlocks={timeBlocks} viewType="teacher" showSubject={showSubject} />
+              {supervisionDuties.length > 0 && (
+                <div className="mt-4 border rounded-lg overflow-hidden">
+                  <div className="bg-orange-600 px-4 py-2">
+                    <span className="text-white font-bold text-sm">Supervision Duties</span>
+                  </div>
+                  <div className="divide-y">
+                    {supervisionDuties.map(d => {
+                      const days = DAY_PATTERN_DAYS[d.dayPattern] ?? [];
+                      return (
+                        <div key={d.id} className="flex items-center gap-3 px-4 py-2 text-sm">
+                          <span className="font-medium text-orange-700 w-36 shrink-0">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</span>
+                          <span className="font-semibold text-slate-800 flex-1">{d.area}</span>
+                          <div className="flex gap-1">
+                            {[1,2,3,4,5].map(day => (
+                              <span key={day} className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                                days.includes(day)
+                                  ? "bg-orange-100 text-orange-700 border border-orange-300"
+                                  : "bg-slate-100 text-slate-300"
+                              }`}>{DAY_NAMES[day]}</span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="h-64 flex items-center justify-center text-slate-400">Select a teacher</div>

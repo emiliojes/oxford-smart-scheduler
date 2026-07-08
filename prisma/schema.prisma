@@ -33,17 +33,18 @@ model Session {
 }
 
 model Teacher {
-  id             String           @id @default(cuid())
-  name           String
-  email          String?          @unique
-  level          String           // "PRIMARY", "SECONDARY", "BOTH"
-  primaryType    String?          // "COUNSELOR", "SPECIALIST"
-  maxWeeklyHours Int              @default(27)
-  assignments    Assignment[]
-  subjects       TeacherSubject[]
-  users          User[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id                String             @id @default(cuid())
+  name              String
+  email             String?            @unique
+  level             String             // "PRIMARY", "SECONDARY", "BOTH"
+  primaryType       String?            // "COUNSELOR", "SPECIALIST"
+  maxWeeklyHours    Int                @default(27)
+  assignments       Assignment[]
+  subjects          TeacherSubject[]
+  users             User[]
+  supervisionDuties SupervisionDuty[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 }
 
 model Subject {
@@ -218,4 +219,19 @@ model BellConfig {
   status          String   @default("DISCONNECTED") // "CONNECTED", "DISCONNECTED", "ERROR"
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model SupervisionDuty {
+  id         String   @id @default(cuid())
+  area       String
+  startTime  String   // "12:45"
+  endTime    String   // "13:15"
+  // EVERYDAY | MON_TO_FRI | MON_TO_THU | TUE_AND_THU | MON | TUE | WED | THU | FRI
+  dayPattern String
+  isClosed   Boolean  @default(false)
+  level      String   @default("SECONDARY")
+  teacherId  String?
+  teacher    Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

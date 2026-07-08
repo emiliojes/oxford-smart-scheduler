@@ -136,3 +136,133 @@ Rules:
 Lunch blocks are generated display blocks, not stored assignments.
 
 If a class overlaps a lunch block, do not automatically move the class. Show a conflict or warning for admin review.
+
+## Secondary Supervision Duties
+
+### Concept
+
+Supervision duties are teacher-only duties assigned during Lunch or Morning Break.
+
+They must appear in the teacher schedule view.
+They must NOT appear in student/grade schedules.
+They are NOT classes, subjects, or assignments.
+They must not overwrite or replace existing teacher classes.
+They are additional blocks shown only on the teacher's personal schedule.
+
+### Data Model
+
+A supervision duty has:
+
+* teacher (relation to Teacher)
+* day pattern (see options below)
+* startTime
+* endTime
+* area / location (string, e.g. "Playground Area / Ping Pong Tables")
+* level: Secondary
+* isClosed: boolean (if true, no teacher required, displayed as closed)
+
+Day pattern options:
+
+* EVERYDAY
+* MON_TO_FRI
+* MON_TO_THU
+* TUE_AND_THU
+* MON, TUE, WED, THU, FRI (single days)
+
+Do not store supervision duties in the Assignment table.
+Create a separate model (e.g. SupervisionDuty) for them.
+
+### Conflict Rules
+
+Supervision happens during lunch or morning break, so it should NOT automatically create a conflict.
+
+Do NOT flag a conflict when:
+* Supervision overlaps with Lunch block.
+* Supervision overlaps with Morning Break block.
+* Two or more teachers supervise the same area at the same time (multiple teachers in Cafeteria, Playground, Gym, etc. is expected and allowed).
+
+DO flag a conflict when:
+* The same teacher is assigned to two different supervision areas at the same time.
+* The same teacher has two overlapping supervision duties on the same day.
+* The same teacher has a real class scheduled during their supervision time by mistake.
+
+Conflict logic is based on the individual teacher's personal availability, not on how many teachers share an area.
+
+### Closed Area Rule
+
+An area can be marked as closed.
+
+If closed:
+* No teacher assignment is required.
+* It still appears in the supervision schedule.
+* It is displayed as "Closed" (visually distinct).
+* It does NOT create a missing-teacher error or conflict.
+
+### Teacher Schedule Display
+
+Supervision duties appear in the teacher schedule as a labeled block, visually distinct from regular classes.
+
+Display format examples:
+
+```
+Lunch
+12:40 p.m. – 1:15 p.m.
+Duty: Playground Area / Ping Pong Tables
+12:45 p.m. – 1:15 p.m.
+```
+
+```
+9:30 a.m. – 9:45 a.m.
+Morning Break Duty: Washrooms / Downstairs
+```
+
+### Known Supervision Schedule (Secondary 2026)
+
+#### Secondary Lunch Supervision
+
+**Playground Area / Ping Pong Tables** — 12:45 p.m. – 1:15 p.m.
+* Catur Salomon — EVERYDAY
+* Andrea Concepción — WED
+
+**Football Court** — 1:00 p.m. – 1:15 p.m.
+* Ricardo Ferran — MON
+* Conrado de León — TUE
+* Emilio Núñez — WED
+* Christian Ho Sang — THU
+
+**Gym** — 12:45 p.m. – 1:15 p.m.
+* Manuel Abrego — MON
+* Aristides Guerra — TUE
+* Vanessa Muñoz — WED
+* Ricardo Ferran — THU
+
+**Cafeteria** — 12:45 p.m. – 1:15 p.m.
+* Vielka Vega — MON
+* Irlanda Tuñón — MON
+* María Pitti — TUE
+* Elida Barria — WED
+* Enis Rodriguez — THU
+
+**School Bus Area** — 12:45 p.m. – 1:15 p.m.
+* Adolfo Díaz — MON
+* Kennar Callender — TUE
+* Karina Peñalba — WED
+* Judith Gil — THU
+
+**Washrooms / Downstairs** — 12:45 p.m. – 1:15 p.m.
+* Arlex Alvarado — TUE and THU
+* Deisy Vega — MON to THU
+
+#### Secondary Morning Break Supervision — 9:30 a.m. – 9:45 a.m.
+
+**Playground Area / Ping Pong Tables**
+* Karina Peñalba — MON to FRI
+
+**Playground Area**
+* Arlex Alvarado — MON to THU
+
+**Washrooms / Downstairs**
+* Christian Ho Sang — MON to FRI
+
+**Gym**
+* Closed — MON to FRI
