@@ -141,7 +141,7 @@ function hoursLabel(asgns: Assignment[]): string {
   return m > 0 ? `${h}h ${m}min` : `${h}h`;
 }
 
-function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[], showSubject = false): string {
+function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[], showSubject = false, duties: SupervisionDuty[] = []): string {
   const { uniqueT, withLunch, aTimes } = buildTeacherSchedule(asgns, allTBs);
   const group = getTeacherGroup(asgns);
   const groupLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : group === "MIXED" ? "MIDDLE & HIGH SCHOOL" : "SECONDARY";
@@ -149,6 +149,10 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
 
   const getSlot = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
   const blockAt = (time: string) => withLunch.find(b => b.startTime === time);
+  const dutyBadge = (day: number, isLunch: boolean) => {
+    const areas = duties.filter(d => (DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day) && (isLunch ? d.startTime >= "12:00" : d.startTime < "12:00")).map(d => d.area);
+    return areas.length ? `<br>${areas.map(a => `<span class="duty">⚠ ${a}</span>`).join("<br>")}` : "";
+  };
 
   const rows = uniqueT.map(time => {
     const blk = blockAt(time);
@@ -157,12 +161,12 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
     const tc = `<td class="time">${fmt(time)}<br><span>- ${fmt(endT)}</span></td>`;
 
     if (btype === "REGISTRATION") return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp reg">REGISTRATION</td>`).join("")}</tr>`;
-    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp brk">BREAK</td>`).join("")}</tr>`;
+    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day => `<td class="sp brk">BREAK${dutyBadge(day, false)}</td>`).join("")}</tr>`;
     if (btype === "DISMISSAL")    return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp dep">DEPARTURE</td>`).join("")}</tr>`;
     if (btype === "LUNCH") {
       const hasFriAfter = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
-      return `<tr>${tc}${[1,2,3,4,5].map((_, di) =>
-        di === 4 && aTimes.size > 0 && !hasFriAfter ? `<td class="sp dep">DEPARTURE</td>` : `<td class="sp lnc">LUNCH</td>`
+      return `<tr>${tc}${[1,2,3,4,5].map((day, di) =>
+        di === 4 && aTimes.size > 0 && !hasFriAfter ? `<td class="sp dep">DEPARTURE</td>` : `<td class="sp lnc">LUNCH${dutyBadge(day, true)}</td>`
       ).join("")}</tr>`;
     }
 
@@ -193,7 +197,7 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
   </div>`;
 }
 
-function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[], showSubject = false): string {
+function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[], showSubject = false, duties: SupervisionDuty[] = []): string {
   const { uniqueT, withLunch, aTimes } = buildTeacherSchedule(asgns, allTBs);
   const group = getTeacherGroup(asgns);
   const groupLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : group === "MIXED" ? "MIDDLE & HIGH SCHOOL" : "SECONDARY";
@@ -202,17 +206,21 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
   const blockAt = (time: string) => withLunch.find(b => b.startTime === time);
   const mkCell = (txt: string, bg: string, clr: string) =>
     `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
+  const dutyBadgeW = (day: number, isLunch: boolean) => {
+    const areas = duties.filter(d => (DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day) && (isLunch ? d.startTime >= "12:00" : d.startTime < "12:00")).map(d => d.area);
+    return areas.length ? `<br>${areas.map(a => `<span style="display:inline-block;background:#0ea5e9;color:white;font-size:6.5pt;font-weight:bold;padding:1pt 3pt;border-radius:2pt;">⚠ ${a}</span>`).join("<br>")}` : "";
+  };
   const rows = uniqueT.map(time => {
     const blk = blockAt(time);
     const btype = blk?.blockType ?? "CLASS";
     const endT = blk?.endTime ?? "";
     const tc = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:5pt;border:1px solid #d1d5db;width:70pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">- ${fmt(endT)}</span></td>`;
     if (btype === "REGISTRATION") return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
-    if (btype === "BREAK")        return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("BREAK","#1e3a5f","white")).join("")}</tr>`;
+    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day=>`<td style="background:#1e3a5f;color:white;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">BREAK${dutyBadgeW(day, false)}</td>`).join("")}</tr>`;
     if (btype === "DISMISSAL")    return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("DEPARTURE","#1e3a5f","white")).join("")}</tr>`;
     if (btype === "LUNCH") {
       const hasFriAfter = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
-      return `<tr>${tc}${[0,1,2,3,4].map((_,di) => di===4 && aTimes.size>0 && !hasFriAfter ? mkCell("DEPARTURE","#1e3a5f","white") : mkCell("LUNCH","#fef3c7","#92400e")).join("")}</tr>`;
+      return `<tr>${tc}${[1,2,3,4,5].map((day,di) => di===4 && aTimes.size>0 && !hasFriAfter ? mkCell("DEPARTURE","#1e3a5f","white") : `<td style="background:#fef3c7;color:#92400e;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">LUNCH${dutyBadgeW(day, true)}</td>`).join("")}</tr>`;
     }
     return `<tr>${tc}${[0,1,2,3,4].map((_,di) => {
       const slot = getSlot(di+1, time);
@@ -278,6 +286,7 @@ td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin
 .subj{font-size:9px;color:#374151;}
 .sigs{display:flex;justify-content:space-between;padding:0 30px;margin-top:14px;}
 .sig{border-top:1px solid #94a3b8;width:160px;text-align:center;padding-top:4px;font-size:9px;font-weight:bold;color:#374151;}
+.duty{display:inline-block;background:#0ea5e9!important;color:white!important;font-size:7.5px;font-weight:bold;padding:1px 4px;border-radius:3px;margin-top:2px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 @media print{
   html,body{background:white!important;}
   .page{border-bottom:none!important;margin-bottom:0!important;background:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -343,18 +352,21 @@ export default function TeacherSchedulePage() {
       const pages: string[] = [];
       await Promise.all(
         teachers.map(async (teacher) => {
-          const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
+          const [asgns, duties]: [Assignment[], SupervisionDuty[]] = await Promise.all([
+            fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json()),
+            fetch(`/api/supervision-duties?teacherId=${teacher.id}`).then(r => r.json()),
+          ]);
           if (!asgns.length) return;
           const group = getTeacherGroup(asgns);
           if (group === "OTHER") return;
           if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") return;
           if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") return;
-          pages.push({ teacher, asgns, group } as any);
+          pages.push({ teacher, asgns, group, duties } as any);
         })
       );
 
       const sortedPages = (pages as any[]).sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
-      const htmlPages = sortedPages.map(({ teacher, asgns }) => buildTeacherPage(teacher, asgns, timeBlocks, showSubject));
+      const htmlPages = sortedPages.map(({ teacher, asgns, duties }) => buildTeacherPage(teacher, asgns, timeBlocks, showSubject, duties ?? []));
 
       if (!htmlPages.length) { toast.error("No teachers found for that filter."); return; }
 
@@ -375,17 +387,20 @@ export default function TeacherSchedulePage() {
     try {
       const pages: any[] = [];
       await Promise.all(teachers.map(async (teacher) => {
-        const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
+        const [asgns, duties]: [Assignment[], SupervisionDuty[]] = await Promise.all([
+          fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json()),
+          fetch(`/api/supervision-duties?teacherId=${teacher.id}`).then(r => r.json()),
+        ]);
         if (!asgns.length) return;
         const group = getTeacherGroup(asgns);
         if (group === "OTHER") return;
         if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") return;
         if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") return;
-        pages.push({ teacher, asgns });
+        pages.push({ teacher, asgns, duties });
       }));
       if (!pages.length) { toast.error("No teachers found."); return; }
       const sorted = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
-      const body = sorted.map(({ teacher, asgns }) => buildWordPage(teacher, asgns, timeBlocks, showSubject)).join("");
+      const body = sorted.map(({ teacher, asgns, duties }) => buildWordPage(teacher, asgns, timeBlocks, showSubject, duties ?? [])).join("");
       const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}@page Section1{size:842pt 595pt;mso-page-orientation:landscape;}div.Section1{page:Section1;}</style></head><body><div class="Section1">${body}</div></body></html>`;
       const blob = new Blob([html], { type: "application/msword" });
       const url = URL.createObjectURL(blob);
@@ -403,7 +418,7 @@ export default function TeacherSchedulePage() {
     if (!selectedId) return;
     const teacher = teachers.find(t => t.id === selectedId);
     if (!teacher) return;
-    const body = buildWordPage(teacher, assignments, timeBlocks, showSubject);
+    const body = buildWordPage(teacher, assignments, timeBlocks, showSubject, supervisionDuties);
     const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}@page Section1{size:842pt 595pt;mso-page-orientation:landscape;}div.Section1{page:Section1;}</style></head><body><div class="Section1">${body}</div></body></html>`;
     const blob = new Blob([html], { type: "application/msword" });
     const url = URL.createObjectURL(blob);
@@ -418,7 +433,7 @@ export default function TeacherSchedulePage() {
     if (!selectedId) return;
     const teacher = teachers.find(t => t.id === selectedId);
     if (!teacher) return;
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PRINT_CSS}</style></head><body>${buildTeacherPage(teacher, assignments, timeBlocks, showSubject)}</body></html>`;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PRINT_CSS}</style></head><body>${buildTeacherPage(teacher, assignments, timeBlocks, showSubject, supervisionDuties)}</body></html>`;
     const win = window.open("", "_blank");
     if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 800); }
   };
