@@ -528,34 +528,7 @@ export default function TeacherSchedulePage() {
                   </Button>
                 </div>
               </div>
-              <ScheduleGrid assignments={assignments} timeBlocks={timeBlocks} viewType="teacher" showSubject={showSubject} />
-              {supervisionDuties.length > 0 && (
-                <div className="mt-4 border rounded-lg overflow-hidden">
-                  <div className="bg-orange-600 px-4 py-2">
-                    <span className="text-white font-bold text-sm">Supervision Duties</span>
-                  </div>
-                  <div className="divide-y">
-                    {supervisionDuties.map(d => {
-                      const days = DAY_PATTERN_DAYS[d.dayPattern] ?? [];
-                      return (
-                        <div key={d.id} className="flex items-center gap-3 px-4 py-2 text-sm">
-                          <span className="font-medium text-orange-700 w-36 shrink-0">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</span>
-                          <span className="font-semibold text-slate-800 flex-1">{d.area}</span>
-                          <div className="flex gap-1">
-                            {[1,2,3,4,5].map(day => (
-                              <span key={day} className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                                days.includes(day)
-                                  ? "bg-orange-100 text-orange-700 border border-orange-300"
-                                  : "bg-slate-100 text-slate-300"
-                              }`}>{DAY_NAMES[day]}</span>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+              <ScheduleGrid assignments={assignments} timeBlocks={timeBlocks} viewType="teacher" showSubject={showSubject} supervisionDuties={supervisionDuties} />
             </div>
           ) : (
             <div className="h-64 flex items-center justify-center text-slate-400">Select a teacher</div>

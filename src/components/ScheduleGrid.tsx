@@ -52,12 +52,27 @@ interface TimeBlock {
   level: string;
 }
 
+interface SupervisionDutySlim {
+  area: string;
+  startTime: string;
+  dayPattern: string;
+}
+
+const DUTY_DAY_MAP: Record<string, number[]> = {
+  EVERYDAY:    [1,2,3,4,5],
+  MON_TO_FRI:  [1,2,3,4,5],
+  MON_TO_THU:  [1,2,3,4],
+  TUE_AND_THU: [2,4],
+  MON:[1], TUE:[2], WED:[3], THU:[4], FRI:[5],
+};
+
 interface ScheduleGridProps {
   assignments: Assignment[];
   timeBlocks: TimeBlock[];
   viewType: "teacher" | "grade" | "room";
   onRefresh?: () => void;
   showSubject?: boolean;
+  supervisionDuties?: SupervisionDutySlim[];
 }
 
 // Color palette per grade — same grade same color, different grades different colors
@@ -111,7 +126,7 @@ function getSecondaryGroup(gradeName: string | null | undefined): "MIDDLE" | "HI
   return null;
 }
 
-export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, showSubject }: ScheduleGridProps) {
+export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, showSubject, supervisionDuties }: ScheduleGridProps) {
   const { t } = useLanguage();
   const { canManage } = useAuth();
   const { pushAction } = useHistory();
@@ -410,8 +425,16 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
                         onDragLeave={canManage && viewType === "teacher" ? () => setDropTarget(null) : undefined}
                         onDrop={canManage && viewType === "teacher" ? (e) => { e.preventDefault(); handleDrop(dayValue, startTime); } : undefined}
                       >
-                        {slotAssignments.length === 0 && (blockInfo?.blockType === "LUNCH" || blockInfo?.blockType === "BREAK" || blockInfo?.blockType === "REGISTRATION") ? (
-                          <div className="flex items-center justify-center py-1 print:py-0">
+                        {slotAssignments.length === 0 && (blockInfo?.blockType === "LUNCH" || blockInfo?.blockType === "BREAK" || blockInfo?.blockType === "REGISTRATION") ? (() => {
+                          const dutyAreas = supervisionDuties
+                            ? supervisionDuties
+                                .filter(d => (DUTY_DAY_MAP[d.dayPattern] ?? []).includes(dayValue) && (
+                                  blockInfo?.blockType === "LUNCH" ? d.startTime >= "12:00" : d.startTime < "12:00"
+                                ))
+                                .map(d => d.area)
+                            : [];
+                          return (
+                          <div className="flex flex-col items-center justify-center py-1 print:py-0 gap-0.5">
                             <span className={`text-xs font-bold tracking-widest uppercase print:text-[8px] ${
                               blockInfo?.blockType === "BREAK" ? "text-slate-500 dark:text-slate-400" :
                               blockInfo?.blockType === "LUNCH" ? "text-amber-600" :
@@ -419,8 +442,15 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
                             }`}>
                               {t.timeBlocks.types[blockInfo?.blockType as keyof typeof t.timeBlocks.types] || blockInfo?.blockType}
                             </span>
+                            {dutyAreas.map((area, i) => (
+                              <span key={i} className="text-[9px] font-semibold text-orange-700 bg-orange-100 border border-orange-300 rounded px-1 text-center leading-tight max-w-full truncate print:text-[7px] print:bg-orange-50 print:border-orange-400">
+                                ⚠ {area}
+                              </span>
+                            ))}
                           </div>
-                        ) : slotAssignments.length === 0 && blockInfo?.blockType === "CLASS" ? (
+                          );
+                        })()
+                        : slotAssignments.length === 0 && blockInfo?.blockType === "CLASS" ? (
                           // Empty CLASS slot - show + button for teachers
                           <div className="flex items-center justify-center h-16 print:hidden">
                             {viewType === "teacher" && (
