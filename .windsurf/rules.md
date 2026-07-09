@@ -224,7 +224,7 @@ Morning Break Duty: Washrooms / Downstairs
 * Catur Salomon — EVERYDAY
 * Andrea Concepción — WED
 
-**Football Court** — 1:00 p.m. – 1:15 p.m.
+**Football Court** — 12:45 p.m. – 1:15 p.m.
 * Ricardo Ferran — MON
 * Conrado de León — TUE
 * Emilio Núñez — WED

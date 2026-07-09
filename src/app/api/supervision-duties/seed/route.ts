@@ -24,10 +24,10 @@ const SEED_DATA = [
   { area: "Playground Area / Ping Pong Tables", startTime: "12:45", endTime: "13:15", dayPattern: "EVERYDAY",    teacher: "Catur Salomon" },
   { area: "Playground Area / Ping Pong Tables", startTime: "12:45", endTime: "13:15", dayPattern: "WED",         teacher: "Andrea Concepcion" },
 
-  { area: "Football Court",                     startTime: "13:00", endTime: "13:15", dayPattern: "MON",         teacher: "Ricardo Ferran" },
-  { area: "Football Court",                     startTime: "13:00", endTime: "13:15", dayPattern: "TUE",         teacher: "Conrado de Leon" },
-  { area: "Football Court",                     startTime: "13:00", endTime: "13:15", dayPattern: "WED",         teacher: "Emilio Nunez" },
-  { area: "Football Court",                     startTime: "13:00", endTime: "13:15", dayPattern: "THU",         teacher: "Christian Ho Sang" },
+  { area: "Football Court",                     startTime: "12:45", endTime: "13:15", dayPattern: "MON",         teacher: "Ricardo Ferran" },
+  { area: "Football Court",                     startTime: "12:45", endTime: "13:15", dayPattern: "TUE",         teacher: "Conrado de Leon" },
+  { area: "Football Court",                     startTime: "12:45", endTime: "13:15", dayPattern: "WED",         teacher: "Emilio Nunez" },
+  { area: "Football Court",                     startTime: "12:45", endTime: "13:15", dayPattern: "THU",         teacher: "Christian Ho Sang" },
 
   { area: "Gym",                                startTime: "12:45", endTime: "13:15", dayPattern: "MON",         teacher: "Manuel Abrego" },
   { area: "Gym",                                startTime: "12:45", endTime: "13:15", dayPattern: "TUE",         teacher: "Aristides Guerra" },
