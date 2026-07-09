@@ -443,7 +443,7 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
                               {t.timeBlocks.types[blockInfo?.blockType as keyof typeof t.timeBlocks.types] || blockInfo?.blockType}
                             </span>
                             {dutyAreas.map((area, i) => (
-                              <span key={i} className="text-[10px] font-bold text-white bg-orange-500 rounded px-1.5 py-0.5 text-center leading-tight max-w-full truncate print:text-[8px] print:bg-orange-500 print:text-white">
+                              <span key={i} className="text-[10px] font-bold text-white bg-sky-500 rounded px-1.5 py-0.5 text-center leading-tight max-w-full truncate print:text-[8px] print:bg-sky-500 print:text-white">
                                 ⚠ {area}
                               </span>
                             ))}
