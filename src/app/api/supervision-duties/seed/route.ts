@@ -2,14 +2,20 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { validateApiRequest } from "@/lib/auth-api";
 
-// Helper: find teacher by name (partial, case-insensitive)
+// Normalize: remove accents, lowercase, trim
+function norm(s: string) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+// Helper: find teacher by name (accent-insensitive, case-insensitive)
 async function findTeacher(name: string) {
   const all = await prisma.teacher.findMany({ select: { id: true, name: true } });
-  const lower = name.toLowerCase().trim();
-  const exact = all.find(t => t.name.toLowerCase() === lower);
+  const n = norm(name);
+  const exact = all.find(t => norm(t.name) === n);
   if (exact) return exact.id;
-  // partial match on last name
-  const partial = all.find(t => t.name.toLowerCase().includes(lower.split(" ").pop()!.toLowerCase()));
+  // partial match on last name (last word)
+  const lastName = n.split(" ").pop()!;
+  const partial = all.find(t => norm(t.name).includes(lastName));
   return partial?.id ?? null;
 }
 
