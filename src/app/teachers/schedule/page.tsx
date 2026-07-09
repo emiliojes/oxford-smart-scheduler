@@ -15,6 +15,7 @@ interface SupervisionDuty {
   endTime: string;
   dayPattern: string;
   isClosed: boolean;
+  teacher?: { id: string; name: string } | null;
 }
 
 const DAY_PATTERN_DAYS: Record<string, number[]> = {
@@ -349,24 +350,25 @@ export default function TeacherSchedulePage() {
   const exportAll = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
     setExporting(true);
     try {
-      const pages: string[] = [];
+      const allDutiesRaw = await fetch("/api/supervision-duties").then(r => r.json()).catch(() => []);
+      const allDuties: SupervisionDuty[] = Array.isArray(allDutiesRaw) ? allDutiesRaw : [];
+
+      const pages: any[] = [];
       await Promise.all(
         teachers.map(async (teacher) => {
-          const [asgns, duties]: [Assignment[], SupervisionDuty[]] = await Promise.all([
-            fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json()),
-            fetch(`/api/supervision-duties?teacherId=${teacher.id}`).then(r => r.json()),
-          ]);
+          const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
           if (!asgns.length) return;
           const group = getTeacherGroup(asgns);
           if (group === "OTHER") return;
           if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") return;
           if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") return;
-          pages.push({ teacher, asgns, group, duties } as any);
+          const duties = allDuties.filter(d => d.teacher?.id === teacher.id);
+          pages.push({ teacher, asgns, group, duties });
         })
       );
 
-      const sortedPages = (pages as any[]).sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
-      const htmlPages = sortedPages.map(({ teacher, asgns, duties }) => buildTeacherPage(teacher, asgns, timeBlocks, showSubject, duties ?? []));
+      const sortedPages = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
+      const htmlPages = sortedPages.map(({ teacher, asgns, duties }) => buildTeacherPage(teacher, asgns, timeBlocks, showSubject, duties));
 
       if (!htmlPages.length) { toast.error("No teachers found for that filter."); return; }
 
@@ -385,22 +387,23 @@ export default function TeacherSchedulePage() {
   const exportWord = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
     setExportingWord(true);
     try {
+      const allDutiesRaw = await fetch("/api/supervision-duties").then(r => r.json()).catch(() => []);
+      const allDuties: SupervisionDuty[] = Array.isArray(allDutiesRaw) ? allDutiesRaw : [];
+
       const pages: any[] = [];
       await Promise.all(teachers.map(async (teacher) => {
-        const [asgns, duties]: [Assignment[], SupervisionDuty[]] = await Promise.all([
-          fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json()),
-          fetch(`/api/supervision-duties?teacherId=${teacher.id}`).then(r => r.json()),
-        ]);
+        const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
         if (!asgns.length) return;
         const group = getTeacherGroup(asgns);
         if (group === "OTHER") return;
         if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") return;
         if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") return;
+        const duties = allDuties.filter(d => d.teacher?.id === teacher.id);
         pages.push({ teacher, asgns, duties });
       }));
       if (!pages.length) { toast.error("No teachers found."); return; }
       const sorted = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
-      const body = sorted.map(({ teacher, asgns, duties }) => buildWordPage(teacher, asgns, timeBlocks, showSubject, duties ?? [])).join("");
+      const body = sorted.map(({ teacher, asgns, duties }) => buildWordPage(teacher, asgns, timeBlocks, showSubject, duties)).join("");
       const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;}@page Section1{size:842pt 595pt;mso-page-orientation:landscape;}div.Section1{page:Section1;}</style></head><body><div class="Section1">${body}</div></body></html>`;
       const blob = new Blob([html], { type: "application/msword" });
       const url = URL.createObjectURL(blob);
