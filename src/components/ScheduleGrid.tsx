@@ -352,7 +352,8 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
   });
 
   const getBlockInfo = (startTime: string) => {
-    return relevantTimeBlocks.find((b) => b.startTime === startTime);
+    const lunchBlk = relevantTimeBlocks.find(b => b.startTime === startTime && b.blockType === "LUNCH");
+    return lunchBlk ?? relevantTimeBlocks.find(b => b.startTime === startTime);
   };
 
   // A row is "special" (BREAK/LUNCH/etc) only if every time block at that time is non-CLASS

@@ -149,7 +149,7 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
   const hrs = hoursLabel(asgns);
 
   const getSlot = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
-  const blockAt = (time: string) => withLunch.find(b => b.startTime === time);
+  const blockAt = (time: string) => withLunch.find(b => b.startTime === time && b.blockType === "LUNCH") ?? withLunch.find(b => b.startTime === time);
   const dutyBadge = (day: number, isLunch: boolean) => {
     const areas = duties.filter(d => (DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day) && (isLunch ? d.startTime >= "12:00" : d.startTime < "12:00")).map(d => d.area);
     return areas.length ? `<br>${areas.map(a => `<span class="duty">⚠ ${a}</span>`).join("<br>")}` : "";
@@ -204,7 +204,7 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
   const groupLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : group === "MIXED" ? "MIDDLE & HIGH SCHOOL" : "SECONDARY";
   const hrs = hoursLabel(asgns);
   const getSlot = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
-  const blockAt = (time: string) => withLunch.find(b => b.startTime === time);
+  const blockAt = (time: string) => withLunch.find(b => b.startTime === time && b.blockType === "LUNCH") ?? withLunch.find(b => b.startTime === time);
   const mkCell = (txt: string, bg: string, clr: string) =>
     `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
   const dutyBadgeW = (day: number, isLunch: boolean) => {
