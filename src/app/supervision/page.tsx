@@ -89,7 +89,7 @@ export default function SupervisionPage() {
       fetch("/api/teachers").then(r => r.json()),
     ]).then(([d, t]) => {
       setDuties(d);
-      setTeachers(t.filter((x: any) => x.level === "SECONDARY" || x.level === "BOTH").sort((a: any, b: any) => a.name.localeCompare(b.name)));
+      setTeachers(t.filter((x: any) => x.level === "LOW_SECONDARY" || x.level === "SECONDARY" || x.level === "BOTH").sort((a: any, b: any) => a.name.localeCompare(b.name)));
     }).catch(() => toast.error("Error loading data"))
       .finally(() => setLoading(false));
   };
