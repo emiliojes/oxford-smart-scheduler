@@ -427,11 +427,16 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
                         onDrop={canManage && viewType === "teacher" ? (e) => { e.preventDefault(); handleDrop(dayValue, startTime); } : undefined}
                       >
                         {slotAssignments.length === 0 && (blockInfo?.blockType === "LUNCH" || blockInfo?.blockType === "BREAK" || blockInfo?.blockType === "REGISTRATION") ? (() => {
+                          const isMiddleLunchRow = blockInfo?.blockType === "LUNCH" && startTime < "12:00";
+                          const isHighLunchRow   = blockInfo?.blockType === "LUNCH" && startTime >= "12:00";
                           const dutyAreas = supervisionDuties
                             ? supervisionDuties
-                                .filter(d => (DUTY_DAY_MAP[d.dayPattern] ?? []).includes(dayValue) && (
-                                  blockInfo?.blockType === "LUNCH" ? d.startTime >= "12:00" : d.startTime < "12:00"
-                                ))
+                                .filter(d => {
+                                  if (!(DUTY_DAY_MAP[d.dayPattern] ?? []).includes(dayValue)) return false;
+                                  if (isMiddleLunchRow) return d.startTime >= "11:00" && d.startTime < "12:00";
+                                  if (isHighLunchRow)   return d.startTime >= "12:00";
+                                  return d.startTime < "11:00"; // BREAK row
+                                })
                                 .map(d => d.area)
                             : [];
                           return (

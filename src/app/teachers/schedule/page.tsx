@@ -150,8 +150,12 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
 
   const getSlot = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
   const blockAt = (time: string) => withLunch.find(b => b.startTime === time && b.blockType === "LUNCH") ?? withLunch.find(b => b.startTime === time);
-  const dutyBadge = (day: number, isLunch: boolean) => {
-    const areas = duties.filter(d => (DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day) && (isLunch ? d.startTime >= "12:00" : d.startTime < "12:00")).map(d => d.area);
+  const dutyBadge = (day: number, rowTime: string, isLunch: boolean) => {
+    const areas = duties.filter(d => {
+      if (!(DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day)) return false;
+      if (isLunch) return rowTime < "12:00" ? (d.startTime >= "11:00" && d.startTime < "12:00") : d.startTime >= "12:00";
+      return d.startTime < "11:00";
+    }).map(d => d.area);
     return areas.length ? `<br>${areas.map(a => `<span class="duty">⚠ ${a}</span>`).join("<br>")}` : "";
   };
 
@@ -162,12 +166,12 @@ function buildTeacherPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlo
     const tc = `<td class="time">${fmt(time)}<br><span>- ${fmt(endT)}</span></td>`;
 
     if (btype === "REGISTRATION") return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp reg">REGISTRATION</td>`).join("")}</tr>`;
-    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day => `<td class="sp brk">BREAK${dutyBadge(day, false)}</td>`).join("")}</tr>`;
+    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day => `<td class="sp brk">BREAK${dutyBadge(day, time, false)}</td>`).join("")}</tr>`;
     if (btype === "DISMISSAL")    return `<tr>${tc}${[1,2,3,4,5].map(() => `<td class="sp dep">DEPARTURE</td>`).join("")}</tr>`;
     if (btype === "LUNCH") {
       const hasFriAfter = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
       return `<tr>${tc}${[1,2,3,4,5].map((day, di) =>
-        di === 4 && aTimes.size > 0 && !hasFriAfter ? `<td class="sp dep">DEPARTURE</td>` : `<td class="sp lnc">LUNCH${dutyBadge(day, true)}</td>`
+        di === 4 && aTimes.size > 0 && !hasFriAfter ? `<td class="sp dep">DEPARTURE</td>` : `<td class="sp lnc">LUNCH${dutyBadge(day, time, true)}</td>`
       ).join("")}</tr>`;
     }
 
@@ -207,8 +211,12 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
   const blockAt = (time: string) => withLunch.find(b => b.startTime === time && b.blockType === "LUNCH") ?? withLunch.find(b => b.startTime === time);
   const mkCell = (txt: string, bg: string, clr: string) =>
     `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
-  const dutyBadgeW = (day: number, isLunch: boolean) => {
-    const areas = duties.filter(d => (DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day) && (isLunch ? d.startTime >= "12:00" : d.startTime < "12:00")).map(d => d.area);
+  const dutyBadgeW = (day: number, rowTime: string, isLunch: boolean) => {
+    const areas = duties.filter(d => {
+      if (!(DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day)) return false;
+      if (isLunch) return rowTime < "12:00" ? (d.startTime >= "11:00" && d.startTime < "12:00") : d.startTime >= "12:00";
+      return d.startTime < "11:00";
+    }).map(d => d.area);
     return areas.length ? `<br>${areas.map(a => `<span style="display:inline-block;background:#0ea5e9;color:white;font-size:6.5pt;font-weight:bold;padding:1pt 3pt;border-radius:2pt;">⚠ ${a}</span>`).join("<br>")}` : "";
   };
   const rows = uniqueT.map(time => {
@@ -217,11 +225,11 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
     const endT = blk?.endTime ?? "";
     const tc = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:5pt;border:1px solid #d1d5db;width:70pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">- ${fmt(endT)}</span></td>`;
     if (btype === "REGISTRATION") return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
-    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day=>`<td style="background:#1e3a5f;color:white;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">BREAK${dutyBadgeW(day, false)}</td>`).join("")}</tr>`;
+    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day=>`<td style="background:#1e3a5f;color:white;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">BREAK${dutyBadgeW(day, time, false)}</td>`).join("")}</tr>`;
     if (btype === "DISMISSAL")    return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("DEPARTURE","#1e3a5f","white")).join("")}</tr>`;
     if (btype === "LUNCH") {
       const hasFriAfter = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
-      return `<tr>${tc}${[1,2,3,4,5].map((day,di) => di===4 && aTimes.size>0 && !hasFriAfter ? mkCell("DEPARTURE","#1e3a5f","white") : `<td style="background:#fef3c7;color:#92400e;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">LUNCH${dutyBadgeW(day, true)}</td>`).join("")}</tr>`;
+      return `<tr>${tc}${[1,2,3,4,5].map((day,di) => di===4 && aTimes.size>0 && !hasFriAfter ? mkCell("DEPARTURE","#1e3a5f","white") : `<td style="background:#fef3c7;color:#92400e;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">LUNCH${dutyBadgeW(day, time, true)}</td>`).join("")}</tr>`;
     }
     return `<tr>${tc}${[0,1,2,3,4].map((_,di) => {
       const slot = getSlot(di+1, time);
