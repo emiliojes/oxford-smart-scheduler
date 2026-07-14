@@ -76,7 +76,7 @@ export default function SupervisionPage() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
-  const [tab, setTab] = useState<"lunch" | "break">("lunch");
+  const [tab, setTab] = useState<"middle" | "high" | "break">("middle");
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -176,8 +176,9 @@ export default function SupervisionPage() {
   };
 
   // ── Render helpers ───────────────────────────────────────────────────────────
-  const lunchDuties = duties.filter(d => d.startTime >= "12:00");
-  const breakDuties = duties.filter(d => d.startTime < "12:00");
+  const middleLunchDuties = duties.filter(d => d.startTime >= "11:00" && d.startTime < "12:00");
+  const highLunchDuties   = duties.filter(d => d.startTime >= "12:00");
+  const breakDuties       = duties.filter(d => d.startTime < "11:00");
 
   function groupByArea(list: Duty[]) {
     const map = new Map<string, Duty[]>();
@@ -277,10 +278,10 @@ export default function SupervisionPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 bg-slate-100 rounded-lg p-1 w-fit">
-        {(["lunch", "break"] as const).map(t => (
+        {(["middle", "high", "break"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === t ? "bg-white shadow text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>
-            {t === "lunch" ? "🥗 Lunch Supervision" : "☕ Morning Break"}
+            {t === "middle" ? "🟢 Middle Lunch  11:30" : t === "high" ? "🔵 High Lunch  12:45" : "☕ Morning Break"}
           </button>
         ))}
       </div>
@@ -291,7 +292,7 @@ export default function SupervisionPage() {
           <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
         </div>
       ) : (
-        <DutyList list={tab === "lunch" ? lunchDuties : breakDuties} />
+        <DutyList list={tab === "middle" ? middleLunchDuties : tab === "high" ? highLunchDuties : breakDuties} />
       )}
 
       {/* Form modal */}
