@@ -435,7 +435,8 @@ export function ScheduleGrid({ assignments, timeBlocks, viewType, onRefresh, sho
                                   if (!(DUTY_DAY_MAP[d.dayPattern] ?? []).includes(dayValue)) return false;
                                   if (isMiddleLunchRow) return d.startTime >= "11:00" && d.startTime < "12:00";
                                   if (isHighLunchRow)   return d.startTime >= "12:00";
-                                  return d.startTime < "11:00"; // BREAK row
+                                  if (blockInfo?.blockType === "BREAK") return d.startTime < "11:00";
+                                  return false; // REGISTRATION gets no badges
                                 })
                                 .map(d => d.area)
                             : [];
