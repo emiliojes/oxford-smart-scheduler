@@ -328,7 +328,7 @@ export default function TeacherSchedulePage() {
     fetch("/api/teachers")
       .then(r => r.json())
       .then((data: Teacher[]) => {
-        const sec = data.filter(t => t.level === "SECONDARY" || t.level === "BOTH").sort((a, b) => a.name.localeCompare(b.name));
+        const sec = data.filter(t => t.level === "LOW_SECONDARY" || t.level === "SECONDARY" || t.level === "BOTH").sort((a, b) => a.name.localeCompare(b.name));
         setTeachers(sec);
         const saved = typeof window !== "undefined" ? localStorage.getItem("teacherSchedule_selectedId") : null;
         const valid = saved && sec.some(t => t.id === saved);
