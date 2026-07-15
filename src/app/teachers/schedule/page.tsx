@@ -278,25 +278,25 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#
 }
 .page:last-child{page-break-after:auto;break-after:auto;border-bottom:none;margin-bottom:0;}
 .hdr{background:#1e3a5f!important;color:white!important;text-align:center;padding:10px;margin-bottom:8px;border-radius:4px;}
-.hdr-sub{font-size:9px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
-.hdr-name{font-size:17px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white!important;}
-.hdr-info{font-size:10px;color:#cbd5e1!important;margin-top:3px;}
-table{width:100%;border-collapse:collapse;font-size:10px;}
-th{background:#1e3a5f!important;color:white!important;padding:6px 4px;text-align:center;font-size:9px;font-weight:bold;letter-spacing:0.5px;}
-td{border:1px solid #d1d5db;padding:5px 4px;text-align:center;vertical-align:middle;min-height:28px;}
-td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:72px;background:#f8fafc;text-align:left;padding-left:6px;}
-td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin-top:1px;}
-.sp{font-weight:bold;font-size:9px;text-transform:uppercase;padding:2px;}
+.hdr-sub{font-size:13px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+.hdr-name{font-size:26px;font-weight:bold;text-transform:uppercase;margin:6px 0;color:white!important;}
+.hdr-info{font-size:15px;color:#cbd5e1!important;margin-top:4px;}
+table{width:100%;border-collapse:collapse;font-size:15px;}
+th{background:#1e3a5f!important;color:white!important;padding:10px 6px;text-align:center;font-size:14px;font-weight:bold;letter-spacing:0.5px;}
+td{border:1px solid #d1d5db;padding:9px 6px;text-align:center;vertical-align:middle;min-height:40px;}
+td.time{font-weight:bold;font-size:13px;color:#1e3a5f;white-space:nowrap;width:110px;background:#f8fafc;text-align:left;padding-left:8px;}
+td.time span{display:block;font-weight:normal;font-size:12px;color:#94a3b8;margin-top:2px;}
+.sp{font-weight:bold;font-size:13px;text-transform:uppercase;padding:3px;}
 .reg{color:#2563eb!important;background:#eff6ff!important;}
 .brk{color:white!important;background:#1e3a5f!important;}
 .lnc{color:#92400e!important;background:#fef3c7!important;}
 .dep{color:white!important;background:#1e3a5f!important;}
-.entry{margin:1px 0;}
-.grade{font-weight:bold;font-size:9px;color:#1e3a5f;}
-.subj{font-size:9px;color:#374151;}
-.sigs{display:flex;justify-content:space-between;padding:0 30px;margin-top:14px;}
-.sig{border-top:1px solid #94a3b8;width:160px;text-align:center;padding-top:4px;font-size:9px;font-weight:bold;color:#374151;}
-.duty{display:inline-block;background:#0ea5e9!important;color:white!important;font-size:7.5px;font-weight:bold;padding:1px 4px;border-radius:3px;margin-top:2px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.entry{margin:2px 0;}
+.grade{font-weight:bold;font-size:15px;color:#1e3a5f;}
+.subj{font-size:13px;color:#374151;}
+.sigs{display:flex;justify-content:space-between;padding:0 40px;margin-top:18px;}
+.sig{border-top:1px solid #94a3b8;width:200px;text-align:center;padding-top:5px;font-size:13px;font-weight:bold;color:#374151;}
+.duty{display:inline-block;background:#0ea5e9!important;color:white!important;font-size:11px;font-weight:bold;padding:2px 6px;border-radius:3px;margin-top:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 @media print{
   html,body{background:white!important;}
   .page{border-bottom:none!important;margin-bottom:0!important;background:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -363,7 +363,7 @@ export default function TeacherSchedulePage() {
     styleEl.textContent = PRINT_CSS;
     document.head.appendChild(styleEl);
     const container = document.createElement("div");
-    container.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1400px;background:white;z-index:-1;";
+    container.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1800px;background:white;z-index:-1;";
     document.body.appendChild(container);
     try {
       const allDutiesRaw = await fetch("/api/supervision-duties").then(r => r.json()).catch(() => []);
