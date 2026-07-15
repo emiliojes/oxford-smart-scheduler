@@ -282,22 +282,22 @@ export default function GradeSchedulePage() {
     setExportingImages(true);
     const GRADE_CSS = `
       *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-      .page{padding:12px;background:white;}
-      .header{background:#1e3a5f;color:white;text-align:center;padding:14px;margin-bottom:8px;border-radius:4px;}
-      .header-sub{font-size:10px;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
-      .header-title{font-size:18px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white;}
-      .header-info{font-size:11px;color:#cbd5e1;margin-top:4px;}
-      table{width:100%;border-collapse:collapse;font-size:10px;}
-      th{background:#1e3a5f;color:white;padding:7px 4px;text-align:center;font-size:9px;font-weight:bold;}
-      td{border:1px solid #d1d5db;padding:7px 5px;text-align:center;vertical-align:middle;min-height:32px;}
-      td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:76px;background:#f8fafc;text-align:left;padding-left:6px;}
-      td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin-top:1px;}
-      .special{font-weight:bold;font-size:9px;text-transform:uppercase;}
+      .page{padding:18px;background:white;}
+      .header{background:#1e3a5f;color:white;text-align:center;padding:18px;margin-bottom:12px;border-radius:6px;}
+      .header-sub{font-size:13px;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+      .header-title{font-size:24px;font-weight:bold;text-transform:uppercase;margin:6px 0;color:white;}
+      .header-info{font-size:15px;color:#cbd5e1;margin-top:6px;}
+      table{width:100%;border-collapse:collapse;font-size:14px;}
+      th{background:#1e3a5f;color:white;padding:10px 6px;text-align:center;font-size:13px;font-weight:bold;}
+      td{border:1px solid #d1d5db;padding:10px 8px;text-align:center;vertical-align:middle;min-height:40px;}
+      td.time{font-weight:bold;font-size:13px;color:#1e3a5f;white-space:nowrap;width:110px;background:#f8fafc;text-align:left;padding-left:8px;}
+      td.time span{display:block;font-weight:normal;font-size:12px;color:#94a3b8;margin-top:2px;}
+      .special{font-weight:bold;font-size:13px;text-transform:uppercase;}
       .reg{color:#2563eb;background:#eff6ff;}
       .brk{color:white;background:#1e3a5f;}
       .lnc{color:#92400e;background:#fef3c7;}
       .dep{color:white;background:#1e3a5f;}
-      .subj{font-weight:bold;text-transform:uppercase;font-size:9px;color:#1e293b;}
+      .subj{font-weight:bold;text-transform:uppercase;font-size:14px;color:#1e293b;}
     `;
     const styleEl = document.createElement("style");
     styleEl.textContent = GRADE_CSS;
