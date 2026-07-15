@@ -323,14 +323,14 @@ export default function GradeSchedulePage() {
         const grade = secondaryGrades[i];
         const { asgns, uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
         const shortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
-        const thStyle = `style="background:#1e3a5f;color:white;padding:3pt 2pt;font-size:7.5pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
+        const thStyle = `style="background:#1e3a5f;color:white;padding:5pt;font-size:9pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
         const rows = uniqueT.map(time => {
           const blk = blockAtA(time);
           const btype = blk?.blockType ?? "CLASS";
           const endT = blk?.endTime ?? "";
-          const timeCell = `<td style="font-size:6.5pt;font-weight:bold;color:#1e3a5f;padding:3pt 2pt;border:1px solid #d1d5db;width:56pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:6pt;">- ${fmt(endT)}</span></td>`;
+          const timeCell = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:6pt 5pt;border:1px solid #d1d5db;width:72pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">- ${fmt(endT)}</span></td>`;
           const mkCell = (txt: string, bg: string, clr: string) =>
-            `<td style="background:${bg};color:${clr};font-size:7.5pt;font-weight:bold;text-align:center;padding:4pt 3pt;border:1px solid #d1d5db;">${txt}</td>`;
+            `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:7pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
           if (btype === "REGISTRATION") return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
           if (btype === "BREAK")        return `<tr>${timeCell}${[0,1,2,3,4].map(()=>mkCell("BREAK","#1e3a5f","white")).join("")}</tr>`;
           const hasFriClassAfterWord = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
@@ -339,17 +339,17 @@ export default function GradeSchedulePage() {
           return `<tr>${timeCell}${[0,1,2,3,4].map((_,di)=>{
             const slot = getSlotA(di+1, time);
             const txt = slot.map(a=>displaySubjectName(a.subject.name).toUpperCase()).join(" / ") || "";
-            return `<td style="font-size:7.5pt;font-weight:bold;text-align:center;padding:4pt 3pt;border:1px solid #d1d5db;">${txt}</td>`;
+            return `<td style="font-size:8.5pt;font-weight:bold;text-align:center;padding:7pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
           }).join("")}</tr>`;
         }).join("");
         const table = `
-          <div style="padding:6pt;">
-            <table width="100%" style="background:#1e3a5f;margin-bottom:6pt;border-radius:3pt;"><tr><td style="color:white;text-align:center;padding:6pt;">
-              <div style="font-size:7pt;color:#93c5fd;font-weight:bold;letter-spacing:1.5pt;text-transform:uppercase;">2026 CLASS SCHEDULE</div>
-              <div style="font-size:12pt;font-weight:bold;text-transform:uppercase;color:white;margin:2pt 0;">${schoolLevel} · ${gradeTitle}</div>
-              ${hrTeacher?`<div style="font-size:7.5pt;color:#cbd5e1;"><span style="color:#93c5fd;font-weight:bold;">HR:</span> ${hrTeacher}${hrRoom?` — ${shortRoom(hrRoom)}`:""}</div>`:""}
+          <div style="padding:10pt;">
+            <table width="100%" style="background:#1e3a5f;margin-bottom:8pt;border-radius:4pt;"><tr><td style="color:white;text-align:center;padding:10pt;">
+              <div style="font-size:8pt;color:#93c5fd;font-weight:bold;letter-spacing:2pt;text-transform:uppercase;">2026 CLASS SCHEDULE</div>
+              <div style="font-size:15pt;font-weight:bold;text-transform:uppercase;color:white;margin:3pt 0;">${schoolLevel} · ${gradeTitle}</div>
+              ${hrTeacher?`<div style="font-size:9pt;color:#cbd5e1;"><span style="color:#93c5fd;font-weight:bold;">HR:</span> ${hrTeacher}${hrRoom?` — ${shortRoom(hrRoom)}`:""}</div>`:""}
             </td></tr></table>
-            <table width="100%" style="border-collapse:collapse;font-size:7.5pt;">
+            <table width="100%" style="border-collapse:collapse;font-size:9pt;">
               <thead><tr><th ${thStyle}>TIME</th>${DAYS.map(d=>`<th ${thStyle}>${d}</th>`).join("")}</tr></thead>
               <tbody>${rows}</tbody>
             </table>
@@ -459,19 +459,18 @@ export default function GradeSchedulePage() {
         <style>
           *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
           html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff;}
-          @page{size:A4 landscape;margin:6mm;}
-          .page{page-break-after:always;padding:8px;}
+          .page{page-break-after:always;padding:12px;}
           .page:last-child{page-break-after:auto;}
-          .header{background:#1e3a5f!important;color:white!important;text-align:center;padding:8px;margin-bottom:6px;border-radius:3px;}
-          .header-sub{font-size:7.5px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;}
-          .header-title{font-size:14px;font-weight:bold;text-transform:uppercase;margin:3px 0;color:white!important;}
-          .header-info{font-size:8px;color:#cbd5e1!important;margin-top:2px;}
-          table{width:100%;border-collapse:collapse;font-size:8px;}
-          th{background:#1e3a5f!important;color:white!important;padding:4px 3px;text-align:center;font-size:7.5px;font-weight:bold;letter-spacing:0.5px;}
-          td{border:1px solid #d1d5db;padding:3px 2px;text-align:center;vertical-align:middle;min-height:18px;}
-          td.time{font-weight:bold;font-size:7.5px;color:#1e3a5f;white-space:nowrap;width:60px;background:#f8fafc;text-align:left;padding-left:4px;}
-          td.time span{display:block;font-weight:normal;font-size:6.5px;color:#94a3b8;margin-top:1px;}
-          .special{font-weight:bold;font-size:7.5px;text-transform:uppercase;padding:1px;}
+          .header{background:#1e3a5f!important;color:white!important;text-align:center;padding:14px;margin-bottom:8px;border-radius:4px;}
+          .header-sub{font-size:10px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+          .header-title{font-size:18px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white!important;}
+          .header-info{font-size:11px;color:#cbd5e1!important;margin-top:4px;}
+          table{width:100%;border-collapse:collapse;font-size:10px;}
+          th{background:#1e3a5f!important;color:white!important;padding:7px 4px;text-align:center;font-size:9px;font-weight:bold;letter-spacing:0.5px;}
+          td{border:1px solid #d1d5db;padding:7px 5px;text-align:center;vertical-align:middle;min-height:32px;}
+          td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:76px;background:#f8fafc;text-align:left;padding-left:6px;}
+          td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin-top:1px;}
+          .special{font-weight:bold;font-size:9px;text-transform:uppercase;padding:2px;}
           .reg{color:#2563eb!important;background:#eff6ff!important;}
           .brk{color:white!important;background:#1e3a5f!important;}
           .lnc{color:#92400e!important;background:#fef3c7!important;}

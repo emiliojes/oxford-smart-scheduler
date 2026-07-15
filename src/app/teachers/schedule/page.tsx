@@ -210,7 +210,7 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
   const getSlot = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
   const blockAt = (time: string) => withLunch.find(b => b.startTime === time && b.blockType === "LUNCH") ?? withLunch.find(b => b.startTime === time);
   const mkCell = (txt: string, bg: string, clr: string) =>
-    `<td style="background:${bg};color:${clr};font-size:7.5pt;font-weight:bold;text-align:center;padding:4pt 3pt;border:1px solid #d1d5db;">${txt}</td>`;
+    `<td style="background:${bg};color:${clr};font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">${txt}</td>`;
   const dutyBadgeW = (day: number, rowTime: string, isLunch: boolean) => {
     const areas = duties.filter(d => {
       if (!(DAY_PATTERN_DAYS[d.dayPattern]??[]).includes(day)) return false;
@@ -223,30 +223,30 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
     const blk = blockAt(time);
     const btype = blk?.blockType ?? "CLASS";
     const endT = blk?.endTime ?? "";
-    const tc = `<td style="font-size:6.5pt;font-weight:bold;color:#1e3a5f;padding:3pt 2pt;border:1px solid #d1d5db;width:56pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:6pt;">- ${fmt(endT)}</span></td>`;
+    const tc = `<td style="font-size:8pt;font-weight:bold;color:#1e3a5f;padding:5pt;border:1px solid #d1d5db;width:70pt;white-space:nowrap;">${fmt(time)}<br><span style="font-weight:normal;color:#94a3b8;font-size:7pt;">- ${fmt(endT)}</span></td>`;
     if (btype === "REGISTRATION") return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("REGISTRATION","#eff6ff","#2563eb")).join("")}</tr>`;
-    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day=>`<td style="background:#1e3a5f;color:white;font-size:7.5pt;font-weight:bold;text-align:center;padding:4pt 3pt;border:1px solid #d1d5db;">BREAK${dutyBadgeW(day, time, false)}</td>`).join("")}</tr>`;
+    if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(day=>`<td style="background:#1e3a5f;color:white;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">BREAK${dutyBadgeW(day, time, false)}</td>`).join("")}</tr>`;
     if (btype === "DISMISSAL")    return `<tr>${tc}${[0,1,2,3,4].map(()=>mkCell("DEPARTURE","#1e3a5f","white")).join("")}</tr>`;
     if (btype === "LUNCH") {
       const hasFriAfter = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
-      return `<tr>${tc}${[1,2,3,4,5].map((day,di) => di===4 && aTimes.size>0 && !hasFriAfter ? mkCell("DEPARTURE","#1e3a5f","white") : `<td style="background:#fef3c7;color:#92400e;font-size:7.5pt;font-weight:bold;text-align:center;padding:4pt 3pt;border:1px solid #d1d5db;">LUNCH${dutyBadgeW(day, time, true)}</td>`).join("")}</tr>`;
+      return `<tr>${tc}${[1,2,3,4,5].map((day,di) => di===4 && aTimes.size>0 && !hasFriAfter ? mkCell("DEPARTURE","#1e3a5f","white") : `<td style="background:#fef3c7;color:#92400e;font-size:8.5pt;font-weight:bold;text-align:center;padding:5pt 4pt;border:1px solid #d1d5db;">LUNCH${dutyBadgeW(day, time, true)}</td>`).join("")}</tr>`;
     }
     return `<tr>${tc}${[0,1,2,3,4].map((_,di) => {
       const slot = getSlot(di+1, time);
-      if (!slot.length) return `<td style="border:1px solid #d1d5db;padding:3pt;"></td>`;
-      return `<td style="border:1px solid #d1d5db;padding:3pt;text-align:center;">${slot.map(a => {
-        const gName = a.grade ? `${a.grade.name}${a.grade.section??""}` : "";
-        return `<div style="font-size:7pt;"><b>${gName}</b>${showSubject ? `<br>${displaySubj(a.subject.name)}` : ""}</div>`;
+      if (!slot.length) return `<td style="border:1px solid #d1d5db;padding:5pt;"></td>`;
+      return `<td style="border:1px solid #d1d5db;padding:4pt;text-align:center;">${slot.map(a => {
+        const gName = a.grade ? `${a.grade.name}${a.grade.section??""}`  : "";
+        return `<div style="font-size:8pt;"><b>${gName}</b>${showSubject ? `<br>${displaySubj(a.subject.name)}` : ""}</div>`;
       }).join("")}</td>`;
     }).join("")}</tr>`;
   }).join("");
-  const th = `style="background:#1e3a5f;color:white;padding:3pt 2pt;font-size:7.5pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
-  return `<div style="page-break-after:always;padding:6pt;">
-    <table width="100%" style="background:#1e3a5f;margin-bottom:6pt;"><tr>
-      <td style="color:white;text-align:center;padding:6pt;">
-        <div style="font-size:7pt;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;">2026 · ${groupLabel} TEACHER SCHEDULE</div>
-        <div style="font-size:13pt;font-weight:bold;text-transform:uppercase;margin:3pt 0;color:white;">${teacher.name.toUpperCase()}</div>
-        ${hrs ? `<div style="font-size:7.5pt;color:#cbd5e1;">Weekly Teaching Hours: ${hrs}</div>` : ""}
+  const th = `style="background:#1e3a5f;color:white;padding:5pt;font-size:8pt;font-weight:bold;text-align:center;border:1px solid #1e3a5f;"`;
+  return `<div style="page-break-after:always;padding:10pt;">
+    <table width="100%" style="background:#1e3a5f;margin-bottom:8pt;"><tr>
+      <td style="color:white;text-align:center;padding:10pt;">
+        <div style="font-size:9pt;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;">2026 · ${groupLabel} TEACHER SCHEDULE</div>
+        <div style="font-size:17pt;font-weight:bold;text-transform:uppercase;margin:6pt 0;color:white;">${teacher.name.toUpperCase()}</div>
+        ${hrs ? `<div style="font-size:9pt;color:#cbd5e1;">Weekly Teaching Hours: ${hrs}</div>` : ""}
       </td>
     </tr></table>
     <table width="100%" style="border-collapse:collapse;">
@@ -266,26 +266,26 @@ function buildWordPage(teacher: Teacher, asgns: Assignment[], allTBs: TimeBlock[
 const PRINT_CSS = `
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#f1f5f9;}
-@page{size:A4 landscape;margin:5mm;}
+@page{size:A4 landscape;margin:8mm;}
 .page{
   page-break-after:always;
   break-after:page;
-  padding:6px 8px;
+  padding:10px 12px;
   background:white;
   margin-bottom:24px;
   border-bottom:4px dashed #94a3b8;
 }
 .page:last-child{page-break-after:auto;break-after:auto;border-bottom:none;margin-bottom:0;}
-.hdr{background:#1e3a5f!important;color:white!important;text-align:center;padding:6px;margin-bottom:5px;border-radius:3px;}
-.hdr-sub{font-size:7.5px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;}
-.hdr-name{font-size:14px;font-weight:bold;text-transform:uppercase;margin:3px 0;color:white!important;}
-.hdr-info{font-size:8px;color:#cbd5e1!important;margin-top:2px;}
-table{width:100%;border-collapse:collapse;font-size:8.5px;}
-th{background:#1e3a5f!important;color:white!important;padding:4px 3px;text-align:center;font-size:7.5px;font-weight:bold;letter-spacing:0.5px;}
-td{border:1px solid #d1d5db;padding:3px 2px;text-align:center;vertical-align:middle;min-height:18px;}
-td.time{font-weight:bold;font-size:7.5px;color:#1e3a5f;white-space:nowrap;width:60px;background:#f8fafc;text-align:left;padding-left:4px;}
-td.time span{display:block;font-weight:normal;font-size:6.5px;color:#94a3b8;margin-top:1px;}
-.sp{font-weight:bold;font-size:7.5px;text-transform:uppercase;padding:1px;}
+.hdr{background:#1e3a5f!important;color:white!important;text-align:center;padding:10px;margin-bottom:8px;border-radius:4px;}
+.hdr-sub{font-size:9px;color:#93c5fd!important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+.hdr-name{font-size:17px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white!important;}
+.hdr-info{font-size:10px;color:#cbd5e1!important;margin-top:3px;}
+table{width:100%;border-collapse:collapse;font-size:10px;}
+th{background:#1e3a5f!important;color:white!important;padding:6px 4px;text-align:center;font-size:9px;font-weight:bold;letter-spacing:0.5px;}
+td{border:1px solid #d1d5db;padding:5px 4px;text-align:center;vertical-align:middle;min-height:28px;}
+td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:72px;background:#f8fafc;text-align:left;padding-left:6px;}
+td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin-top:1px;}
+.sp{font-weight:bold;font-size:9px;text-transform:uppercase;padding:2px;}
 .reg{color:#2563eb!important;background:#eff6ff!important;}
 .brk{color:white!important;background:#1e3a5f!important;}
 .lnc{color:#92400e!important;background:#fef3c7!important;}
