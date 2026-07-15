@@ -6,7 +6,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus, Pencil, GripVertical } from "lucide-react";
+import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus, Pencil, GripVertical, Image } from "lucide-react";
+import { toPng } from "html-to-image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,6 +123,7 @@ export default function GradeSchedulePage() {
   const [exportingAll, setExportingAll] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
+  const [exportingImages, setExportingImages] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
@@ -273,6 +275,73 @@ export default function GradeSchedulePage() {
     const getSlotA = (day: number, time: string) => asgns.filter(a => a.timeBlock.dayOfWeek === day && a.timeBlock.startTime === time);
     const blockAtA = (time: string) => tbs.find(b => b.startTime === time);
     return { asgns, tbs, aTimes, uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA };
+  };
+
+  // ── Image export ──────────────────────────────────────────────────
+  const exportAllGradeImages = async () => {
+    setExportingImages(true);
+    const GRADE_CSS = `
+      *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+      .page{padding:12px;background:white;}
+      .header{background:#1e3a5f;color:white;text-align:center;padding:14px;margin-bottom:8px;border-radius:4px;}
+      .header-sub{font-size:10px;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+      .header-title{font-size:18px;font-weight:bold;text-transform:uppercase;margin:4px 0;color:white;}
+      .header-info{font-size:11px;color:#cbd5e1;margin-top:4px;}
+      table{width:100%;border-collapse:collapse;font-size:10px;}
+      th{background:#1e3a5f;color:white;padding:7px 4px;text-align:center;font-size:9px;font-weight:bold;}
+      td{border:1px solid #d1d5db;padding:7px 5px;text-align:center;vertical-align:middle;min-height:32px;}
+      td.time{font-weight:bold;font-size:9px;color:#1e3a5f;white-space:nowrap;width:76px;background:#f8fafc;text-align:left;padding-left:6px;}
+      td.time span{display:block;font-weight:normal;font-size:8px;color:#94a3b8;margin-top:1px;}
+      .special{font-weight:bold;font-size:9px;text-transform:uppercase;}
+      .reg{color:#2563eb;background:#eff6ff;}
+      .brk{color:white;background:#1e3a5f;}
+      .lnc{color:#92400e;background:#fef3c7;}
+      .dep{color:white;background:#1e3a5f;}
+      .subj{font-weight:bold;text-transform:uppercase;font-size:9px;color:#1e293b;}
+    `;
+    const styleEl = document.createElement("style");
+    styleEl.textContent = GRADE_CSS;
+    document.head.appendChild(styleEl);
+    const container = document.createElement("div");
+    container.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1400px;background:white;z-index:-1;";
+    document.body.appendChild(container);
+    try {
+      const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
+      const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
+      for (const grade of secondaryGrades) {
+        const { asgns, uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
+        const shortRm = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
+        const rows = uniqueT.map(time => {
+          const blk = blockAtA(time);
+          const btype = blk?.blockType ?? "CLASS";
+          const endT = blk?.endTime ?? "";
+          const tc = `<td class="time">${fmt(time)}<br><span>- ${fmt(endT)}</span></td>`;
+          if (btype === "REGISTRATION") return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special reg">REGISTRATION</td>`).join("")}</tr>`;
+          if (btype === "BREAK")        return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special brk">BREAK</td>`).join("")}</tr>`;
+          const hasFri = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
+          if (btype === "LUNCH")        return `<tr>${tc}${[1,2,3,4,5].map((_,di)=>di===4&&!hasFri?`<td class="special dep">DEPARTURE</td>`:`<td class="special lnc">LUNCH</td>`).join("")}</tr>`;
+          if (btype === "DISMISSAL")    return `<tr>${tc}${[1,2,3,4,5].map(()=>`<td class="special dep">DEPARTURE</td>`).join("")}</tr>`;
+          return `<tr>${tc}${[1,2,3,4,5].map((_,di)=>{ const slot=getSlotA(di+1,time); return slot.length?`<td>${slot.map(a=>`<div class="subj">${displaySubjectName(a.subject.name)}</div>`).join("")}</td>`:`<td></td>`; }).join("")}</tr>`;
+        }).join("");
+        container.innerHTML = `<div class="page"><div class="header"><div class="header-sub">2026 CLASS SCHEDULE</div><div class="header-title">${schoolLevel} · ${gradeTitle}</div>${hrTeacher?`<div class="header-info"><span style="color:#93c5fd;font-weight:bold;">HR:</span> ${hrTeacher}${hrRoom?` — ${shortRm(hrRoom)}`:""}</div>`:""}</div><table><thead><tr><th>TIME</th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
+        await new Promise(r => setTimeout(r, 120));
+        const pageEl = container.querySelector(".page") as HTMLElement;
+        if (!pageEl) continue;
+        const dataUrl = await toPng(pageEl, { backgroundColor: "white", pixelRatio: 2 });
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = `Grade_${grade.name}${grade.section??""}_Schedule_2026.png`;
+        a.click();
+        await new Promise(r => setTimeout(r, 400));
+      }
+      toast.success("Images exported!");
+    } catch {
+      toast.error("Error exporting images");
+    } finally {
+      document.body.removeChild(container);
+      document.head.removeChild(styleEl);
+      setExportingImages(false);
+    }
   };
 
   // ── Excel export ─────────────────────────────────────────────────
@@ -709,6 +778,9 @@ export default function GradeSchedulePage() {
           </Button>
           <Button variant="outline" size="sm" className="gap-1 border-indigo-500 text-indigo-700 hover:bg-indigo-50" onClick={exportAllWord} disabled={exportingWord || grades.length === 0}>
             <FileText className="w-4 h-4" /> {exportingWord ? "Generando..." : "Word"}
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1 border-rose-500 text-rose-700 hover:bg-rose-50" onClick={exportAllGradeImages} disabled={exportingImages || grades.length === 0}>
+            <Image className="w-4 h-4" /> {exportingImages ? "Generando..." : "IMG"}
           </Button>
         </div>
       </div>

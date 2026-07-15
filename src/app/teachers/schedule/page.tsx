@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { ScheduleGrid } from "@/components/ScheduleGrid";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Printer, Download } from "lucide-react";
+import { Loader2, Printer, Download, Image } from "lucide-react";
+import { toPng } from "html-to-image";
 import { toast } from "sonner";
 
 interface Teacher { id: string; name: string; level: string; }
@@ -315,6 +316,7 @@ export default function TeacherSchedulePage() {
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
+  const [exportingImages, setExportingImages] = useState(false);
   const [teacherGroups, setTeacherGroups] = useState<Record<string, "MIDDLE" | "HIGH" | "MIXED" | "OTHER">>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSubject, setShowSubject] = useState(false);
@@ -354,6 +356,47 @@ export default function TeacherSchedulePage() {
       .then(setSupervisionDuties)
       .catch(() => {});
   }, [selectedId]);
+
+  const exportAllImages = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
+    setExportingImages(true);
+    const styleEl = document.createElement("style");
+    styleEl.textContent = PRINT_CSS;
+    document.head.appendChild(styleEl);
+    const container = document.createElement("div");
+    container.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1400px;background:white;z-index:-1;";
+    document.body.appendChild(container);
+    try {
+      const allDutiesRaw = await fetch("/api/supervision-duties").then(r => r.json()).catch(() => []);
+      const allDuties: SupervisionDuty[] = Array.isArray(allDutiesRaw) ? allDutiesRaw : [];
+      const sorted = [...teachers].sort((a, b) => a.name.localeCompare(b.name));
+      for (const teacher of sorted) {
+        const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
+        if (!asgns.length) continue;
+        const group = getTeacherGroup(asgns);
+        if (group === "OTHER") continue;
+        if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") continue;
+        if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") continue;
+        const duties = allDuties.filter(d => d.teacher?.id === teacher.id);
+        container.innerHTML = buildTeacherPage(teacher, asgns, timeBlocks, showSubject, duties);
+        await new Promise(r => setTimeout(r, 120));
+        const pageEl = container.querySelector(".page") as HTMLElement;
+        if (!pageEl) continue;
+        const dataUrl = await toPng(pageEl, { backgroundColor: "white", pixelRatio: 2 });
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = `${teacher.name.replace(/\s+/g, "_")}_Schedule_2026.png`;
+        a.click();
+        await new Promise(r => setTimeout(r, 400));
+      }
+      toast.success("Images exported!");
+    } catch (e) {
+      toast.error("Error exporting images");
+    } finally {
+      document.body.removeChild(container);
+      document.head.removeChild(styleEl);
+      setExportingImages(false);
+    }
+  };
 
   const exportAll = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
     setExporting(true);
@@ -476,6 +519,21 @@ export default function TeacherSchedulePage() {
               </Button>
               <Button onClick={() => exportAll("ALL")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
                 {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                All Secondary
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs font-semibold text-slate-400 self-center">IMG:</span>
+              <Button onClick={() => exportAllImages("MIDDLE")} disabled={exporting || exportingWord || exportingImages} variant="outline" className="gap-2 border-lime-500 text-lime-700 hover:bg-lime-50">
+                {exportingImages ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+                Middle
+              </Button>
+              <Button onClick={() => exportAllImages("HIGH")} disabled={exporting || exportingWord || exportingImages} variant="outline" className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50">
+                {exportingImages ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+                High
+              </Button>
+              <Button onClick={() => exportAllImages("ALL")} disabled={exporting || exportingWord || exportingImages} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
+                {exportingImages ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
                 All Secondary
               </Button>
             </div>
