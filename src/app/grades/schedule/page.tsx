@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Printer, ChevronLeft, ChevronRight, BookOpen, FileText, Sheet, Plus, Pencil, GripVertical, Image } from "lucide-react";
 import { toPng } from "html-to-image";
+import JSZip from "jszip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -306,6 +307,8 @@ export default function GradeSchedulePage() {
     container.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1400px;background:white;z-index:-1;";
     document.body.appendChild(container);
     try {
+      const zip = new JSZip();
+      let count = 0;
       const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
       const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
       for (const grade of secondaryGrades) {
@@ -328,13 +331,15 @@ export default function GradeSchedulePage() {
         const pageEl = container.querySelector(".page") as HTMLElement;
         if (!pageEl) continue;
         const dataUrl = await toPng(pageEl, { backgroundColor: "white", pixelRatio: 2 });
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = `Grade_${grade.name}${grade.section??""}_Schedule_2026.png`;
-        a.click();
-        await new Promise(r => setTimeout(r, 400));
+        const base64 = dataUrl.split(",")[1];
+        zip.file(`Grade_${grade.name}${grade.section??""}_Schedule_2026.png`, base64, { base64: true });
+        count++;
+        await new Promise(r => setTimeout(r, 120));
       }
-      toast.success("Images exported!");
+      if (count === 0) { toast.error("No grades found"); return; }
+      const blob = await zip.generateAsync({ type: "blob" });
+      saveAs(blob, "Grade_Schedules_2026.zip");
+      toast.success(`ZIP con ${count} imágenes descargado`);
     } catch {
       toast.error("Error exporting images");
     } finally {

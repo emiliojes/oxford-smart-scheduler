@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, Printer, Download, Image } from "lucide-react";
 import { toPng } from "html-to-image";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import { toast } from "sonner";
 
 interface Teacher { id: string; name: string; level: string; }
@@ -366,9 +368,11 @@ export default function TeacherSchedulePage() {
     container.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1800px;background:white;z-index:-1;";
     document.body.appendChild(container);
     try {
+      const zip = new JSZip();
       const allDutiesRaw = await fetch("/api/supervision-duties").then(r => r.json()).catch(() => []);
       const allDuties: SupervisionDuty[] = Array.isArray(allDutiesRaw) ? allDutiesRaw : [];
       const sorted = [...teachers].sort((a, b) => a.name.localeCompare(b.name));
+      let count = 0;
       for (const teacher of sorted) {
         const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
         if (!asgns.length) continue;
@@ -382,14 +386,16 @@ export default function TeacherSchedulePage() {
         const pageEl = container.querySelector(".page") as HTMLElement;
         if (!pageEl) continue;
         const dataUrl = await toPng(pageEl, { backgroundColor: "white", pixelRatio: 2 });
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = `${teacher.name.replace(/\s+/g, "_")}_Schedule_2026.png`;
-        a.click();
-        await new Promise(r => setTimeout(r, 400));
+        const base64 = dataUrl.split(",")[1];
+        zip.file(`${teacher.name.replace(/\s+/g, "_")}_Schedule_2026.png`, base64, { base64: true });
+        count++;
       }
-      toast.success("Images exported!");
-    } catch (e) {
+      if (count === 0) { toast.error("No teachers found"); return; }
+      const blob = await zip.generateAsync({ type: "blob" });
+      const label = filter === "MIDDLE" ? "Middle" : filter === "HIGH" ? "High" : "All";
+      saveAs(blob, `Teacher_Schedules_${label}_2026.zip`);
+      toast.success(`ZIP con ${count} imágenes descargado`);
+    } catch {
       toast.error("Error exporting images");
     } finally {
       document.body.removeChild(container);
