@@ -76,7 +76,7 @@ export default function SupervisionPage() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
-  const [tab, setTab] = useState<"middle" | "high" | "break">("middle");
+  const [tab, setTab] = useState<"overview" | "middle" | "high" | "break">("overview");
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -180,6 +180,47 @@ export default function SupervisionPage() {
   const highLunchDuties   = duties.filter(d => d.startTime >= "12:00");
   const breakDuties       = duties.filter(d => d.startTime < "11:00");
 
+  const DAYS_LABELS = ["Mon","Tue","Wed","Thu","Fri"];
+
+  function OverviewGrid({ list, title, color }: { list: Duty[]; title: string; color: string }) {
+    const areas = Array.from(new Set(list.map(d => d.area))).sort();
+    if (!areas.length) return null;
+    return (
+      <div className="mb-6">
+        <h3 className={`text-xs font-bold uppercase tracking-widest mb-2 ${color}`}>{title}</h3>
+        <div className="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-800 text-white">
+                <th className="text-left px-3 py-2 font-semibold w-48">Area</th>
+                {DAYS_LABELS.map(d => <th key={d} className="px-3 py-2 font-semibold text-center w-28">{d}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {areas.map((area, ri) => (
+                <tr key={area} className={ri % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                  <td className="px-3 py-2 font-medium text-slate-700 border-r border-slate-100 text-xs">{area}</td>
+                  {[1,2,3,4,5].map(dayNum => {
+                    const match = list.filter(d => d.area === area && (DAY_PATTERN_DAYS[d.dayPattern] ?? []).includes(dayNum));
+                    return (
+                      <td key={dayNum} className="px-2 py-1.5 text-center border-r border-slate-100 last:border-0">
+                        {match.length === 0 ? <span className="text-slate-300">—</span> : match.map(d => (
+                          d.isClosed
+                            ? <span key={d.id} className="inline-block bg-red-100 text-red-600 text-xs font-semibold px-1.5 py-0.5 rounded">Closed</span>
+                            : <span key={d.id} className="block text-xs font-medium text-slate-800 leading-tight">{d.teacher?.name ?? "—"}</span>
+                        ))}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
   function groupByArea(list: Duty[]) {
     const map = new Map<string, Duty[]>();
     for (const d of list) {
@@ -277,11 +318,11 @@ export default function SupervisionPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-slate-100 rounded-lg p-1 w-fit">
-        {(["middle", "high", "break"] as const).map(t => (
+      <div className="flex gap-1 mb-4 bg-slate-100 rounded-lg p-1 w-fit flex-wrap">
+        {(["overview", "middle", "high", "break"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === t ? "bg-white shadow text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>
-            {t === "middle" ? "🟢 Middle Lunch  11:30" : t === "high" ? "🔵 High Lunch  12:45" : "☕ Morning Break"}
+            {t === "overview" ? "📋 Overview" : t === "middle" ? "🟢 Middle Lunch  11:30" : t === "high" ? "🔵 High Lunch  12:45" : "☕ Morning Break"}
           </button>
         ))}
       </div>
@@ -290,6 +331,12 @@ export default function SupervisionPage() {
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        </div>
+      ) : tab === "overview" ? (
+        <div>
+          <OverviewGrid list={breakDuties}       title="☕ Morning Break" color="text-amber-700" />
+          <OverviewGrid list={middleLunchDuties} title="🟢 Middle School Lunch — 11:30" color="text-green-700" />
+          <OverviewGrid list={highLunchDuties}   title="🔵 High School Lunch — 12:45" color="text-blue-700" />
         </div>
       ) : (
         <DutyList list={tab === "middle" ? middleLunchDuties : tab === "high" ? highLunchDuties : breakDuties} />
