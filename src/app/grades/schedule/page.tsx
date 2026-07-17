@@ -16,7 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { AssignmentForm } from "@/components/AssignmentForm";
 import { saveAs } from "file-saver";
-import * as XLSX from "xlsx";
 
 interface Grade {
   id: string;
@@ -353,34 +352,101 @@ export default function GradeSchedulePage() {
   const exportAllExcel = async () => {
     setExportingExcel(true);
     try {
+      const ExcelJS = (await import("exceljs")).default;
       const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
-      const wb = XLSX.utils.book_new();
+      const wb = new ExcelJS.Workbook();
+      wb.creator = "Oxford Smart Scheduler 2026";
+
+      const mkFill = (hex: string) => ({ type: "pattern" as const, pattern: "solid" as const, fgColor: { argb: "FF" + hex } });
+      const thinB = { style: "thin" as const, color: { argb: "FFd1d5db" } };
+      const borders = { top: thinB, left: thinB, bottom: thinB, right: thinB };
+
       const secondaryGrades = grades.filter(g => g.level === "SECONDARY" || g.level === "LOW_SECONDARY");
       for (const grade of secondaryGrades) {
         const { asgns, uniqueT, hrTeacher, hrRoom, schoolLevel, gradeTitle, fmt, getSlotA, blockAtA } = await buildGradeData(grade);
         const shortRoom = (n: string) => n.replace(/\s*\(.*?\)\s*/g,"").trim();
-        const header1 = [`2026 CLASS SCHEDULE — ${schoolLevel} · ${gradeTitle}${hrTeacher ? ` | ${hrTeacher}${hrRoom ? ` — ${shortRoom(hrRoom)}` : ""}` : ""}`, "","","","",""];
-        const header2 = ["TIME", ...DAYS];
-        const dataRows = uniqueT.map(time => {
+        const sheetName = `${grade.name}${grade.section ?? ""}`.replace(/[^a-zA-Z0-9]/g,"").slice(0,31);
+        const ws = wb.addWorksheet(sheetName);
+        ws.columns = [
+          { key: "time", width: 21 },
+          { key: "mon",  width: 16 },
+          { key: "tue",  width: 16 },
+          { key: "wed",  width: 16 },
+          { key: "thu",  width: 16 },
+          { key: "fri",  width: 16 },
+        ];
+
+        // ── Title row ──
+        ws.mergeCells("A1:F1");
+        const t1 = ws.getCell("A1");
+        t1.value = `2026 · ${schoolLevel.toUpperCase()} CLASS SCHEDULE`;
+        t1.font = { bold: true, color: { argb: "FF93c5fd" }, size: 10, name: "Arial" };
+        t1.fill = mkFill("1e3a5f");
+        t1.alignment = { horizontal: "center", vertical: "middle" };
+        ws.getRow(1).height = 16;
+
+        // ── Grade name row ──
+        ws.mergeCells("A2:F2");
+        const t2 = ws.getCell("A2");
+        const gradeLabel = `${gradeTitle.toUpperCase()}${hrTeacher ? `  ·  ${hrTeacher.toUpperCase()}${hrRoom ? ` — ${shortRoom(hrRoom)}` : ""}` : ""}`;
+        t2.value = gradeLabel;
+        t2.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 14, name: "Arial" };
+        t2.fill = mkFill("1e3a5f");
+        t2.alignment = { horizontal: "center", vertical: "middle" };
+        ws.getRow(2).height = 26;
+
+        // ── Column headers ──
+        const hdrRow = ws.addRow(["TIME", ...DAYS]);
+        hdrRow.height = 18;
+        hdrRow.eachCell(cell => {
+          cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10, name: "Arial" };
+          cell.fill = mkFill("1e3a5f");
+          cell.alignment = { horizontal: "center", vertical: "middle" };
+          cell.border = borders;
+        });
+
+        // ── Data rows ──
+        for (const time of uniqueT) {
           const blk = blockAtA(time);
           const btype = blk?.blockType ?? "CLASS";
           const endT = blk?.endTime ?? "";
-          const timeLabel = `${fmt(time)} - ${fmt(endT)}`;
-          if (btype === "REGISTRATION") return [timeLabel, "REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION"];
-          if (btype === "BREAK")        return [timeLabel, "BREAK","BREAK","BREAK","BREAK","BREAK"];
-          const hasFriClassAfterExcel = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
-          if (btype === "LUNCH")        return [timeLabel, "LUNCH","LUNCH","LUNCH","LUNCH", hasFriClassAfterExcel ? "LUNCH" : "DEPARTURE"];
-          if (btype === "DISMISSAL")    return [timeLabel, "DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE"];
-          return [timeLabel, ...DAYS.map((_,di) => getSlotA(di+1, time).map(a => displaySubjectName(a.subject.name)).join(" / ") || "")];
-        });
-        const ws = XLSX.utils.aoa_to_sheet([header1, header2, ...dataRows]);
-        ws["!merges"] = [{ s:{r:0,c:0}, e:{r:0,c:5} }];
-        ws["!cols"] = [{wch:18},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16}];
-        const sheetName = `${grade.name}${grade.section ?? ""}`.replace(/[^a-zA-Z0-9]/g,"").slice(0,31);
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+          const timeLabel = `${fmt(time)} — ${fmt(endT)}`;
+          type RowStyle = { fill?: ReturnType<typeof mkFill>; fontColor: string; bold: boolean; };
+          let vals: string[];
+          let style: RowStyle;
+
+          if (btype === "REGISTRATION") {
+            vals = [timeLabel, "REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION"];
+            style = { fill: mkFill("eff6ff"), fontColor: "FF2563eb", bold: true };
+          } else if (btype === "BREAK") {
+            vals = [timeLabel, "BREAK","BREAK","BREAK","BREAK","BREAK"];
+            style = { fill: mkFill("1e3a5f"), fontColor: "FFFFFFFF", bold: true };
+          } else if (btype === "LUNCH") {
+            const hasFri = asgns.some(a => a.timeBlock.dayOfWeek === 5 && a.timeBlock.startTime > time && a.timeBlock.blockType === "CLASS");
+            vals = [timeLabel, "LUNCH","LUNCH","LUNCH","LUNCH", hasFri ? "LUNCH" : "DEPARTURE"];
+            style = { fill: mkFill("fef3c7"), fontColor: "FF92400e", bold: true };
+          } else if (btype === "DISMISSAL") {
+            vals = [timeLabel, "DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE"];
+            style = { fill: mkFill("1e3a5f"), fontColor: "FFFFFFFF", bold: true };
+          } else {
+            vals = [timeLabel, ...DAYS.map((_,di) => getSlotA(di+1, time).map(a => displaySubjectName(a.subject.name)).join(" / ") || "")];
+            style = { fontColor: "FF1e293b", bold: false };
+          }
+
+          const row = ws.addRow(vals);
+          row.height = 18;
+          row.eachCell((cell, col) => {
+            if (style.fill) cell.fill = style.fill;
+            cell.font = { bold: col === 1 ? true : style.bold, color: { argb: style.fontColor }, size: 10, name: "Arial" };
+            cell.alignment = { horizontal: col === 1 ? "left" : "center", vertical: "middle" };
+            cell.border = borders;
+          });
+        }
+        ws.addRow([]);
       }
-      const buf = XLSX.write(wb, { bookType:"xlsx", type:"array" });
-      saveAs(new Blob([buf], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "horarios-secundaria-2026.xlsx");
+
+      const buf = await wb.xlsx.writeBuffer();
+      saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "horarios-secundaria-2026.xlsx");
     } finally { setExportingExcel(false); }
   };
 
