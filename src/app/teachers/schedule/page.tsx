@@ -397,12 +397,12 @@ export default function TeacherSchedulePage() {
 
         const ws = wb.addWorksheet(teacher.name.replace(/[^\w ]/g, "").slice(0, 31));
         ws.columns = [
-          { key: "time", width: 15 },
-          { key: "mon",  width: 12 },
-          { key: "tue",  width: 12 },
-          { key: "wed",  width: 12 },
-          { key: "thu",  width: 12 },
-          { key: "fri",  width: 12 },
+          { key: "time", width: 21 },
+          { key: "mon",  width: 14 },
+          { key: "tue",  width: 14 },
+          { key: "wed",  width: 14 },
+          { key: "thu",  width: 14 },
+          { key: "fri",  width: 14 },
         ];
 
         // ── Title row ──
