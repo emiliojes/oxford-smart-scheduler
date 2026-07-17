@@ -8,7 +8,6 @@ import { Loader2, Printer, Download, Image } from "lucide-react";
 import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
 interface Teacher { id: string; name: string; level: string; }
@@ -364,6 +363,7 @@ export default function TeacherSchedulePage() {
   const exportAllExcel = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
     setExportingExcel(true);
     try {
+      const ExcelJS = (await import("exceljs")).default;
       const allDutiesRaw = await fetch("/api/supervision-duties").then(r => r.json()).catch(() => []);
       const allDuties: SupervisionDuty[] = Array.isArray(allDutiesRaw) ? allDutiesRaw : [];
       const pages: { teacher: Teacher; asgns: Assignment[]; duties: SupervisionDuty[] }[] = [];
@@ -379,37 +379,110 @@ export default function TeacherSchedulePage() {
       }));
       if (!pages.length) { toast.error("No teachers found"); return; }
       const sorted = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
-      const wb = XLSX.utils.book_new();
+
+      const wb = new ExcelJS.Workbook();
+      wb.creator = "Oxford Smart Scheduler 2026";
+
+      const mkFill = (hex: string) => ({ type: "pattern" as const, pattern: "solid" as const, fgColor: { argb: "FF" + hex } });
+      const thinB = { style: "thin" as const, color: { argb: "FFd1d5db" } };
+      const borders = { top: thinB, left: thinB, bottom: thinB, right: thinB };
+
       for (const { teacher, asgns, duties } of sorted) {
+        const group = getTeacherGroup(asgns);
+        const grpLabel = group === "MIDDLE" ? "MIDDLE SCHOOL" : group === "HIGH" ? "HIGH SCHOOL" : "MIDDLE & HIGH SCHOOL";
         const { withLunch } = buildTeacherSchedule(asgns, timeBlocks);
         const seenStart = new Set<string>();
         const sortedTimes = [...new Map(withLunch.map(tb => [tb.startTime, tb])).values()]
           .sort((a, b) => a.startTime.localeCompare(b.startTime));
-        const rows: string[][] = [["TIME","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]];
+
+        const ws = wb.addWorksheet(teacher.name.replace(/[^\w ]/g, "").slice(0, 31));
+        ws.columns = [
+          { key: "time", width: 22 },
+          { key: "mon",  width: 20 },
+          { key: "tue",  width: 20 },
+          { key: "wed",  width: 20 },
+          { key: "thu",  width: 20 },
+          { key: "fri",  width: 20 },
+        ];
+
+        // ── Title row ──
+        ws.mergeCells("A1:F1");
+        const t1 = ws.getCell("A1");
+        t1.value = `2026 · ${grpLabel} TEACHER SCHEDULE`;
+        t1.font = { bold: true, color: { argb: "FF93c5fd" }, size: 10, name: "Arial" };
+        t1.fill = mkFill("1e3a5f");
+        t1.alignment = { horizontal: "center", vertical: "middle" };
+        ws.getRow(1).height = 16;
+
+        // ── Teacher name row ──
+        ws.mergeCells("A2:F2");
+        const t2 = ws.getCell("A2");
+        t2.value = teacher.name.toUpperCase();
+        t2.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 16, name: "Arial" };
+        t2.fill = mkFill("1e3a5f");
+        t2.alignment = { horizontal: "center", vertical: "middle" };
+        ws.getRow(2).height = 28;
+
+        // ── Column headers ──
+        const hdrRow = ws.addRow(["TIME", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]);
+        hdrRow.height = 18;
+        hdrRow.eachCell(cell => {
+          cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10, name: "Arial" };
+          cell.fill = mkFill("1e3a5f");
+          cell.alignment = { horizontal: "center", vertical: "middle" };
+          cell.border = borders;
+        });
+
+        // ── Data rows ──
         for (const tb of sortedTimes) {
           if (seenStart.has(tb.startTime)) continue;
           seenStart.add(tb.startTime);
-          const timeLabel = `${fmt(tb.startTime)} - ${fmt(tb.endTime)}`;
-          if (tb.blockType === "REGISTRATION") { rows.push([timeLabel,"REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION"]); continue; }
-          if (tb.blockType === "BREAK")        { rows.push([timeLabel,"BREAK","BREAK","BREAK","BREAK","BREAK"]); continue; }
-          if (tb.blockType === "LUNCH")        { rows.push([timeLabel,"LUNCH","LUNCH","LUNCH","LUNCH","LUNCH"]); continue; }
-          if (tb.blockType === "DISMISSAL")    { rows.push([timeLabel,"DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE"]); continue; }
-          const row = [timeLabel];
-          for (let d = 1; d <= 5; d++) {
-            const slot = asgns.filter(a => a.timeBlock.dayOfWeek === d && a.timeBlock.startTime === tb.startTime);
-            const cls = slot.map(a => `${a.grade?.name ?? ""}${a.grade?.section ?? ""}${showSubject ? " " + displaySubj(a.subject.name) : ""}`).join(" / ");
-            const dutyAreas = duties.filter(du => (DAY_PATTERN_DAYS[du.dayPattern]??[]).includes(d) && du.startTime === tb.startTime).map(du => `⚠ ${du.area}`);
-            row.push([...(cls ? [cls] : []), ...dutyAreas].join(" | "));
+          const timeLabel = `${fmt(tb.startTime)} — ${fmt(tb.endTime)}`;
+          type RowStyle = { fill?: ReturnType<typeof mkFill>; fontColor: string; bold: boolean; };
+          let vals: string[];
+          let style: RowStyle;
+
+          if (tb.blockType === "REGISTRATION") {
+            vals = [timeLabel, "REGISTRATION", "REGISTRATION", "REGISTRATION", "REGISTRATION", "REGISTRATION"];
+            style = { fill: mkFill("eff6ff"), fontColor: "FF2563eb", bold: true };
+          } else if (tb.blockType === "BREAK") {
+            vals = [timeLabel, "BREAK", "BREAK", "BREAK", "BREAK", "BREAK"];
+            style = { fill: mkFill("1e3a5f"), fontColor: "FFFFFFFF", bold: true };
+          } else if (tb.blockType === "LUNCH") {
+            vals = [timeLabel, "LUNCH", "LUNCH", "LUNCH", "LUNCH", "LUNCH"];
+            style = { fill: mkFill("fef3c7"), fontColor: "FF92400e", bold: true };
+          } else if (tb.blockType === "DISMISSAL") {
+            vals = [timeLabel, "DEPARTURE", "DEPARTURE", "DEPARTURE", "DEPARTURE", "DEPARTURE"];
+            style = { fill: mkFill("1e3a5f"), fontColor: "FFFFFFFF", bold: true };
+          } else {
+            const cells: string[] = [timeLabel];
+            for (let d = 1; d <= 5; d++) {
+              const slot = asgns.filter(a => a.timeBlock.dayOfWeek === d && a.timeBlock.startTime === tb.startTime);
+              const cls = slot.map(a => `${a.grade?.name ?? ""}${a.grade?.section ?? ""}${showSubject ? " " + displaySubj(a.subject.name) : ""}`).join(" / ");
+              const dutyAreas = duties.filter(du => (DAY_PATTERN_DAYS[du.dayPattern]??[]).includes(d) && du.startTime === tb.startTime).map(du => `⚠ ${du.area}`);
+              cells.push([...(cls ? [cls] : []), ...dutyAreas].join(" | "));
+            }
+            vals = cells;
+            style = { fontColor: "FF1e293b", bold: false };
           }
-          rows.push(row);
+
+          const row = ws.addRow(vals);
+          row.height = 18;
+          row.eachCell((cell, col) => {
+            if (style.fill) cell.fill = style.fill;
+            cell.font = { bold: col === 1 ? true : style.bold, color: { argb: style.fontColor }, size: 10, name: "Arial" };
+            cell.alignment = { horizontal: col === 1 ? "left" : "center", vertical: "middle" };
+            cell.border = borders;
+          });
         }
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws["!cols"] = [{wch:18},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16}];
-        XLSX.utils.book_append_sheet(wb, ws, teacher.name.replace(/[^\w ]/g,"").slice(0,31));
+
+        // ── Empty spacer ──
+        ws.addRow([]);
       }
+
       const label = filter === "MIDDLE" ? "Middle" : filter === "HIGH" ? "High" : "All";
-      const buf = XLSX.write(wb, { bookType:"xlsx", type:"array" });
-      saveAs(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}), `Teacher_Schedules_${label}_2026.xlsx`);
+      const buf = await wb.xlsx.writeBuffer();
+      saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `Teacher_Schedules_${label}_2026.xlsx`);
       toast.success("Excel descargado!");
     } finally {
       setExportingExcel(false);
