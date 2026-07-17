@@ -8,6 +8,7 @@ import { Loader2, Printer, Download, Image } from "lucide-react";
 import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
 interface Teacher { id: string; name: string; level: string; }
@@ -319,6 +320,7 @@ export default function TeacherSchedulePage() {
   const [exporting, setExporting] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
   const [exportingImages, setExportingImages] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
   const [teacherGroups, setTeacherGroups] = useState<Record<string, "MIDDLE" | "HIGH" | "MIXED" | "OTHER">>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSubject, setShowSubject] = useState(false);
@@ -358,6 +360,61 @@ export default function TeacherSchedulePage() {
       .then(setSupervisionDuties)
       .catch(() => {});
   }, [selectedId]);
+
+  const exportAllExcel = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
+    setExportingExcel(true);
+    try {
+      const allDutiesRaw = await fetch("/api/supervision-duties").then(r => r.json()).catch(() => []);
+      const allDuties: SupervisionDuty[] = Array.isArray(allDutiesRaw) ? allDutiesRaw : [];
+      const pages: { teacher: Teacher; asgns: Assignment[]; duties: SupervisionDuty[] }[] = [];
+      await Promise.all(teachers.map(async (teacher) => {
+        const asgns: Assignment[] = await fetch(`/api/assignments?teacherId=${teacher.id}`).then(r => r.json());
+        if (!asgns.length) return;
+        const group = getTeacherGroup(asgns);
+        if (group === "OTHER") return;
+        if (filter === "MIDDLE" && group !== "MIDDLE" && group !== "MIXED") return;
+        if (filter === "HIGH" && group !== "HIGH" && group !== "MIXED") return;
+        const duties = allDuties.filter(d => d.teacher?.id === teacher.id);
+        pages.push({ teacher, asgns, duties });
+      }));
+      if (!pages.length) { toast.error("No teachers found"); return; }
+      const sorted = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
+      const wb = XLSX.utils.book_new();
+      for (const { teacher, asgns, duties } of sorted) {
+        const schedule = buildTeacherSchedule(asgns, timeBlocks);
+        const seenStart = new Set<string>();
+        const sortedTimes = [...new Map(schedule.map(tb => [tb.startTime, tb])).values()]
+          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+        const rows: string[][] = [["TIME","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]];
+        for (const tb of sortedTimes) {
+          if (seenStart.has(tb.startTime)) continue;
+          seenStart.add(tb.startTime);
+          const timeLabel = `${fmt(tb.startTime)} - ${fmt(tb.endTime)}`;
+          if (tb.blockType === "REGISTRATION") { rows.push([timeLabel,"REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION","REGISTRATION"]); continue; }
+          if (tb.blockType === "BREAK")        { rows.push([timeLabel,"BREAK","BREAK","BREAK","BREAK","BREAK"]); continue; }
+          if (tb.blockType === "LUNCH")        { rows.push([timeLabel,"LUNCH","LUNCH","LUNCH","LUNCH","LUNCH"]); continue; }
+          if (tb.blockType === "DISMISSAL")    { rows.push([timeLabel,"DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE","DEPARTURE"]); continue; }
+          const row = [timeLabel];
+          for (let d = 1; d <= 5; d++) {
+            const slot = asgns.filter(a => a.timeBlock.dayOfWeek === d && a.timeBlock.startTime === tb.startTime);
+            const cls = slot.map(a => `${a.grade?.name ?? ""}${a.grade?.section ?? ""}${showSubject ? " " + displaySubj(a.subject.name) : ""}`).join(" / ");
+            const dutyAreas = duties.filter(du => (DAY_PATTERN_DAYS[du.dayPattern]??[]).includes(d) && du.startTime === tb.startTime).map(du => `⚠ ${du.area}`);
+            row.push([...(cls ? [cls] : []), ...dutyAreas].join(" | "));
+          }
+          rows.push(row);
+        }
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws["!cols"] = [{wch:18},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16}];
+        XLSX.utils.book_append_sheet(wb, ws, teacher.name.replace(/[^\w ]/g,"").slice(0,31));
+      }
+      const label = filter === "MIDDLE" ? "Middle" : filter === "HIGH" ? "High" : "All";
+      const buf = XLSX.write(wb, { bookType:"xlsx", type:"array" });
+      saveAs(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}), `Teacher_Schedules_${label}_2026.xlsx`);
+      toast.success("Excel descargado!");
+    } finally {
+      setExportingExcel(false);
+    }
+  };
 
   const exportAllImages = async (filter: "ALL" | "MIDDLE" | "HIGH") => {
     setExportingImages(true);
@@ -525,6 +582,21 @@ export default function TeacherSchedulePage() {
               </Button>
               <Button onClick={() => exportAll("ALL")} disabled={exporting || exportingWord} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
                 {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                All Secondary
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs font-semibold text-slate-400 self-center">EXCEL:</span>
+              <Button onClick={() => exportAllExcel("MIDDLE")} disabled={exporting || exportingWord || exportingImages || exportingExcel} variant="outline" className="gap-2 border-lime-500 text-lime-700 hover:bg-lime-50">
+                {exportingExcel ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                Middle
+              </Button>
+              <Button onClick={() => exportAllExcel("HIGH")} disabled={exporting || exportingWord || exportingImages || exportingExcel} variant="outline" className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50">
+                {exportingExcel ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                High
+              </Button>
+              <Button onClick={() => exportAllExcel("ALL")} disabled={exporting || exportingWord || exportingImages || exportingExcel} variant="outline" className="gap-2 border-slate-500 text-slate-700 hover:bg-slate-50">
+                {exportingExcel ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                 All Secondary
               </Button>
             </div>
