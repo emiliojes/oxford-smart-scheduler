@@ -381,9 +381,9 @@ export default function TeacherSchedulePage() {
       const sorted = pages.sort((a, b) => a.teacher.name.localeCompare(b.teacher.name));
       const wb = XLSX.utils.book_new();
       for (const { teacher, asgns, duties } of sorted) {
-        const schedule = buildTeacherSchedule(asgns, timeBlocks);
+        const { withLunch } = buildTeacherSchedule(asgns, timeBlocks);
         const seenStart = new Set<string>();
-        const sortedTimes = [...new Map(schedule.map(tb => [tb.startTime, tb])).values()]
+        const sortedTimes = [...new Map(withLunch.map(tb => [tb.startTime, tb])).values()]
           .sort((a, b) => a.startTime.localeCompare(b.startTime));
         const rows: string[][] = [["TIME","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]];
         for (const tb of sortedTimes) {
