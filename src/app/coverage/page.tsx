@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, UserX, Printer, Search, StickyNote } from "lucide-react";
+import { Loader2, UserX, Printer, Search, StickyNote, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -74,6 +74,7 @@ body{background:white;padding:14px;}
 .slip-grade{font-weight:bold;color:#1e3a5f;min-width:52px;}
 .slip-subj{color:#1e293b;font-weight:500;flex:1;}
 .slip-room{font-size:9.5px;color:#64748b;white-space:nowrap;}
+.slip-absent{font-size:9px;color:#94a3b8;font-style:italic;}
 .sig-area{border-top:1.5px dashed #94a3b8;margin-top:10px;padding-top:8px;display:flex;justify-content:space-between;}
 .sig-line{border-top:1px solid #374151;width:108px;text-align:center;padding-top:4px;font-weight:bold;color:#374151;font-size:9px;text-transform:uppercase;letter-spacing:.5px;}
 @media print{body{padding:8px;}@page{margin:0.8cm;size:A4;}}
@@ -85,16 +86,15 @@ export default function CoveragePage() {
   const [loadingInit, setLoadingInit] = useState(true);
   const [searching, setSearching] = useState(false);
 
-  const [absentId, setAbsentId] = useState("");
+  // Multiple absent teachers support
+  const [absentIds, setAbsentIds] = useState<string[]>([""]);  
   const [selectedDay, setSelectedDay] = useState<number>(
-    () => {
-      const d = new Date().getDay();
-      return d >= 1 && d <= 5 ? d : 1;
-    }
+    () => { const d = new Date().getDay(); return d >= 1 && d <= 5 ? d : 1; }
   );
 
   const [absentPeriods, setAbsentPeriods] = useState<Assignment[]>([]);
   const [availableMap, setAvailableMap] = useState<Record<string, Teacher[]>>({});
+  // key = `${absentTeacherId}_${startTime}` to avoid collisions
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [searched, setSearched] = useState(false);
 
@@ -109,27 +109,33 @@ export default function CoveragePage() {
       .finally(() => setLoadingInit(false));
   }, []);
 
+  const validAbsentIds = absentIds.filter(Boolean);
+
   const handleSearch = async () => {
-    if (!absentId) { toast.error("Select an absent teacher"); return; }
+    if (!validAbsentIds.length) { toast.error("Select at least one absent teacher"); return; }
     setSearching(true);
     try {
-      // 1. Fetch absent teacher's assignments
-      const absentAsgns: Assignment[] = await fetch(`/api/assignments?teacherId=${absentId}`).then(r => r.json());
-      const dayPeriods = absentAsgns.filter(
-        a => a.timeBlock.dayOfWeek === selectedDay && a.timeBlock.blockType === "CLASS"
-      ).sort((a, b) => a.timeBlock.startTime.localeCompare(b.timeBlock.startTime));
+      // 1. Fetch all absent teachers' assignments in parallel
+      const absentAsgnsAll = await Promise.all(
+        validAbsentIds.map(id => fetch(`/api/assignments?teacherId=${id}`).then(r => r.json()).catch(() => []))
+      );
+      const dayPeriods: Assignment[] = absentAsgnsAll
+        .flat()
+        .filter((a: Assignment) => a.timeBlock.dayOfWeek === selectedDay && a.timeBlock.blockType === "CLASS")
+        .sort((a: Assignment, b: Assignment) =>
+          a.teacher.id === b.teacher.id
+            ? a.timeBlock.startTime.localeCompare(b.timeBlock.startTime)
+            : a.teacher.name.localeCompare(b.teacher.name)
+        );
 
       if (!dayPeriods.length) {
-        toast.info(`No classes for this teacher on ${DAY_NAMES[selectedDay]}.`);
-        setAbsentPeriods([]);
-        setAvailableMap({});
-        setSelections({});
-        setSearched(true);
+        toast.info(`No classes found on ${DAY_NAMES[selectedDay]} for the selected teachers.`);
+        setAbsentPeriods([]); setAvailableMap({}); setSelections({}); setSearched(true);
         return;
       }
 
-      // 2. Fetch all other teachers' assignments in parallel
-      const others = teachers.filter(t => t.id !== absentId);
+      // 2. Fetch all other (non-absent) teachers' assignments
+      const others = teachers.filter(t => !validAbsentIds.includes(t.id));
       const allOtherAsgns = await Promise.all(
         others.map(t => fetch(`/api/assignments?teacherId=${t.id}`).then(r => r.json()).catch(() => []))
       );
@@ -138,19 +144,16 @@ export default function CoveragePage() {
       const busyMap = new Map<string, Set<string>>();
       allOtherAsgns.forEach((asgns: Assignment[], idx) => {
         const tid = others[idx].id;
-        const busy = new Set<string>(
-          asgns
-            .filter(a => a.timeBlock.dayOfWeek === selectedDay)
-            .map(a => a.timeBlock.startTime)
-        );
-        busyMap.set(tid, busy);
+        busyMap.set(tid, new Set(
+          asgns.filter(a => a.timeBlock.dayOfWeek === selectedDay).map(a => a.timeBlock.startTime)
+        ));
       });
 
-      // 4. For each period find free teachers
+      // 4. For each period find free teachers (key = absentTeacherId_startTime)
       const available: Record<string, Teacher[]> = {};
       for (const p of dayPeriods) {
-        const st = p.timeBlock.startTime;
-        available[st] = others.filter(t => !busyMap.get(t.id)?.has(st));
+        const key = `${p.teacher.id}_${p.timeBlock.startTime}`;
+        available[key] = others.filter(t => !busyMap.get(t.id)?.has(p.timeBlock.startTime));
       }
 
       setAbsentPeriods(dayPeriods);
@@ -164,38 +167,47 @@ export default function CoveragePage() {
     }
   };
 
-  const absentTeacher = teachers.find(t => t.id === absentId);
   const assignedCount = Object.values(selections).filter(Boolean).length;
   const dateStr = new Date().toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 
   const printReport = () => {
-    if (!absentTeacher) return;
-    const rows = absentPeriods.map(p => {
-      const st = p.timeBlock.startTime;
-      const sub = selections[st] ? teachers.find(t => t.id === selections[st]) : null;
-      const gradeStr = p.grade ? `Grade ${p.grade.name}${p.grade.section ?? ""}` : "—";
-      return `<tr>
-        <td class="time">${fmt(st)} — ${fmt(p.timeBlock.endTime)}</td>
-        <td class="grade">${gradeStr}</td>
-        <td>${displaySubj(p.subject.name)}</td>
-        <td class="room">${p.room?.name ?? "—"}</td>
-        <td class="${sub ? "sub" : "empty"}">${sub ? sub.name : "Not assigned"}</td>
-      </tr>`;
-    }).join("");
-
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-      <title>Coverage Report — ${absentTeacher.name}</title>
-      <style>${COVERAGE_CSS}</style></head><body>
-      <p class="school">Oxford School &nbsp;·&nbsp; Academic Year 2026</p>
-      <div class="hdr">
+    if (!validAbsentIds.length) return;
+    // Group periods by absent teacher
+    const grouped = new Map<string, Assignment[]>();
+    for (const p of absentPeriods) {
+      if (!grouped.has(p.teacher.id)) grouped.set(p.teacher.id, []);
+      grouped.get(p.teacher.id)!.push(p);
+    }
+    const sections = Array.from(grouped.entries()).map(([tid, periods]) => {
+      const tName = periods[0].teacher.name;
+      const rows = periods.map(p => {
+        const key = `${tid}_${p.timeBlock.startTime}`;
+        const sub = selections[key] ? teachers.find(t => t.id === selections[key]) : null;
+        const gradeStr = p.grade ? `Grade ${p.grade.name}${p.grade.section ?? ""}` : "—";
+        return `<tr>
+          <td class="time">${fmt(p.timeBlock.startTime)} — ${fmt(p.timeBlock.endTime)}</td>
+          <td class="grade">${gradeStr}</td>
+          <td>${displaySubj(p.subject.name)}</td>
+          <td class="room">${p.room?.name ?? "—"}</td>
+          <td class="${sub ? "sub" : "empty"}">${sub ? sub.name : "Not assigned"}</td>
+        </tr>`;
+      }).join("");
+      return `<div class="hdr">
         <div class="hdr-label">Coverage Report</div>
-        <div class="hdr-name">${absentTeacher.name}</div>
-        <div class="hdr-info">Day: <strong>${DAY_NAMES[selectedDay]}</strong> &nbsp;·&nbsp; ${absentPeriods.length} period(s) to cover &nbsp;·&nbsp; ${assignedCount} substitute(s) assigned</div>
+        <div class="hdr-name">${tName}</div>
+        <div class="hdr-info">Day: <strong>${DAY_NAMES[selectedDay]}</strong> &nbsp;·&nbsp; ${periods.length} period(s) to cover</div>
       </div>
       <table>
         <thead><tr><th>Time</th><th>Grade</th><th>Subject</th><th>Room</th><th>Substitute Teacher</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>
+      </table><br/>`;
+    }).join("");
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>Coverage Report — ${DAY_NAMES[selectedDay]}</title>
+      <style>${COVERAGE_CSS}</style></head><body>
+      <p class="school">Oxford School &nbsp;·&nbsp; Academic Year 2026</p>
+      ${sections}
       <div class="footer">
         <p class="note">Generated: ${dateStr}</p>
         <div class="sig-row">
@@ -204,50 +216,45 @@ export default function CoveragePage() {
         </div>
       </div>
     </body></html>`;
-
     const win = window.open("", "_blank");
     if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 600); }
   };
 
   const printSlips = () => {
-    if (!absentTeacher) return;
-    // Group assigned periods by substitute teacher
-    const byTeacher = new Map<string, { teacher: Teacher; periods: typeof absentPeriods }>();
+    if (!assignedCount) { toast.error("Assign at least one substitute first"); return; }
+    // Group by substitute teacher, collecting their periods across all absent teachers
+    const bySubId = new Map<string, { sub: Teacher; items: { p: Assignment; absentName: string }[] }>();
     for (const p of absentPeriods) {
-      const subId = selections[p.timeBlock.startTime];
+      const key = `${p.teacher.id}_${p.timeBlock.startTime}`;
+      const subId = selections[key];
       if (!subId) continue;
       const sub = teachers.find(t => t.id === subId);
       if (!sub) continue;
-      if (!byTeacher.has(subId)) byTeacher.set(subId, { teacher: sub, periods: [] });
-      byTeacher.get(subId)!.periods.push(p);
+      if (!bySubId.has(subId)) bySubId.set(subId, { sub, items: [] });
+      bySubId.get(subId)!.items.push({ p, absentName: p.teacher.name });
     }
-    if (!byTeacher.size) { toast.error("Assign at least one substitute first"); return; }
 
-    const slips = Array.from(byTeacher.values()).map(({ teacher: sub, periods }) => {
-      const pRows = periods
-        .sort((a, b) => a.timeBlock.startTime.localeCompare(b.timeBlock.startTime))
-        .map(p => {
+    const slips = Array.from(bySubId.values()).map(({ sub, items }) => {
+      const absentNames = [...new Set(items.map(i => i.absentName))].join(", ");
+      const pRows = items
+        .sort((a, b) => a.p.timeBlock.startTime.localeCompare(b.p.timeBlock.startTime))
+        .map(({ p, absentName }) => {
           const g = p.grade ? `${p.grade.name}${p.grade.section ?? ""}` : "—";
+          const showAbsent = validAbsentIds.length > 1 ? `<span class="slip-absent">(for ${absentName})</span>` : "";
           return `<div class="slip-row">
             <span class="slip-time">${fmt(p.timeBlock.startTime)} — ${fmt(p.timeBlock.endTime)}</span>
             <span class="slip-grade">${g}</span>
             <span class="slip-subj">${displaySubj(p.subject.name)}</span>
-            <span class="slip-room">${p.room?.name ?? ""}</span>
+            <span class="slip-room">${p.room?.name ?? ""} ${showAbsent}</span>
           </div>`;
         }).join("");
       return `<div class="slip">
         <div class="slip-hdr">
           <div class="slip-label">Coverage Notice · ${DAY_NAMES[selectedDay]}, 2026</div>
           <div class="slip-name">${sub.name}</div>
-          <div class="slip-sub">Covering for: ${absentTeacher!.name}</div>
+          <div class="slip-sub">Covering for: ${absentNames}</div>
         </div>
-        <div class="slip-body">
-          ${pRows}
-          <div class="sig-area">
-            <div class="sig-line">Coordinator</div>
-            <div class="sig-line">Signature</div>
-          </div>
-        </div>
+        <div class="slip-body">${pRows}</div>
       </div>`;
     }).join("");
 
@@ -256,7 +263,6 @@ export default function CoveragePage() {
       <style>${SLIPS_CSS}</style></head><body>
       <div class="grid">${slips}</div>
     </body></html>`;
-
     const win = window.open("", "_blank");
     if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 600); }
   };
@@ -280,19 +286,40 @@ export default function CoveragePage() {
       </div>
 
       {/* Search panel */}
-      <Card className="p-5">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex-1 min-w-52">
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 block">Absent Teacher</label>
-            <select
-              value={absentId}
-              onChange={e => { setAbsentId(e.target.value); setSearched(false); }}
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white dark:bg-slate-800 dark:text-slate-100"
-            >
-              <option value="">— Select teacher —</option>
-              {teachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
+      <Card className="p-5 space-y-4">
+        {/* Absent teachers list */}
+        <div>
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 block">Absent Teacher(s)</label>
+          <div className="space-y-2">
+            {absentIds.map((id, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <select
+                  value={id}
+                  onChange={e => { const next = [...absentIds]; next[idx] = e.target.value; setAbsentIds(next); setSearched(false); }}
+                  className="flex-1 border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white dark:bg-slate-800 dark:text-slate-100"
+                >
+                  <option value="">— Select teacher —</option>
+                  {teachers
+                    .filter(t => !absentIds.includes(t.id) || t.id === id)
+                    .map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+                {absentIds.length > 1 && (
+                  <Button size="icon" variant="ghost" className="h-9 w-9 text-red-400 hover:bg-red-50 shrink-0"
+                    onClick={() => { setAbsentIds(absentIds.filter((_, i) => i !== idx)); setSearched(false); }}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
+          <Button size="sm" variant="ghost" className="mt-2 gap-1 text-slate-500 hover:text-slate-700"
+            onClick={() => setAbsentIds([...absentIds, ""])}>
+            <Plus className="w-3.5 h-3.5" /> Add another absent teacher
+          </Button>
+        </div>
+
+        {/* Day + Search */}
+        <div className="flex flex-wrap gap-3 items-center border-t pt-4">
           <div>
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 block">Day</label>
             <select
@@ -303,22 +330,24 @@ export default function CoveragePage() {
               {[1,2,3,4,5].map(d => <option key={d} value={d}>{DAY_NAMES[d]}</option>)}
             </select>
           </div>
-          <Button
-            onClick={handleSearch}
-            disabled={searching || !absentId}
-            className="gap-2 bg-red-600 hover:bg-red-700 text-white"
-          >
-            {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            {searching ? "Searching…" : "Find Coverage"}
-          </Button>
-          {searched && absentPeriods.length > 0 && (<>
-            <Button onClick={printReport} variant="outline" className="gap-2 border-slate-400">
-              <Printer className="w-4 h-4" /> Full Report
+          <div className="flex gap-2 items-end pb-0.5">
+            <Button
+              onClick={handleSearch}
+              disabled={searching || !validAbsentIds.length}
+              className="gap-2 bg-red-600 hover:bg-red-700 text-white"
+            >
+              {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              {searching ? "Searching…" : "Find Coverage"}
             </Button>
-            <Button onClick={printSlips} variant="outline" className="gap-2 border-blue-400 text-blue-700 hover:bg-blue-50" disabled={assignedCount === 0}>
-              <StickyNote className="w-4 h-4" /> Teacher Slips
-            </Button>
-          </>)}
+            {searched && absentPeriods.length > 0 && (<>
+              <Button onClick={printReport} variant="outline" className="gap-2 border-slate-400">
+                <Printer className="w-4 h-4" /> Full Report
+              </Button>
+              <Button onClick={printSlips} variant="outline" className="gap-2 border-blue-400 text-blue-700 hover:bg-blue-50" disabled={assignedCount === 0}>
+                <StickyNote className="w-4 h-4" /> Teacher Slips
+              </Button>
+            </>)}
+          </div>
         </div>
       </Card>
 
@@ -328,7 +357,7 @@ export default function CoveragePage() {
           {absentPeriods.length === 0 ? (
             <Card className="p-10 text-center">
               <p className="text-slate-500">
-                No classes found for <strong>{absentTeacher?.name}</strong> on <strong>{DAY_NAMES[selectedDay]}</strong>.
+                No classes found for <strong>{validAbsentIds.map(id => teachers.find(t => t.id === id)?.name).filter(Boolean).join(", ")}</strong> on <strong>{DAY_NAMES[selectedDay]}</strong>.
               </p>
             </Card>
           ) : (
@@ -336,29 +365,29 @@ export default function CoveragePage() {
               {/* Summary bar */}
               <div className="flex items-center justify-between px-1">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  <span className="font-bold text-red-600">{absentTeacher?.name}</span>
-                  {" "}—{" "}{DAY_NAMES[selectedDay]}
-                  {" "}·{" "}{absentPeriods.length} period(s)
+                  <span className="font-bold text-red-600">
+                    {validAbsentIds.map(id => teachers.find(t => t.id === id)?.name).filter(Boolean).join(", ")}
+                  </span>
+                  {" "}—{" "}{DAY_NAMES[selectedDay]}{" "}·{" "}{absentPeriods.length} period(s)
                 </p>
-                <Badge
-                  className={`text-xs ${assignedCount === absentPeriods.length ? "bg-green-600 text-white" : "bg-amber-100 text-amber-800"}`}
-                >
+                <Badge className={`text-xs ${assignedCount === absentPeriods.length ? "bg-green-600 text-white" : "bg-amber-100 text-amber-800"}`}>
                   {assignedCount}/{absentPeriods.length} assigned
                 </Badge>
               </div>
 
               {/* Period cards */}
               {absentPeriods.map(period => {
+                const selKey = `${period.teacher.id}_${period.timeBlock.startTime}`;
                 const st = period.timeBlock.startTime;
-                const available = availableMap[st] ?? [];
-                const selected = selections[st] ?? "";
+                const available = availableMap[selKey] ?? [];
+                const selected = selections[selKey] ?? "";
                 const gradeStr = period.grade
                   ? `Grade ${period.grade.name}${period.grade.section ?? ""}`
                   : "—";
                 const selectedTeacher = selected ? teachers.find(t => t.id === selected) : null;
 
                 return (
-                  <Card key={st} className={`p-4 border-l-4 transition-colors ${
+                  <Card key={selKey} className={`p-4 border-l-4 transition-colors ${
                     selected
                       ? "border-l-green-500 bg-green-50/40 dark:bg-green-900/10"
                       : "border-l-red-400 bg-red-50/20 dark:bg-red-900/10"
@@ -367,9 +396,14 @@ export default function CoveragePage() {
 
                       {/* Time + class info */}
                       <div className="flex-1 min-w-52 space-y-1">
-                        <span className="text-xs font-mono font-bold text-slate-500">
-                          {fmt(st)} — {fmt(period.timeBlock.endTime)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono font-bold text-slate-500">
+                            {fmt(st)} — {fmt(period.timeBlock.endTime)}
+                          </span>
+                          {validAbsentIds.length > 1 && (
+                            <span className="text-xs text-red-500 font-semibold">{period.teacher.name}</span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <Badge className="bg-[#1e3a5f] text-white text-xs">{gradeStr}</Badge>
                           <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm">
@@ -390,7 +424,7 @@ export default function CoveragePage() {
                         </label>
                         <select
                           value={selected}
-                          onChange={e => setSelections(s => ({ ...s, [st]: e.target.value }))}
+                          onChange={e => setSelections(s => ({ ...s, [selKey]: e.target.value }))}
                           className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 bg-white dark:bg-slate-800 dark:text-slate-100 ${
                             selected
                               ? "border-green-400 focus:ring-green-400 font-semibold text-green-800 dark:text-green-400"
