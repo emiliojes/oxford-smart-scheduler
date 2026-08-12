@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, UserX, Printer, Search } from "lucide-react";
+import { Loader2, UserX, Printer, Search, StickyNote } from "lucide-react";
 import { toast } from "sonner";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -31,23 +31,52 @@ function displaySubj(n: string) {
 
 // ── Print CSS ──────────────────────────────────────────────────────
 const COVERAGE_CSS = `
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{padding:24px;background:white;}
-.hdr{background:#1e3a5f;color:white;padding:18px 24px;border-radius:8px;margin-bottom:20px;}
-.hdr-label{font-size:11px;color:#93c5fd;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
-.hdr-name{font-size:24px;font-weight:bold;margin:5px 0 3px;text-transform:uppercase;}
-.hdr-info{font-size:13px;color:#cbd5e1;}
-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
-th{background:#1e3a5f;color:white;padding:9px 10px;text-align:left;font-size:12px;font-weight:bold;letter-spacing:0.5px;}
-td{border:1px solid #d1d5db;padding:9px 10px;vertical-align:middle;}
-td.time{font-weight:bold;color:#1e3a5f;white-space:nowrap;width:160px;background:#f8fafc;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{padding:28px 32px;background:white;color:#1e293b;}
+.school{font-size:11px;font-weight:bold;color:#475569;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;border-bottom:2px solid #1e3a5f;padding-bottom:8px;}
+.hdr{background:#1e3a5f !important;color:white !important;padding:18px 24px;border-radius:6px;margin-bottom:20px;}
+.hdr-label{font-size:10px;color:#93c5fd !important;font-weight:bold;text-transform:uppercase;letter-spacing:2px;}
+.hdr-name{font-size:26px;font-weight:bold;margin:5px 0 3px;text-transform:uppercase;letter-spacing:1px;}
+.hdr-info{font-size:12px;color:#cbd5e1 !important;margin-top:2px;}
+.hdr-info strong{color:white !important;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;border:2px solid #1e3a5f;}
+th{background:#1e3a5f !important;color:white !important;padding:9px 12px;text-align:left;
+   font-size:11px;font-weight:bold;letter-spacing:.8px;text-transform:uppercase;border-right:1px solid #2d5080;}
+td{border:1px solid #cbd5e1;padding:9px 12px;vertical-align:middle;}
+tr:nth-child(even) td{background:#f1f5f9 !important;}
+td.time{font-weight:bold;color:#1e3a5f;white-space:nowrap;width:155px;border-right:2px solid #cbd5e1;}
 td.grade{font-weight:bold;color:#1e3a5f;}
-td.sub{background:#f0fdf4;font-weight:bold;color:#166534;}
+td.room{color:#475569;font-size:12px;}
+td.sub{font-weight:bold;color:#15803d !important;background:#f0fdf4 !important;}
 td.empty{color:#94a3b8;font-style:italic;}
-.note{font-size:11px;color:#64748b;margin-top:14px;}
-.sig-row{display:flex;justify-content:space-between;margin-top:48px;}
-.sig{border-top:1px solid #94a3b8;width:200px;text-align:center;padding-top:6px;font-size:12px;font-weight:bold;color:#374151;}
-@media print{body{padding:10px;}}
+.footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:36px;}
+.note{font-size:10px;color:#94a3b8;}
+.sig-row{display:flex;gap:60px;}
+.sig{border-top:1.5px solid #374151;min-width:180px;text-align:center;padding-top:6px;font-size:11px;font-weight:bold;color:#374151;}
+@media print{body{padding:12px 16px;}@page{margin:1.2cm;size:A4;}}
+`;
+
+const SLIPS_CSS = `
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{background:white;padding:14px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.slip{border:2px solid #1e3a5f;border-radius:7px;overflow:hidden;break-inside:avoid;page-break-inside:avoid;}
+.slip-hdr{background:#1e3a5f !important;color:white !important;padding:10px 14px;}
+.slip-label{font-size:9px;color:#93c5fd !important;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;}
+.slip-name{font-size:15px;font-weight:bold;text-transform:uppercase;margin:3px 0 2px;}
+.slip-sub{font-size:10px;color:#bfdbfe !important;}
+.slip-body{padding:10px 14px;}
+.slip-row{display:flex;align-items:baseline;gap:6px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:11px;}
+.slip-row:last-child{border-bottom:none;}
+.slip-time{font-weight:bold;color:#1e3a5f;white-space:nowrap;min-width:118px;font-size:10.5px;border-right:1px solid #e2e8f0;padding-right:6px;}
+.slip-grade{font-weight:bold;color:#1e3a5f;min-width:52px;}
+.slip-subj{color:#1e293b;font-weight:500;flex:1;}
+.slip-room{font-size:9.5px;color:#64748b;white-space:nowrap;}
+.sig-area{border-top:1.5px dashed #94a3b8;margin-top:10px;padding-top:8px;display:flex;justify-content:space-between;}
+.sig-line{border-top:1px solid #374151;width:108px;text-align:center;padding-top:4px;font-weight:bold;color:#374151;font-size:9px;text-transform:uppercase;letter-spacing:.5px;}
+@media print{body{padding:8px;}@page{margin:0.8cm;size:A4;}}
 `;
 
 // ── Component ──────────────────────────────────────────────────────
@@ -137,6 +166,7 @@ export default function CoveragePage() {
 
   const absentTeacher = teachers.find(t => t.id === absentId);
   const assignedCount = Object.values(selections).filter(Boolean).length;
+  const dateStr = new Date().toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 
   const printReport = () => {
     if (!absentTeacher) return;
@@ -148,28 +178,83 @@ export default function CoveragePage() {
         <td class="time">${fmt(st)} — ${fmt(p.timeBlock.endTime)}</td>
         <td class="grade">${gradeStr}</td>
         <td>${displaySubj(p.subject.name)}</td>
-        <td>${p.room?.name ?? "—"}</td>
+        <td class="room">${p.room?.name ?? "—"}</td>
         <td class="${sub ? "sub" : "empty"}">${sub ? sub.name : "Not assigned"}</td>
       </tr>`;
     }).join("");
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-      <title>Coverage Report</title>
+      <title>Coverage Report — ${absentTeacher.name}</title>
       <style>${COVERAGE_CSS}</style></head><body>
+      <p class="school">Oxford School &nbsp;·&nbsp; Academic Year 2026</p>
       <div class="hdr">
-        <div class="hdr-label">Coverage Report · 2026</div>
+        <div class="hdr-label">Coverage Report</div>
         <div class="hdr-name">${absentTeacher.name}</div>
-        <div class="hdr-info">Day: <strong>${DAY_NAMES[selectedDay]}</strong> &nbsp;·&nbsp; ${absentPeriods.length} period(s) &nbsp;·&nbsp; ${assignedCount} substitute(s) assigned</div>
+        <div class="hdr-info">Day: <strong>${DAY_NAMES[selectedDay]}</strong> &nbsp;·&nbsp; ${absentPeriods.length} period(s) to cover &nbsp;·&nbsp; ${assignedCount} substitute(s) assigned</div>
       </div>
       <table>
         <thead><tr><th>Time</th><th>Grade</th><th>Subject</th><th>Room</th><th>Substitute Teacher</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <p class="note">Generated: ${new Date().toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}</p>
-      <div class="sig-row">
-        <div class="sig">Academic Coordinator</div>
-        <div class="sig">Substitute Teacher</div>
+      <div class="footer">
+        <p class="note">Generated: ${dateStr}</p>
+        <div class="sig-row">
+          <div class="sig">Academic Coordinator</div>
+          <div class="sig">Reviewed by</div>
+        </div>
       </div>
+    </body></html>`;
+
+    const win = window.open("", "_blank");
+    if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 600); }
+  };
+
+  const printSlips = () => {
+    if (!absentTeacher) return;
+    // Group assigned periods by substitute teacher
+    const byTeacher = new Map<string, { teacher: Teacher; periods: typeof absentPeriods }>();
+    for (const p of absentPeriods) {
+      const subId = selections[p.timeBlock.startTime];
+      if (!subId) continue;
+      const sub = teachers.find(t => t.id === subId);
+      if (!sub) continue;
+      if (!byTeacher.has(subId)) byTeacher.set(subId, { teacher: sub, periods: [] });
+      byTeacher.get(subId)!.periods.push(p);
+    }
+    if (!byTeacher.size) { toast.error("Assign at least one substitute first"); return; }
+
+    const slips = Array.from(byTeacher.values()).map(({ teacher: sub, periods }) => {
+      const pRows = periods
+        .sort((a, b) => a.timeBlock.startTime.localeCompare(b.timeBlock.startTime))
+        .map(p => {
+          const g = p.grade ? `${p.grade.name}${p.grade.section ?? ""}` : "—";
+          return `<div class="slip-row">
+            <span class="slip-time">${fmt(p.timeBlock.startTime)} — ${fmt(p.timeBlock.endTime)}</span>
+            <span class="slip-grade">${g}</span>
+            <span class="slip-subj">${displaySubj(p.subject.name)}</span>
+            <span class="slip-room">${p.room?.name ?? ""}</span>
+          </div>`;
+        }).join("");
+      return `<div class="slip">
+        <div class="slip-hdr">
+          <div class="slip-label">Coverage Notice · ${DAY_NAMES[selectedDay]}, 2026</div>
+          <div class="slip-name">${sub.name}</div>
+          <div class="slip-sub">Covering for: ${absentTeacher!.name}</div>
+        </div>
+        <div class="slip-body">
+          ${pRows}
+          <div class="sig-area">
+            <div class="sig-line">Coordinator</div>
+            <div class="sig-line">Signature</div>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>Coverage Slips — ${DAY_NAMES[selectedDay]}</title>
+      <style>${SLIPS_CSS}</style></head><body>
+      <div class="grid">${slips}</div>
     </body></html>`;
 
     const win = window.open("", "_blank");
@@ -226,11 +311,14 @@ export default function CoveragePage() {
             {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
             {searching ? "Searching…" : "Find Coverage"}
           </Button>
-          {searched && absentPeriods.length > 0 && (
+          {searched && absentPeriods.length > 0 && (<>
             <Button onClick={printReport} variant="outline" className="gap-2 border-slate-400">
-              <Printer className="w-4 h-4" /> Print / PDF
+              <Printer className="w-4 h-4" /> Full Report
             </Button>
-          )}
+            <Button onClick={printSlips} variant="outline" className="gap-2 border-blue-400 text-blue-700 hover:bg-blue-50" disabled={assignedCount === 0}>
+              <StickyNote className="w-4 h-4" /> Teacher Slips
+            </Button>
+          </>)}
         </div>
       </Card>
 
@@ -327,9 +415,13 @@ export default function CoveragePage() {
               })}
 
               {/* Bottom print bar */}
-              <div className="flex justify-end pt-2">
+              <div className="flex justify-end gap-3 pt-2">
+                <Button onClick={printSlips} disabled={assignedCount === 0}
+                  variant="outline" className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50">
+                  <StickyNote className="w-4 h-4" /> Print Teacher Slips
+                </Button>
                 <Button onClick={printReport} className="gap-2 bg-slate-800 hover:bg-slate-700 text-white">
-                  <Printer className="w-4 h-4" /> Print Coverage Report
+                  <Printer className="w-4 h-4" /> Print Full Report
                 </Button>
               </div>
             </>
