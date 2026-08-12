@@ -151,20 +151,24 @@ export default function CoveragePage() {
         ));
       });
 
-      // 4. Total distinct class slots on this day (to compute free hours)
-      const totalSlots = new Set(
+      // 4. Distinct secondary CLASS start times on this day
+      const secondarySlots = Array.from(new Set(
         allOtherAsgns.flat()
           .filter((a: Assignment) => a.timeBlock.dayOfWeek === selectedDay && a.timeBlock.blockType === "CLASS")
           .map((a: Assignment) => a.timeBlock.startTime)
-      ).size || 1;
+      ));
 
-      // 5. For each period find free teachers sorted by most free hours first
+      // 5. For each period find free teachers sorted by most free secondary slots
+      // freeCount = secondary slots where teacher has NO assignment (includes primary/supervision conflicts)
       const available: Record<string, AvailableTeacher[]> = {};
       for (const p of dayPeriods) {
         const key = `${p.teacher.id}_${p.timeBlock.startTime}`;
         available[key] = others
           .filter(t => !busyMap.get(t.id)?.has(p.timeBlock.startTime))
-          .map(t => ({ teacher: t, freeCount: totalSlots - (busyMap.get(t.id)?.size ?? 0) }))
+          .map(t => ({
+            teacher: t,
+            freeCount: secondarySlots.filter(slot => !busyMap.get(t.id)?.has(slot)).length,
+          }))
           .sort((a, b) => b.freeCount - a.freeCount);
       }
 
