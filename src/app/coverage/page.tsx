@@ -164,7 +164,10 @@ export default function CoveragePage() {
       for (const p of dayPeriods) {
         const key = `${p.teacher.id}_${p.timeBlock.startTime}`;
         available[key] = others
-          .filter(t => !busyMap.get(t.id)?.has(p.timeBlock.startTime))
+          .filter(t =>
+            (busyMap.get(t.id)?.size ?? 0) > 0 &&        // works this day (has ≥1 assignment)
+            !busyMap.get(t.id)?.has(p.timeBlock.startTime) // free at this specific time
+          )
           .map(t => ({
             teacher: t,
             freeCount: secondarySlots.filter(slot => !busyMap.get(t.id)?.has(slot)).length,
