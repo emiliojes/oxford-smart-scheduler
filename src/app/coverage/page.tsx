@@ -20,6 +20,8 @@ interface Assignment {
 
 const DAY_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
+interface AvailableTeacher { teacher: Teacher; freeCount: number; }
+
 function fmt(t: string) {
   if (!t) return "";
   const [h, m] = t.split(":").map(Number);
@@ -93,7 +95,7 @@ export default function CoveragePage() {
   );
 
   const [absentPeriods, setAbsentPeriods] = useState<Assignment[]>([]);
-  const [availableMap, setAvailableMap] = useState<Record<string, Teacher[]>>({});
+  const [availableMap, setAvailableMap] = useState<Record<string, AvailableTeacher[]>>({});
   // key = `${absentTeacherId}_${startTime}` to avoid collisions
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [searched, setSearched] = useState(false);
@@ -149,11 +151,21 @@ export default function CoveragePage() {
         ));
       });
 
-      // 4. For each period find free teachers (key = absentTeacherId_startTime)
-      const available: Record<string, Teacher[]> = {};
+      // 4. Total distinct class slots on this day (to compute free hours)
+      const totalSlots = new Set(
+        allOtherAsgns.flat()
+          .filter((a: Assignment) => a.timeBlock.dayOfWeek === selectedDay && a.timeBlock.blockType === "CLASS")
+          .map((a: Assignment) => a.timeBlock.startTime)
+      ).size || 1;
+
+      // 5. For each period find free teachers sorted by most free hours first
+      const available: Record<string, AvailableTeacher[]> = {};
       for (const p of dayPeriods) {
         const key = `${p.teacher.id}_${p.timeBlock.startTime}`;
-        available[key] = others.filter(t => !busyMap.get(t.id)?.has(p.timeBlock.startTime));
+        available[key] = others
+          .filter(t => !busyMap.get(t.id)?.has(p.timeBlock.startTime))
+          .map(t => ({ teacher: t, freeCount: totalSlots - (busyMap.get(t.id)?.size ?? 0) }))
+          .sort((a, b) => b.freeCount - a.freeCount);
       }
 
       setAbsentPeriods(dayPeriods);
@@ -384,7 +396,7 @@ export default function CoveragePage() {
                 const gradeStr = period.grade
                   ? `Grade ${period.grade.name}${period.grade.section ?? ""}`
                   : "—";
-                const selectedTeacher = selected ? teachers.find(t => t.id === selected) : null;
+                const selectedTeacher = selected ? (availableMap[selKey]?.find(a => a.teacher.id === selected)?.teacher ?? teachers.find(t => t.id === selected)) : null;
 
                 return (
                   <Card key={selKey} className={`p-4 border-l-4 transition-colors ${
@@ -432,8 +444,10 @@ export default function CoveragePage() {
                           }`}
                         >
                           <option value="">— Not assigned —</option>
-                          {available.map(t => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
+                          {available.map(({ teacher: t, freeCount }) => (
+                            <option key={t.id} value={t.id}>
+                              {t.name} · {freeCount} free hr{freeCount !== 1 ? "s" : ""}
+                            </option>
                           ))}
                         </select>
                         {selectedTeacher && (
