@@ -1090,7 +1090,7 @@ export default function GradeSchedulePage() {
                                         onSuccess={refreshAssignments}
                                         trigger={
                                           <div
-                                            className={`py-1 text-xs leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 transition-colors no-print flex-1 ${
+                                            className={`py-1 text-xs leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 transition-colors flex-1 ${
                                               a.status === "CONFLICT" ? "text-red-600 font-bold" : ""
                                             }`}
                                           >

@@ -134,6 +134,7 @@
   /* Reset dark-mode backgrounds on body/containers only */
   body, html { background-color: white !important; color: black !important; }
   header, nav { display: none !important; }
+  .no-print { display: none !important; }
   [role="dialog"] { display: none !important; }
 
   /* Dark backgrounds on table header cells → keep navy */
